@@ -6,9 +6,28 @@
     <title><?= htmlspecialchars($pageTitle) ?></title>
 </head>
 <body>
+    <header>
+        <nav aria-label="Główna nawigacja">
+            <strong>MealPlanner</strong>
+            <ul>
+                <li><a href="/">Start</a></li>
+                <li><a href="/recipes">Przepisy</a></li>
+                <li><a href="/login">Logowanie</a></li>
+                <li><a href="/register">Rejestracja</a></li>
+            </ul>
+        </nav>
+    </header>
+
     <main>
-        <h1>Strona główna</h1>
-        <a href="/projects">Zobacz projekty</a>
+        <section>
+            <h1>Witaj w MealPlanner!</h1>
+            <p>Twoje centrum planowania codziennych posiłków, liczenia kalorii i organizacji listy zakupów.</p>
+            <p><a href="/recipes">Przejdź do katalogu przepisów</a></p>
+        </section>
     </main>
+
+    <footer>
+        <p>&copy; 2026 MealPlanner — Projekt WDPAI</p>
+    </footer>
 </body>
 </html>
