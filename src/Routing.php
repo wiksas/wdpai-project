@@ -1,94 +1,56 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App;
 
-use App\Controller\AppController;
+require_once __DIR__ . '/controllers/DefaultController.php';
+require_once __DIR__ . '/controllers/ProjectController.php';
 
-final class Routing
-{
-    private array $routes = [];
+class Routing {
 
-    public function get(string $path, string $controller, string $action): void
-    {
-        $this->add('GET', $path, $controller, $action);
-    }
+    public static $routes = [
+        "" => [
+            "controller" => "DefaultController",
+            "action" => "login"
+        ],
+        "login" => [
+            "controller" => "DefaultController",
+            "action" => "login"
+        ],
+        "dashboard" => [
+            "controller" => "ProjectController",
+            "action" => "dashboard"
+        ],
+        "specimen" => [
+            "controller" => "ProjectController",
+            "action" => "specimen"
+        ],
+        // Aliasy ze starych nazw, żeby żaden link nie wyrzucił błędu 404:
+        "home" => [
+            "controller" => "DefaultController",
+            "action" => "login"
+        ],
+        "projects" => [
+            "controller" => "ProjectController",
+            "action" => "dashboard"
+        ],
+        "project" => [
+            "controller" => "ProjectController",
+            "action" => "specimen"
+        ]
+    ];
 
-    public function post(string $path, string $controller, string $action): void
-    {
-        $this->add('POST', $path, $controller, $action);
-    }
+    public static function run(string $path) {
+        $path = trim($path, '/');
+        
+        if (array_key_exists($path, self::$routes)) {
+            $controller = self::$routes[$path]["controller"];
+            $action = self::$routes[$path]["action"];
 
-    private function add(
-        string $method,
-        string $path,
-        string $controller,
-        string $action,
-    ): void {
-        $this->routes[] = [
-            'method' => $method,
-            'pattern' => $this->createPattern($path),
-            'controller' => $controller,
-            'action' => $action,
-        ];
-    }
-
-    private function createPattern(string $path): string
-    {
-        $parts = explode('/', $path);
-
-        foreach ($parts as &$part) {
-            if (str_starts_with($part, '{') && str_ends_with($part, '}')) {
-                $parameterName = trim($part, '{}');
-                $part = '(?P<' . $parameterName . '>\d+)';
-                continue;
-            }
-
-            $part = preg_quote($part, '~');
+            $controllerObj = new $controller;
+            $controllerObj->$action();
+        } else {
+            $controllerObj = new DefaultController();
+            $controllerObj->notFound();
         }
-        unset($part);
-
-        return '~^' . implode('/', $parts) . '$~';
-    }
-
-    public function dispatch(string $method, string $uri): bool
-    {
-        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
-
-        foreach ($this->routes as $route) {
-            if ($route['method'] !== $method) {
-                continue;
-            }
-
-            if (!preg_match($route['pattern'], $path, $matches)) {
-                continue;
-            }
-
-            $parameters = array_filter(
-                $matches,
-                static fn (int|string $key): bool => is_string($key),
-                ARRAY_FILTER_USE_KEY,
-            );
-
-            $parameters = array_map(
-                static fn (string $value): int|string =>
-                    ctype_digit($value) ? (int) $value : $value,
-                $parameters,
-            );
-
-            $controllerClass = $route['controller'];
-            $controller = new $controllerClass();
-
-            if (!$controller instanceof AppController) {
-                throw new \RuntimeException('Invalid controller');
-            }
-
-            $controller->{$route['action']}(...$parameters);
-
-            return true;
-        }
-
-        return false;
     }
 }

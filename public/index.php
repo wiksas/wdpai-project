@@ -1,25 +1,17 @@
 <?php
 
-declare(strict_types=1);
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src/Routing.php';
 
-use App\Controller\DefaultController;
-use App\Controller\ProjectController;
 use App\Routing;
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
-$routing = new Routing();
-
-$routing->get('/projects', ProjectController::class, 'index');
-$routing->get('/projects/{id}', ProjectController::class, 'show');
-$routing->get('/', DefaultController::class, 'index');
-
-$routeFound = $routing->dispatch(
-    $_SERVER['REQUEST_METHOD'],
-    $_SERVER['REQUEST_URI'],
-);
-
-if (!$routeFound) {
-    http_response_code(404);
-    (new DefaultController())->notFound();
+$path = isset($_GET['page']) ? $_GET['page'] : '';
+if (isset($_SERVER['PATH_INFO'])) {
+    $path = trim($_SERVER['PATH_INFO'], '/');
+} else {
+    // Alternatywne pobieranie ścieżki z REQUEST_URI
+    $requestUri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+    $path = $requestUri;
 }
+
+Routing::run($path);

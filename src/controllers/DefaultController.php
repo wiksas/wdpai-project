@@ -1,22 +1,15 @@
 <?php
 
-declare(strict_types=1);
+require_once __DIR__ . '/AppController.php';
 
-namespace App\Controller;
+class DefaultController extends AppController {
 
-final class DefaultController extends AppController
-{
-    public function index(): void
-    {
-        $this->render('home', [
-            'pageTitle' => 'Moja aplikacja',
-        ]);
+    public function login() {
+        $this->render('login');
     }
 
-    public function notFound(): void
-    {
-        $this->render('not-found', [
-            'pageTitle' => 'Nie znaleziono strony',
-        ]);
+    public function notFound() {
+        http_response_code(404);
+        $this->render('not-found');
     }
 }
