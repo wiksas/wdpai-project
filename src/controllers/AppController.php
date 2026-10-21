@@ -6,7 +6,7 @@ class AppController
 {
     protected function render(?string $template = null, array $variables = []): void
     {
-        $templatePath = 'public/views/' . $template . '.html.php';
+        $templatePath = __DIR__ . '/../../public/views/' . $template . '.html.php';
         $output = 'File not found';
                 
         if (file_exists($templatePath)) {
