@@ -1,94 +1,43 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App;
 
-use App\Controller\AppController;
+use App\Controllers\DefaultController;
 
-final class Routing
+class Routing
 {
-    private array $routes = [];
+    public static array $routes = [];
 
-    public function get(string $path, string $controller, string $action): void
+    public static function get(string $url, string $controller, string $action): void
     {
-        $this->add('GET', $path, $controller, $action);
-    }
-
-    public function post(string $path, string $controller, string $action): void
-    {
-        $this->add('POST', $path, $controller, $action);
-    }
-
-    private function add(
-        string $method,
-        string $path,
-        string $controller,
-        string $action,
-    ): void {
-        $this->routes[] = [
-            'method' => $method,
-            'pattern' => $this->createPattern($path),
+        self::$routes[$url] = [
             'controller' => $controller,
-            'action' => $action,
+            'action' => $action
         ];
     }
 
-    private function createPattern(string $path): string
+    public static function run(string $path): void
     {
-        $parts = explode('/', $path);
+        foreach (self::$routes as $route => $target) {
+            // Zamiana {param} na wyrażenie regularne dopasowujące parametr w URL
+            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route);
+            $pattern = '#^' . $pattern . '$#';
 
-        foreach ($parts as &$part) {
-            if (str_starts_with($part, '{') && str_ends_with($part, '}')) {
-                $parameterName = trim($part, '{}');
-                $part = '(?P<' . $parameterName . '>\d+)';
-                continue;
+            if (preg_match($pattern, $path, $matches)) {
+                array_shift($matches); // Usunięcie pełnego dopasowania, zostają same parametry
+
+                $controllerClass = 'App\\Controllers\\' . $target['controller'];
+                $action = $target['action'];
+
+                $controllerObj = new $controllerClass();
+                $controllerObj->$action(...$matches);
+                return;
             }
-
-            $part = preg_quote($part, '~');
-        }
-        unset($part);
-
-        return '~^' . implode('/', $parts) . '$~';
-    }
-
-    public function dispatch(string $method, string $uri): bool
-    {
-        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
-
-        foreach ($this->routes as $route) {
-            if ($route['method'] !== $method) {
-                continue;
-            }
-
-            if (!preg_match($route['pattern'], $path, $matches)) {
-                continue;
-            }
-
-            $parameters = array_filter(
-                $matches,
-                static fn (int|string $key): bool => is_string($key),
-                ARRAY_FILTER_USE_KEY,
-            );
-
-            $parameters = array_map(
-                static fn (string $value): int|string =>
-                    ctype_digit($value) ? (int) $value : $value,
-                $parameters,
-            );
-
-            $controllerClass = $route['controller'];
-            $controller = new $controllerClass();
-
-            if (!$controller instanceof AppController) {
-                throw new \RuntimeException('Invalid controller');
-            }
-
-            $controller->{$route['action']}(...$parameters);
-
-            return true;
         }
 
-        return false;
+        // 6. Obsługa 404 dla nieobsługiwanego adresu
+        http_response_code(404);
+        $notFoundController = new DefaultController();
+        $notFoundController->notFound();
     }
 }

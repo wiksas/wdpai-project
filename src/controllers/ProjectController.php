@@ -1,23 +1,33 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Controllers;
 
-namespace App\Controller;
-
-final class ProjectController extends AppController
+class ProjectController extends AppController
 {
-    public function index(): void
+    // Obsługa trasy zwykłej: /projects
+    public function projects(): void
     {
+        $projectsList = [
+            ['id' => 1, 'name' => 'Aplikacja Webowa WDPAI', 'status' => 'W trakcie', 'author' => 'Jan Kowalski'],
+            ['id' => 2, 'name' => 'Redesign Sklepu UI/UX', 'status' => 'Zakończony', 'author' => 'Anna Nowak'],
+            ['id' => 3, 'name' => 'Integracja API Płatności', 'status' => 'Planowany', 'author' => 'Piotr Wiśniewski']
+        ];
+
+        // 4. Przekazanie co najmniej dwóch wartości z kontrolera do widoku
         $this->render('projects', [
-            'pageTitle' => 'Projekty',
+            'title' => 'Panel główny - Lista Projektów',
+            'totalCount' => count($projectsList),
+            'projects' => $projectsList
         ]);
     }
 
-    public function show(int $id): void
+    // Obsługa trasy z parametrem: /project/{id}
+    public function project(string $id): void
     {
         $this->render('project', [
-            'pageTitle' => 'Szczegóły projektu',
             'projectId' => $id,
+            'projectTitle' => "Szczegóły projektu #" . htmlspecialchars($id),
+            'projectOwner' => 'Zespół deweloperski Alpha'
         ]);
     }
 }

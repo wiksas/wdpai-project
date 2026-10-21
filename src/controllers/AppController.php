@@ -1,20 +1,22 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Controllers;
 
-namespace App\Controller;
-
-abstract class AppController
+class AppController
 {
-    protected function render(string $template, array $variables = []): void
+    protected function render(?string $template = null, array $variables = []): void
     {
-        $templatePath = dirname(__DIR__, 2) . '/public/views/' . $template . '.html.php';
-
-        if (!is_file($templatePath)) {
-            throw new \RuntimeException('View not found: ' . $template);
+        $templatePath = 'public/views/' . $template . '.html.php';
+        $output = 'File not found';
+                
+        if (file_exists($templatePath)) {
+            extract($variables);
+            
+            ob_start();
+            include $templatePath;
+            $output = ob_get_clean();
         }
-
-        extract($variables, EXTR_SKIP);
-        require $templatePath;
+        
+        echo $output;
     }
 }

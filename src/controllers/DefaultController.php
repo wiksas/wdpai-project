@@ -1,22 +1,32 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Controllers;
 
-namespace App\Controller;
-
-final class DefaultController extends AppController
+class DefaultController extends AppController
 {
     public function index(): void
     {
+        // Przekazanie wartości do widoku strony głównej
         $this->render('home', [
-            'pageTitle' => 'Moja aplikacja',
+            'appName' => 'ProjectFlow',
+            'welcomeMessage' => 'Zarządzaj swoimi projektami w jednym miejscu.'
         ]);
+    }
+
+    public function login(): void
+    {
+        $this->render('login', ['pageTitle' => 'Logowanie do systemu']);
+    }
+
+    public function register(): void
+    {
+        $this->render('register', ['pageTitle' => 'Utwórz nowe konto']);
     }
 
     public function notFound(): void
     {
         $this->render('not-found', [
-            'pageTitle' => 'Nie znaleziono strony',
+            'errorMessage' => 'Strona o podanym adresie nie istnieje.'
         ]);
     }
 }
