@@ -1,0 +1,199 @@
+/* 4. Box model */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 1. Zmienne CSS (Custom Properties) */
+:root {
+  --color-brand: #635bff;
+  --color-text: #182230;
+  --color-muted: #667085;
+  --color-surface: #ffffff;
+  --color-background: #f4f7fb;
+  --color-border: #e4e7ec;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --radius: 1rem;
+  --shadow-sm: 0 2px 8px rgba(24, 34, 48, 0.06);
+}
+
+[data-theme="dark"] {
+  --color-text: #f7f9fc;
+  --color-muted: #b6c0cf;
+  --color-surface: #202938;
+  --color-background: #111827;
+  --color-border: #374151;
+}
+
+/* 5. Kolor, tekst i stany */
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--color-brand);
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.2em;
+  transition: opacity 0.15s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-brand) 45%, white);
+  outline-offset: 3px;
+}
+
+/* 7. Responsywny kontener (Mobile First) */
+.page {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+h2 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+/* 6. Układanie elementów przez Flexbox (Nawigacja i Pasek akcji) */
+.site-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding-block: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.header-inner,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.nav-list {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.nav-list a[aria-current="page"] {
+  font-weight: 700;
+}
+
+/* Układ główny: Mobile First (jedna kolumna na małych ekranach) */
+.dashboard-layout {
+  display: grid;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+/* 3. Reguły i selektory klasowe (Karty i Panel boczny) */
+.summary-box,
+.project-card {
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--color-brand) 15%, transparent);
+  color: var(--color-brand);
+}
+
+/* Formularz wyszukiwania i przyciski */
+.search-form {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) * 0.5);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.btn {
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-brand);
+  color: #ffffff;
+  border: none;
+  border-radius: calc(var(--radius) * 0.5);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* 6. Siatka projektów (Grid) */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.site-footer {
+  margin-top: var(--space-4);
+  padding-block: var(--space-3);
+  text-align: center;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+}
+
+/* 7. Media Query dla większych ekranów (Tablet / Desktop >= 768px) */
+@media (min-width: 48rem) {
+  .dashboard-layout {
+    grid-template-columns: 18rem 1fr;
+    align-items: start;
+  }
+}
