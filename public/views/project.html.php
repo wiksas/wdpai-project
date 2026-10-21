@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $projectTitle ?? 'Projekt'; ?></title>
+    <title><?= $projectTitle ?? 'Szczegóły projektu'; ?></title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/projects">&larr; Powrót do listy projektów</a>
-        </nav>
+    <header class="site-header">
+        <div class="page header-inner">
+            <h1>ProjectFlow</h1>
+            <nav aria-label="Nawigacja">
+                <ul class="nav-list">
+                    <li><a href="/projects">&larr; Powrót do listy projektów</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <article>
-            <header>
-                <h1><?= $projectTitle; ?></h1>
-                <p>Identyfikator w systemie (z parametru URL): <strong><?= htmlspecialchars($projectId); ?></strong></p>
-                <p>Właściciel projektu: <strong><?= htmlspecialchars($projectOwner); ?></strong></p>
+    <main class="page" style="flex: 1;">
+        <article class="project-card">
+            <header class="actions">
+                <h2><?= $projectTitle; ?></h2>
+                <span class="badge">ID: <?= htmlspecialchars($projectId); ?></span>
             </header>
 
+            <p class="text-muted">Właściciel projektu: <strong><?= htmlspecialchars($projectOwner); ?></strong></p>
+
             <section>
-                <h2>Zadania w projekcie</h2>
-                <ul>
-                    <li>Przygotowanie architektury MVC</li>
-                    <li>Zbudowanie semantycznego szkieletu HTML</li>
-                    <li>Konfiguracja Composera i przestrzeni nazw</li>
+                <h3>Zadania w projekcie</h3>
+                <ul class="task-list">
+                    <li>Przygotowanie architektury MVC i routingu z parametrem</li>
+                    <li>Zbudowanie semantycznego szkieletu HTML5</li>
+                    <li>Wdrożenie responsywnych stylów CSS (Flexbox &amp; Grid)</li>
                 </ul>
             </section>
         </article>
     </main>
 
-    <footer>
-        <p>&copy; 2026 ProjectFlow</p>
+    <footer class="site-footer">
+        <div class="page">
+            <p>&copy; 2026 ProjectFlow - WDPAI</p>
+        </div>
     </footer>
 </body>
 </html>
