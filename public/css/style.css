@@ -1,278 +1,541 @@
-/* 4. Box model */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* 1. Zmienne CSS (Custom Properties) */
+/* ==========================================================================
+   1. ZMIENNE CSS (MINIMUM 8 ZMIENNYCH - ZESTAW 16 TOKENÓW Z FIGMY)
+   ========================================================================== */
 :root {
-  --color-brand: #635bff;
-  --color-text: #182230;
-  --color-muted: #667085;
-  --color-surface: #ffffff;
-  --color-background: #f4f7fb;
-  --color-border: #e4e7ec;
-  --space-1: 0.5rem;
-  --space-2: 1rem;
-  --space-3: 1.5rem;
-  --space-4: 2rem;
-  --radius: 1rem;
-  --shadow-sm: 0 2px 8px rgba(24, 34, 48, 0.06);
+    --color-primary: #133322;          /* Głęboka leśna zieleń z Figmy */
+    --color-primary-hover: #1d4b33;    /* Jaśniejsza zieleń dla :hover */
+    --color-primary-soft: #e7f0eb;     /* Jasnozielone tło badge'y */
+    --color-accent: #b85635;           /* Terakota / rdzawy pomarańcz (alerty i CTA) */
+    --color-accent-hover: #9e4528;     /* Ciemniejsza terakota dla :hover */
+    --color-accent-soft: #fcf1ed;      /* Jasne tło ostrzeżeń */
+    --color-bg-main: #f6f5f0;          /* Główne kremowe tło strony */
+    --color-bg-surface: #ffffff;       /* Białe tło kart i modułów */
+    --color-bg-muted: #eceae2;         /* Przygaszone tło sekcji / filtrów */
+    --color-text-main: #1b221d;        /* Główny kolor tekstu */
+    --color-text-muted: #5e665f;       /* Tekst pomocniczy */
+    --color-border: #dfddd3;           /* Obramowania kart i tabel */
+
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 2px 8px rgba(19, 51, 34, 0.05);
+    --shadow-md: 0 8px 24px rgba(19, 51, 34, 0.08);
+    --transition: 0.2s ease-in-out;
 }
 
-[data-theme="dark"] {
-  --color-text: #f7f9fc;
-  --color-muted: #b6c0cf;
-  --color-surface: #202938;
-  --color-background: #111827;
-  --color-border: #374151;
+/* ==========================================================================
+   2. RESET I TYPOGRAFIA
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* 5. Kolor, tekst i stany */
 body {
-  font-family: Inter, system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
-  color: var(--color-text);
-  background-color: var(--color-background);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-main);
+    color: var(--color-text-main);
+    line-height: 1.6;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .serif {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    line-height: 1.25;
 }
 
 a {
-  color: var(--color-brand);
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.2em;
-  transition: opacity 0.15s ease;
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transition), background-color var(--transition);
 }
 
-a:hover {
-  opacity: 0.8;
+img {
+    max-width: 100%;
+    display: block;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--color-brand) 45%, white);
-  outline-offset: 3px;
-}
-
-/* 7. Responsywny kontener (Mobile First) */
-.page {
-  width: min(100% - 2rem, 72rem);
-  margin-inline: auto;
-}
-
-h1 {
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
-}
-
-h2 {
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-}
-
-/* 6. Układanie elementów przez Flexbox (Nawigacja i Pasek akcji) */
-.site-header {
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding-block: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-
-.header-inner,
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.nav-list {
-  display: flex;
-  gap: var(--space-2);
-  list-style: none;
-}
-
-.nav-list a[aria-current="page"] {
-  font-weight: 700;
-}
-
-/* Układ główny: Mobile First (jedna kolumna na małych ekranach) */
-.dashboard-layout {
-  display: grid;
-  gap: var(--space-3);
-  flex: 1;
-}
-
-/* 3. Reguły i selektory klasowe (Karty i Panel boczny) */
-.summary-box,
-.project-card {
-  color: var(--color-text);
-  background-color: var(--color-surface);
-  border-radius: var(--radius);
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-}
-
-.project-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.text-muted {
-  color: var(--color-muted);
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.2rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background-color: color-mix(in srgb, var(--color-brand) 15%, transparent);
-  color: var(--color-brand);
-}
-
-/* Formularz wyszukiwania i przyciski */
-.search-form {
-  display: flex;
-  gap: var(--space-1);
-  flex-wrap: wrap;
-}
-
-input[type="search"],
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: calc(var(--radius) * 0.5);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
+/* ==========================================================================
+   3. STANY :HOVER I :FOCUS-VISIBLE ORAZ PRZYCISKI
+   ========================================================================== */
+:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
 }
 
 .btn {
-  padding: var(--space-1) var(--space-2);
-  background-color: var(--color-brand);
-  color: #ffffff;
-  border: none;
-  border-radius: calc(var(--radius) * 0.5);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.35rem;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
 }
 
-.btn:hover {
-  opacity: 0.9;
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
 }
 
-/* 6. Siatka projektów (Grid) */
-.projects {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-3);
+.btn-accent {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+.btn-accent:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background-color: var(--color-bg-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-main);
+}
+.btn-outline:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-bg-muted);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 99px;
+    letter-spacing: 0.03em;
+}
+.badge-green {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+.badge-orange {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+}
+
+/* ==========================================================================
+   4. NAWIGACJA GÓRNA I STOPKA
+   ========================================================================== */
+.top-navbar {
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.85rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    color: var(--color-primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.75rem;
+    list-style: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--color-accent);
+    font-weight: 600;
 }
 
 .site-footer {
-  margin-top: var(--space-4);
-  padding-block: var(--space-3);
-  text-align: center;
-  color: var(--color-muted);
-  border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 3rem 2.5rem;
+    margin-top: 4rem;
 }
 
-/* 7. Media Query dla większych ekranów (Tablet / Desktop >= 768px) */
-@media (min-width: 48rem) {
-  .dashboard-layout {
-    grid-template-columns: 18rem 1fr;
+.footer-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.footer-grid h4 {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-main);
+    margin-bottom: 0.75rem;
+}
+
+.footer-grid ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* ==========================================================================
+   5. UKŁADY STRON: LANDING PAGE (HOME) I DASHBOARD (PROJECTS / PROJECT)
+   ========================================================================== */
+.container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.section-block {
+    margin-bottom: 3.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.card {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), border-color var(--transition);
+}
+.card:hover {
+    border-color: #c5c2b4;
+}
+
+/* Hero sekcja (Ekran 2) */
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2.5rem;
+    align-items: center;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+}
+
+.hero-title {
+    font-size: 2.35rem;
+    margin: 0.75rem 0 1rem;
+}
+.hero-title em {
+    color: var(--color-accent);
+    font-style: italic;
+}
+
+.hero-metrics {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+}
+
+/* Kalkulator ryzyka i siatki 2/3/4 kolumnowe */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+
+/* Ciemnozielony blok "Pierwsza Pomoc Bonsai" (Ekran 2) */
+.emergency-banner {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+}
+.emergency-banner h2 {
+    color: #ffffff;
+}
+.emergency-card {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    padding: 1.35rem;
+}
+.emergency-card h3 {
+    color: #ffffff;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard 3-kolumnowy (Ekran 1) i 2-kolumnowy (Ekran 3 i 4) */
+.dashboard-3col {
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 1.75rem 2rem;
+    display: grid;
+    grid-template-columns: 230px 1fr 310px;
+    gap: 1.75rem;
     align-items: start;
-  }
 }
 
-/* Układ kart autoryzacji (Logowanie / Rejestracja / 404) */
+.studio-2col {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 1.75rem 2rem;
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.sidebar-nav {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.sidebar-link {
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+.sidebar-link:hover {
+    background-color: var(--color-bg-muted);
+    color: var(--color-text-main);
+}
+.sidebar-link.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+/* Kalendarz 12 miesięcy (Ekran 3) */
+.months-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+}
+.month-box {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    background-color: var(--color-bg-surface);
+    font-size: 0.78rem;
+}
+.month-box.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+/* Gantt / Harmonogram prac (Ekran 3) */
+.gantt-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.84rem;
+}
+.gantt-bar-track {
+    background-color: var(--color-bg-muted);
+    height: 12px;
+    border-radius: 99px;
+    position: relative;
+    overflow: hidden;
+}
+.gantt-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background-color: var(--color-primary);
+}
+.gantt-bar-fill.accent {
+    background-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   6. AUTORYZACJA: LOGIN & REGISTER (EKRAN 5 Z FIGMY)
+   ========================================================================== */
 .auth-wrapper {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-3) var(--space-2);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+}
+
+.auth-sidebar {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.auth-poster {
+    background-color: var(--color-bg-main);
+    color: var(--color-text-main);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.auth-step-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.auth-step-list li {
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    font-size: 0.82rem;
+}
+
+.auth-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
 }
 
 .auth-card {
-  width: min(100%, 26rem);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-sm);
+    width: 100%;
+    max-width: 520px;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 2.25rem;
+    box-shadow: var(--shadow-md);
 }
 
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-block: var(--space-3);
+.auth-tabs {
+    display: inline-flex;
+    background-color: var(--color-bg-muted);
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.25rem;
+}
+.auth-tab {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+}
+.auth-tab.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  font-size: 0.95rem;
-}
-
-.form-group input {
-  width: 100%;
-}
-
-.btn-full {
-  width: 100%;
-  padding-block: 0.75rem;
-  margin-top: var(--space-1);
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-}
-
-/* Sekcja Hero na stronie głównej (pkt 7 instrukcji) */
-.hero {
-  display: grid;
-  gap: var(--space-3);
-  padding-block: var(--space-4);
-}
-
-.hero-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-sm);
-}
-
-.task-list {
-  margin-top: var(--space-2);
-  padding-left: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-@media (min-width: 48rem) {
-  .hero {
+.form-grid {
+    display: grid;
     grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.form-group.full {
+    grid-column: 1 / -1;
+}
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+}
+.form-input, .form-select {
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-main);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+}
+.form-input:hover, .form-select:hover {
+    border-color: #b5b2a6;
+}
+
+/* ==========================================================================
+   7. RESPONSYWNOŚĆ (BREAKPOINTY DLA TABLETÓW I WIDOKU MOBILNEGO)
+   ========================================================================== */
+@media (max-width: 1100px) {
+    .dashboard-3col,
+    .studio-2col {
+        grid-template-columns: 1fr;
+    }
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .months-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .top-navbar {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .hero-grid,
+    .auth-wrapper,
+    .grid-2,
+    .grid-3,
+    .grid-4,
+    .form-grid,
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+    .months-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .gantt-row {
+        grid-template-columns: 1fr;
+    }
 }
