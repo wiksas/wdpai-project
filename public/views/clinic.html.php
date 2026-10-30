@@ -156,7 +156,7 @@
                             <h2 class="clinic-previous__title" id="clinic-previous-title">Poprzednie Skanowania Okazu</h2>
                             <span class="clinic-previous__tag">Pinus #04</span>
                         </header>
-                        <a href="/project/1" class="clinic-previous__item">
+                        <a href="/collection/1" class="clinic-previous__item">
                             <img src="/images/bonsai-thumb.jpg" alt="" width="40" height="40">
                             <span class="clinic-previous__text">
                                 <span class="clinic-previous__meta">14 dni temu • 89 pkt witalności</span>

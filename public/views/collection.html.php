@@ -176,10 +176,10 @@ $wiredTrees = array_values(array_filter($trees, static fn (array $tree): bool =>
                     <div class="dash-primary">
                         <section class="dash-filters" aria-label="Filtry kolekcji">
                             <nav class="dash-filters__tabs" aria-label="Kategorie okazów">
-                                <a href="/projects" class="dash-filter dash-filter--all is-active" aria-current="page">Wszystkie (<?= $e($treeCount) ?>)</a>
-                                <a href="/projects?category=conifer" class="dash-filter dash-filter--conifer">Iglaste</a>
-                                <a href="/projects?category=deciduous" class="dash-filter dash-filter--deciduous">Liściaste</a>
-                                <a href="/projects?status=attention" class="dash-filter dash-filter--attention"><span class="dot dot--terra" aria-hidden="true"></span>Wymagające uwagi</a>
+                                <a href="/collection" class="dash-filter dash-filter--all is-active" aria-current="page">Wszystkie (<?= $e($treeCount) ?>)</a>
+                                <a href="/collection?category=conifer" class="dash-filter dash-filter--conifer">Iglaste</a>
+                                <a href="/collection?category=deciduous" class="dash-filter dash-filter--deciduous">Liściaste</a>
+                                <a href="/collection?status=attention" class="dash-filter dash-filter--attention"><span class="dot dot--terra" aria-hidden="true"></span>Wymagające uwagi</a>
                             </nav>
                             <button type="button" class="btn btn--primary btn--sm dash-filters__add">
                                 <span class="ms" aria-hidden="true">add</span>
@@ -192,7 +192,7 @@ $wiredTrees = array_values(array_filter($trees, static fn (array $tree): bool =>
                                 <?php
                                 $status = (string) $tree['status'];
                                 $style = $statusStyles[$status] ?? $statusStyles['ideal'];
-                                $url = '/project/' . (int) $tree['id'];
+                                $url = '/collection/' . (int) $tree['id'];
                                 $alert = $tree['alert'];
                                 $care = $tree['care'];
                                 $moistureLabel = match ($status) {

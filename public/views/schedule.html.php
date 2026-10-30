@@ -114,7 +114,7 @@ $e = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, '
                                             <span class="schedule-task__time">Przed 11:30</span>
                                         </div>
                                         <h3 class="schedule-task__title">
-                                            <a href="/project/2">Podlanie zanurzeniowe Klonu Momiji</a>
+                                            <a href="/collection/2">Podlanie zanurzeniowe Klonu Momiji</a>
                                         </h3>
                                         <p class="schedule-task__text">Podłoże akadama wymaga głębokiego nasycenia przed ostrym południowym słońcem.</p>
                                         <div class="schedule-task__meta">
@@ -134,7 +134,7 @@ $e = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, '
                                             <span class="schedule-task__time">Popołudnie</span>
                                         </div>
                                         <h3 class="schedule-task__title">
-                                            <a href="/project/3">Kontrola wcinania drutu u Jałowca Shimpaku</a>
+                                            <a href="/collection/3">Kontrola wcinania drutu u Jałowca Shimpaku</a>
                                         </h3>
                                         <p class="schedule-task__text">Gałąź boczna poddana silnym naprężeniom w lutym; sprawdzić przyrost kalusa.</p>
                                         <div class="schedule-task__meta">

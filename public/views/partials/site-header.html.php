@@ -8,14 +8,14 @@
             </span>
         </a>
 
-        <form class="search site-header__search" action="/projects" method="GET" role="search">
+        <form class="search site-header__search" action="/collection" method="GET" role="search">
             <span class="ms" aria-hidden="true">search</span>
             <label class="visually-hidden" for="site-search">Szukaj okazu</label>
             <input class="search__input" type="search" id="site-search" name="q" placeholder="Szukaj okazu lub stylu (np. Pinus thunbergii)">
         </form>
 
         <nav class="site-nav" aria-label="Główna nawigacja">
-            <a href="/projects" class="site-nav__link">Moja Kolekcja</a>
+            <a href="/collection" class="site-nav__link">Moja Kolekcja</a>
             <a href="/clinic" class="site-nav__link">Klinika AI</a>
             <a href="/studio" class="site-nav__link">Studio Formowania</a>
             <a href="/#mistrzowie" class="site-nav__link">Mistrzowie Bonsai</a>

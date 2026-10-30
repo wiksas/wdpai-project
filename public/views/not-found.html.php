@@ -20,7 +20,7 @@
                     <span class="ms" aria-hidden="true">home</span>
                     Strona główna
                 </a>
-                <a href="/projects" class="btn btn--secondary btn--lg">Moja Kolekcja</a>
+                <a href="/collection" class="btn btn--secondary btn--lg">Moja Kolekcja</a>
             </div>
         </section>
     </main>

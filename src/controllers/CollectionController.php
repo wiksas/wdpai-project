@@ -4,16 +4,16 @@ namespace App\Controllers;
 
 use App\Repository\TreeRepository;
 
-class ProjectController extends AppController
+class CollectionController extends AppController
 {
-    // Obsługa trasy zwykłej: /projects — panel „Moja Kolekcja”
-    public function projects(): void
+    // Obsługa trasy zwykłej: GET /collection — panel „Moja Kolekcja”
+    public function index(): void
     {
         $this->requireLogin();
 
         $trees = (new TreeRepository())->findAll();
 
-        $this->render('projects', [
+        $this->render('collection', [
             'pageTitle' => 'Moja Kolekcja — KOMOREBI',
             'activeNav' => 'collection',
             'trees' => $trees,
@@ -21,8 +21,8 @@ class ProjectController extends AppController
         ]);
     }
 
-    // Obsługa trasy z parametrem: /project/{id} — karta okazu
-    public function project(string $id): void
+    // Obsługa trasy z parametrem: GET /collection/{id} — karta okazu
+    public function show(string $id): void
     {
         $this->requireLogin();
 
@@ -37,7 +37,7 @@ class ProjectController extends AppController
             return;
         }
 
-        $this->render('project', [
+        $this->render('specimen', [
             'pageTitle' => $tree['name'] . ' — Karta okazu — KOMOREBI',
             'activeNav' => 'collection',
             'tree' => $tree,

@@ -10,7 +10,7 @@ Aktualnie aplikacja obsluguje:
 
 - strone glowna pod `/` (publiczna),
 - logowanie, rejestracje i wylogowanie pod `/login`, `/register` i `/logout` (konto demonstracyjne `admin` / `admin`),
-- po zalogowaniu: panel kolekcji pod `/projects`, karte okazu pod `/project/{id}` (dane z `App\Repository\TreeRepository`), studio formowania pod `/studio`, klinike AI pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
+- po zalogowaniu: panel kolekcji pod `/collection`, karte okazu pod `/collection/{id}` (dane z `App\Repository\TreeRepository`), studio formowania pod `/studio`, klinike AI pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
 - odpowiedz 404 dla nieznanych tras i nieistniejacych okazow.
 
 ## Stack technologiczny
@@ -78,7 +78,7 @@ Routing::post('example', 'ExampleController', 'store');
 
 `src/Routing.php` laczy metode HTTP i sciezke URL z publiczna metoda kontrolera (`App\Controllers\<Nazwa>`). Parametry zapisane jako `{name}` sa dopasowywane do znakow `a-zA-Z0-9_-` i przekazywane do akcji kontrolera jako `string` — akcja musi sama zwalidowac typ (np. `ctype_digit`).
 
-Przyklad: `project/{id}` wywoluje `ProjectController::project(string $id)`.
+Przyklad: `collection/{id}` wywoluje `CollectionController::show(string $id)`.
 
 Router obsluguje metody GET (`Routing::get()`) i POST (`Routing::post()`); trasa jest dopasowywana tylko dla swojej metody, a brak dopasowania daje 404. Nie dodawaj logiki biznesowej do routera.
 
@@ -122,7 +122,7 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 
 - Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\AuthService`; kontrolery i widoki z niego korzystaja.
 - `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `email`, `role`, `initials`, `label` — bez hasha hasla).
-- Strony aplikacji (`/projects`, `/project/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
+- Strony aplikacji (`/collection`, `/collection/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
 - Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia zyje w kontrolerze, hasla zapisujemy tylko przez `password_hash()`.
 - Konta obsluguje `App\Repository\UserRepository`: konto demonstracyjne `admin` / `admin` jest w kodzie, a konta z rejestracji laduja w `storage/users.json` (poza `public/`, w `.gitignore`). To rozwiazanie tymczasowe — po dodaniu bazy danych podmien implementacje repozytorium na PDO bez zmiany kontrolerow. Konto demonstracyjne usun przed wdrozeniem produkcyjnym.
 - Menu konta (`partials/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.

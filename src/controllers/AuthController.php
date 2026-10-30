@@ -41,7 +41,7 @@ class AuthController extends AppController
             return;
         }
 
-        $this->redirect('/projects');
+        $this->redirect('/collection');
     }
 
     // Obsługa trasy: GET /register
@@ -108,7 +108,7 @@ class AuthController extends AppController
         $user = $users->create($name, $email, password_hash($password, PASSWORD_DEFAULT), $level, $species);
         $this->auth()->signIn($user['id']);
 
-        $this->redirect('/projects');
+        $this->redirect('/collection');
     }
 
     // Obsługa trasy: POST /logout
@@ -121,7 +121,7 @@ class AuthController extends AppController
     private function redirectIfLoggedIn(): void
     {
         if ($this->auth()->currentUser() !== null) {
-            $this->redirect('/projects');
+            $this->redirect('/collection');
         }
     }
 

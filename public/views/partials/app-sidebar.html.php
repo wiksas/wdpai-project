@@ -1,7 +1,7 @@
 <?php
 $activeNav = $activeNav ?? '';
 $sidebarLinks = [
-    'collection' => ['href' => '/projects', 'icon' => 'potted_plant', 'label' => 'Moja Kolekcja'],
+    'collection' => ['href' => '/collection', 'icon' => 'potted_plant', 'label' => 'Moja Kolekcja'],
     'clinic' => ['href' => '/clinic', 'icon' => 'vital_signs', 'label' => 'Klinika AI'],
     'studio' => ['href' => '/studio', 'icon' => 'menu_book', 'label' => 'Studio Formowania'],
     'schedule' => ['href' => '/schedule', 'icon' => 'calendar_month', 'label' => 'Harmonogram'],

@@ -23,7 +23,7 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
             <p class="user-menu__name"><?= $escape($currentUser['name']) ?></p>
             <p class="user-menu__email"><?= $escape($currentUser['email']) ?></p>
         </div>
-        <a href="/projects" class="user-menu__item">
+        <a href="/collection" class="user-menu__item">
             <span class="ms" aria-hidden="true">potted_plant</span>
             Moja Kolekcja
         </a>

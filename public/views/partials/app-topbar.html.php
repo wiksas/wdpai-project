@@ -1,5 +1,5 @@
 <?php
-// Opcjonalnie: $topbarBack = ['href' => '/projects', 'title' => 'Karta Okazu Bonsai'] — na mobile zastępuje logo przyciskiem powrotu.
+// Opcjonalnie: $topbarBack = ['href' => '/collection', 'title' => 'Karta Okazu Bonsai'] — na mobile zastępuje logo przyciskiem powrotu.
 $topbarBack = $topbarBack ?? null;
 ?>
 <header class="app-topbar<?= $topbarBack !== null ? ' app-topbar--back' : '' ?>">
@@ -18,7 +18,7 @@ $topbarBack = $topbarBack ?? null;
         </span>
     </a>
 
-    <form class="search app-topbar__search" action="/projects" method="GET" role="search">
+    <form class="search app-topbar__search" action="/collection" method="GET" role="search">
         <span class="ms" aria-hidden="true">search</span>
         <label class="visually-hidden" for="app-search">Szukaj okazu</label>
         <input class="search__input" type="search" id="app-search" name="q" placeholder="Wyszukaj okaz w szklarni (drzewko, styl, donica)...">

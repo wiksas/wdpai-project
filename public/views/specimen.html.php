@@ -27,11 +27,11 @@ $nextStepParts = explode(':', (string) $tree['recommendation']['nextStep'], 2);
     <div class="app">
         <?php include __DIR__ . '/partials/app-sidebar.html.php'; ?>
         <div class="app-main">
-            <?php $topbarBack = ['href' => '/projects', 'title' => 'Karta Okazu Bonsai']; ?>
+            <?php $topbarBack = ['href' => '/collection', 'title' => 'Karta Okazu Bonsai']; ?>
             <?php include __DIR__ . '/partials/app-topbar.html.php'; ?>
             <main class="app-content passport">
                 <nav class="passport-toolbar" aria-label="Nawigacja karty okazu">
-                    <a href="/projects" class="passport-toolbar__back">
+                    <a href="/collection" class="passport-toolbar__back">
                         <span class="ms" aria-hidden="true">arrow_back</span>
                         Wróć do ogrodu
                     </a>

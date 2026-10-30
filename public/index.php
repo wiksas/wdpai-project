@@ -27,9 +27,9 @@ Routing::get('register', 'AuthController', 'register');
 Routing::post('register', 'AuthController', 'store');
 Routing::post('logout', 'AuthController', 'logout');
 
-// 3. Trasa ze zwykłym adresem i trasa z parametrem {id}
-Routing::get('projects', 'ProjectController', 'projects');
-Routing::get('project/{id}', 'ProjectController', 'project');
+// 3. Kolekcja: lista okazów i karta pojedynczego okazu ({id})
+Routing::get('collection', 'CollectionController', 'index');
+Routing::get('collection/{id}', 'CollectionController', 'show');
 
 // 4. Moduły pielęgnacji: studio formowania, klinika AI i harmonogram
 Routing::get('studio', 'StudioController', 'index');

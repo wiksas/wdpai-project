@@ -1,7 +1,7 @@
 <?php
 $activeNav = $activeNav ?? '';
 $bottomLinks = [
-    'collection' => ['href' => '/projects', 'icon' => 'eco', 'label' => 'Kolekcja'],
+    'collection' => ['href' => '/collection', 'icon' => 'eco', 'label' => 'Kolekcja'],
     'clinic' => ['href' => '/clinic', 'icon' => 'document_scanner', 'label' => 'Diagnoza'],
     'studio' => ['href' => '/studio', 'icon' => 'content_cut', 'label' => 'Studio'],
     'knowledge' => ['href' => '/', 'icon' => 'menu_book', 'label' => 'Wiedza'],
