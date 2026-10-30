@@ -1,266 +1,351 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOMOREBI — Sztuka cierpliwości i precyzyjna botanika</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
+    <?php include __DIR__ . '/partials/head.html.php'; ?>
+    <link rel="stylesheet" href="<?= $asset('/css/pages/home.css') ?>">
 </head>
 <body>
+    <?php include __DIR__ . '/partials/site-header.html.php'; ?>
 
-    <header class="top-navbar">
-        <a href="/" class="brand-logo">🌿 KOMOREBI</a>
-        <nav aria-label="Główna nawigacja">
-            <ul class="nav-links">
-                <li><a href="/" class="active">Przewodnik</a></li>
-                <li><a href="/projects">Kolekcja drzewek</a></li>
-                <li><a href="/project">Studio formowania i diagnostyka</a></li>
-                <li><a href="/login">Logowanie</a></li>
-            </ul>
-        </nav>
-        <a href="/register" class="btn btn-primary">Dołącz do rejestru</a>
-    </header>
-
-    <main class="container">
-        <!-- 1. HERO SEKCJA -->
-        <section class="hero-grid section-block">
-            <div>
-                <span class="badge badge-green">KOMOREBI • CYFROWY DZIENNIK OPIEKUNA BONSAI</span>
-                <h1 class="hero-title">
-                    Ocal swoje bonsai przed usychaniem. <em>Sztuka cierpliwości</em> wsparta precyzyjną botaniką.
-                </h1>
-                <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
-                    Większość drzewek obumiera w pierwszych 6 miesiącach z powodu błędnego nawadniania i braku spoczynku zimowego. Zbuduj harmonogram dopasowany do gatunku i mikroklimatu Twojego mieszkania.
-                </p>
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <a href="/projects" class="btn btn-primary">Otwórz panel kolekcji</a>
-                    <a href="/project" class="btn btn-outline">Uruchom diagnostykę</a>
+    <main class="home container">
+        <section class="home-hero" aria-labelledby="home-hero-title">
+            <div class="home-hero__content">
+                <p class="home-hero__eyebrow"><span class="dot dot--terra" aria-hidden="true"></span>Protokół ochrony korzeni • Wabi-Sabi &amp; Nauka</p>
+                <h1 class="home-hero__title" id="home-hero-title">Ocal swoje bonsai przed usychaniem. <em>Sztuka cierpliwości</em> wsparta precyzyjną botaniką.</h1>
+                <p class="home-hero__lead">Aż 78% domowych drzewek ginie przez niewidoczne zwiędnięcie naczyń korzeniowych i błędy podłoża. Łączymy japońską tradycję formowania z algorytmiczną diagnostyką turgoru tkanek.</p>
+                <div class="home-hero__actions">
+                    <a href="/clinic" class="btn btn--primary btn--lg"><span class="ms" aria-hidden="true">stethoscope</span>Zdiagnozuj drzewko teraz</a>
+                    <a href="#pierwsza-pomoc" class="btn btn--secondary btn--lg"><span class="ms home-hero__sos" aria-hidden="true">emergency</span>Pogotowie ratunkowe</a>
                 </div>
-
-                <div class="hero-metrics">
-                    <div>
-                        <strong class="serif" style="font-size: 1.4rem;">98.4%</strong>
-                        <p style="font-size: 0.78rem; color: var(--color-text-muted);">Przeżywalność kolekcji</p>
+                <dl class="home-hero__stats">
+                    <div class="home-hero__stat">
+                        <dt class="home-hero__stat-label">Skuteczność reanimacji korzeni</dt>
+                        <dd class="home-hero__stat-value">94.2%</dd>
                     </div>
-                    <div>
-                        <strong class="serif" style="font-size: 1.4rem;">42 gatunki</strong>
-                        <p style="font-size: 0.78rem; color: var(--color-text-muted);">W bazie protokołów</p>
+                    <div class="home-hero__stat">
+                        <dt class="home-hero__stat-label">Przeanalizowanych okazów</dt>
+                        <dd class="home-hero__stat-value">12k+</dd>
                     </div>
-                    <div>
-                        <strong class="serif" style="font-size: 1.4rem;">24/7</strong>
-                        <p style="font-size: 0.78rem; color: var(--color-text-muted);">Monitoring wilgotności</p>
+                    <div class="home-hero__stat">
+                        <dt class="home-hero__stat-label">Kluczowe okno reakcji na suszę</dt>
+                        <dd class="home-hero__stat-value">48h</dd>
                     </div>
-                </div>
+                </dl>
             </div>
 
-            <div class="card" style="background-color: var(--color-primary); color: #fff; text-align: center; padding: 2rem;">
-                <span class="badge badge-orange" style="margin-bottom: 1rem;">OKAZ MIESIĄCA KOMOREBI</span>
-                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;">Sosna Drobnokwiatowa</h2>
-                <p style="font-size: 0.85rem; opacity: 0.85; margin-bottom: 1.5rem;">
-                    Pinus parviflora • Styl Moyogi • Wiek: 28 lat
-                </p>
-                <div style="background: rgba(255,255,255,0.1); padding: 1.25rem; border-radius: var(--radius-sm); text-align: left; font-size: 0.82rem;">
-                    <div>🌱 Podłoże: Akadama + Kiryuzuna (60/40)</div>
-                    <div style="margin-top: 0.4rem;">💧 Wilgotność bryły: <strong>62% (Optymalna)</strong></div>
-                    <div style="margin-top: 0.4rem;">✂️ Następny zabieg: Uszczykiwanie świeczek (Maj)</div>
+            <article class="home-specimen" aria-label="Okaz miesiąca">
+                <figure class="home-specimen__media">
+                    <img src="/images/garden-pine-stand.jpg" alt="Sosna czarna bonsai na drewnianym stojaku w japońskim ogrodzie" width="512" height="279">
+                    <figcaption class="home-specimen__caption">
+                        <span class="home-specimen__eyebrow">Okaz miesiąca</span>
+                        <span class="home-specimen__name">Pinus thunbergii (Sosna Czarna)</span>
+                        <span class="home-specimen__meta">Wiek: 47 lat • Styl: Moyogi • Wilgotność bryły: 68%</span>
+                    </figcaption>
+                </figure>
+                <div class="home-specimen__sensor">
+                    <span class="ms home-specimen__sensor-icon" aria-hidden="true">verified</span>
+                    <div class="home-specimen__sensor-text">
+                        <strong>Sensor mikroklimatu Akadama</strong>
+                        <span>Przewodność wodna w normie</span>
+                    </div>
+                    <span class="home-specimen__status">Optymalny</span>
                 </div>
-            </div>
+            </article>
         </section>
 
-        <!-- 2. SZYBKA OCENA RYZYKA UTRATY WIGORU -->
-        <section class="card section-block">
-            <div class="section-header">
+        <section class="home-section home-risk" id="ocena-ryzyka" aria-labelledby="home-risk-title">
+            <header class="home-section__head home-section__head--split">
                 <div>
-                    <span class="badge badge-orange">KALKULATOR DIAGNOSTYCZNY KOMOREBI</span>
-                    <h2 style="font-size: 1.6rem; margin-top: 0.35rem;">Szybka ocena ryzyka utraty wigoru</h2>
+                    <p class="eyebrow">Interaktywny asystent botaniczny</p>
+                    <h2 class="home-section__title" id="home-risk-title">Szybka ocena ryzyka utraty turgoru</h2>
                 </div>
-                <small style="color: var(--color-text-muted);">Zaktualizowano dla sezonu wiosna/lato</small>
-            </div>
+                <p class="home-section__aside">Przeliczenie parametrów parowania bryły korzeniowej w oparciu o granulację podłoża i cykl hydrotermiczny.</p>
+            </header>
 
-            <div class="grid-2">
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label" for="calc-species">1. Wybierz gatunek drzewka</label>
-                        <select id="calc-species" class="form-select">
-                            <option>Klon Palmowy (Acer palmatum)</option>
-                            <option>Wiąz Drobnolistny (Ulmus parvifolia)</option>
-                            <option>Fikus Retusa (Ficus microcarpa)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="calc-place">2. Ekspozycja świetlna</label>
-                        <select id="calc-place" class="form-select">
-                            <option>Wewnątrz — powyżej 2m od okna (Wysokie ryzyko)</option>
-                            <option>Parapet południowy / wschodni</option>
-                            <option>Taras zewnętrzny (półcień)</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="home-risk__panel">
+                <form class="home-risk__form" action="/clinic" method="GET">
+                    <fieldset class="home-risk__group">
+                        <legend class="home-risk__label">1. Wybierz gatunek drzewka</legend>
+                        <div class="home-risk__choices">
+                            <label class="home-choice">
+                                <input type="radio" name="species" value="pinus-thunbergii" checked>
+                                <span class="home-choice__body">
+                                    <span class="ms" aria-hidden="true">park</span>
+                                    <span class="home-choice__title">Sosna Czarna</span>
+                                    <span class="home-choice__hint home-choice__hint--latin">Pinus thunbergii</span>
+                                </span>
+                            </label>
+                            <label class="home-choice">
+                                <input type="radio" name="species" value="ulmus-parvifolia">
+                                <span class="home-choice__body">
+                                    <span class="ms" aria-hidden="true">nature</span>
+                                    <span class="home-choice__title">Wiąz Drobnolistny</span>
+                                    <span class="home-choice__hint home-choice__hint--latin">Ulmus parvifolia</span>
+                                </span>
+                            </label>
+                            <label class="home-choice">
+                                <input type="radio" name="species" value="ficus-retusa">
+                                <span class="home-choice__body">
+                                    <span class="ms" aria-hidden="true">potted_plant</span>
+                                    <span class="home-choice__title">Fikus Retusa</span>
+                                    <span class="home-choice__hint home-choice__hint--latin">Ficus retusa / ginseng</span>
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
 
-                <div style="background-color: var(--color-accent-soft); border: 1px solid var(--color-accent); border-radius: var(--radius-md); padding: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="badge badge-orange">WYNIK: PODWYŻSZONE RYZYKO (74%)</span>
-                        <strong style="color: var(--color-accent);">Interwencja w 48h</strong>
+                    <fieldset class="home-risk__group">
+                        <legend class="home-risk__label">2. Rodzaj zastosowanego podłoża</legend>
+                        <div class="home-risk__choices">
+                            <label class="home-choice home-choice--substrate">
+                                <input type="radio" name="substrate" value="akadama" checked>
+                                <span class="home-choice__body">
+                                    <span class="home-choice__title">100% Akadama</span>
+                                    <span class="home-choice__hint">Wysoka retencja porowata</span>
+                                </span>
+                            </label>
+                            <label class="home-choice home-choice--substrate">
+                                <input type="radio" name="substrate" value="akadama-kiryu">
+                                <span class="home-choice__body">
+                                    <span class="home-choice__title">Akadama + Kiryu (7:3)</span>
+                                    <span class="home-choice__hint">Zrównoważony drenaż</span>
+                                </span>
+                            </label>
+                            <label class="home-choice home-choice--substrate">
+                                <input type="radio" name="substrate" value="universal">
+                                <span class="home-choice__body">
+                                    <span class="home-choice__title">Ziemia uniwersalna</span>
+                                    <span class="home-choice__hint">Wysokie ryzyko zagęszczenia</span>
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="home-risk__selects">
+                        <div class="home-risk__field">
+                            <label class="home-risk__label" for="home-watering">3. Częstotliwość nawadniania</label>
+                            <select class="home-risk__select" id="home-watering" name="watering">
+                                <option selected>Raz w tygodniu (wg harmonogramu)</option>
+                                <option>Po przeschnięciu wierzchniej warstwy</option>
+                                <option>Codziennie</option>
+                            </select>
+                        </div>
+                        <div class="home-risk__field">
+                            <label class="home-risk__label" for="home-light">4. Ekspozycja na światło</label>
+                            <select class="home-risk__select" id="home-light" name="light">
+                                <option selected>Jasne stanowisko za szybą południową</option>
+                                <option>Parapet wschodni</option>
+                                <option>Taras zewnętrzny (półcień)</option>
+                            </select>
+                        </div>
                     </div>
-                    <p style="font-size: 0.88rem; margin: 0.85rem 0 1.25rem;">
-                        Klon palmowy trzymany w ogrzewanym pomieszczeniu szybko traci turgor liści. Przenieś okaz w chłodniejsze miejsce zewnętrzne i zastosuj zraszanie korony.
-                    </p>
-                    <a href="/project" class="btn btn-accent" style="width: 100%;">Pobierz pełny plan ratunkowy</a>
-                </div>
+                </form>
+
+                <aside class="home-result" aria-label="Wynik oceny ryzyka">
+                    <div class="home-result__head">
+                        <span class="home-result__kicker">Diagnostyka czasu rzeczywistego</span>
+                        <span class="home-result__badge">Umiarkowane ryzyko</span>
+                    </div>
+                    <div class="home-result__score">
+                        <h3 class="home-result__title">Wskaźnik Zagrożenia Korzeni</h3>
+                        <span class="home-result__value">50%</span>
+                    </div>
+                    <div class="progress home-result__progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Wskaźnik zagrożenia korzeni">
+                        <span class="progress__bar progress__bar--bright" style="--value: 50%"></span>
+                    </div>
+                    <p class="home-result__text">Główne czynniki stresu: podlewanie wg sztywnego kalendarza raz w tygodniu grozi przesuszeniem.</p>
+                    <div class="home-result__alert">
+                        <span class="ms" aria-hidden="true">warning</span>
+                        <div>
+                            <strong>Zalecana natychmiastowa akcja:</strong>
+                            <p>Sprawdzaj wilgotność drewnianym patyczkiem bambusowym. Podlewaj obficie tylko wtedy, gdy górny centymetr podłoża wyschnie.</p>
+                        </div>
+                    </div>
+                    <a href="/clinic" class="btn btn--tertiary btn--block home-result__cta">Otwórz Protokół Ratunkowy (PDF &amp; Krok po kroku)</a>
+                </aside>
             </div>
         </section>
 
-        <!-- 3. DLACZEGO DRZEWKA BONSAI UMIERAJĄ? -->
-        <section class="section-block">
-            <div class="section-header">
+        <section class="home-section home-causes" aria-labelledby="home-causes-title">
+            <header class="home-section__head">
+                <p class="eyebrow">Hortikultura bez mitów</p>
+                <h2 class="home-section__title" id="home-causes-title">Dlaczego drzewka bonsai umierają?</h2>
+                <p class="home-section__lead">Bonsai nie umiera ze starości w kilka dni. Śmierć rośliny to niemal zawsze efekt jednego z czterech krytycznych zaburzeń fizjologii naczyń.</p>
+            </header>
+
+            <div class="home-causes__grid">
+                <article class="home-cause">
+                    <span class="home-cause__icon home-cause__icon--peach"><span class="ms" aria-hidden="true">local_drink</span></span>
+                    <p class="home-cause__tag home-cause__tag--terra">Błąd #1 • Asfiksja korzeni</p>
+                    <h3 class="home-cause__title">Przelanie i gnicie mikroskopowe</h3>
+                    <p class="home-cause__text">Korzenie w płaskiej donicy potrzebują tlenu równie mocno jak wilgoci. Ciągła woda w podstawce dusi włośniki, wywołując gnicie beztlenowe i czernienie pędów.</p>
+                    <p class="home-cause__symptom"><span>Objaw:</span> <strong class="home-cause__symptom-value--terra">Wiotkie, brunatne liście</strong></p>
+                </article>
+                <article class="home-cause">
+                    <span class="home-cause__icon home-cause__icon--terra"><span class="ms" aria-hidden="true">light_mode</span></span>
+                    <p class="home-cause__tag home-cause__tag--terra">Błąd #2 • Zeszklenie torfu</p>
+                    <h3 class="home-cause__title">Skrajne przesuszenie rdzenia</h3>
+                    <p class="home-cause__text">Gdy podłoże organiczne wyschnie na kamień, staje się hydrofobowe. Woda z konewki opływa brzegi doniczki, podczas gdy serce bryły korzeniowej pozostaje suche jak popiół.</p>
+                    <p class="home-cause__symptom"><span>Objaw:</span> <strong class="home-cause__symptom-value--terra">Kruche, zielone igły</strong></p>
+                </article>
+                <article class="home-cause">
+                    <span class="home-cause__icon home-cause__icon--neutral"><span class="ms" aria-hidden="true">content_cut</span></span>
+                    <p class="home-cause__tag">Błąd #3 • Utrata soków</p>
+                    <h3 class="home-cause__title">Cięcie poza oknem fenologicznym</h3>
+                    <p class="home-cause__text">Radykalna redukcja gałęzi wczesną wiosną u gatunków silnie płaczących (np. klon palmowy) prowadzi do wykrwawienia soków witalnych i infekcji grzybiczych ran.</p>
+                    <p class="home-cause__symptom"><span>Objaw:</span> <strong>Zamieranie wierzchołków</strong></p>
+                </article>
+                <article class="home-cause">
+                    <span class="home-cause__icon home-cause__icon--green"><span class="ms" aria-hidden="true">cable</span></span>
+                    <p class="home-cause__tag home-cause__tag--green">Błąd #4 • Martwica miazgi</p>
+                    <h3 class="home-cause__title">Zbyt ciasne drutowanie gałęzi</h3>
+                    <p class="home-cause__text">Aluminiowy lub miedziany drut pozostawiony w okresie intensywnego przyrostu wtórnego wrasta w kambium, trwale przecinając wiązki przewodzące floemu.</p>
+                    <p class="home-cause__symptom"><span>Objaw:</span> <strong class="home-cause__symptom-value--terra">Głębokie blizny i nekroza</strong></p>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-section home-rescue" id="pierwsza-pomoc" aria-labelledby="home-rescue-title">
+            <span class="badge badge--solid-terra home-rescue__badge"><span class="ms" aria-hidden="true">healing</span>Szpital drzewek bonsai</span>
+            <h2 class="home-rescue__title" id="home-rescue-title">Pierwsza Pomoc Bonsai: Protokół Resuscytacji</h2>
+            <p class="home-rescue__lead">Zauważyłeś opadanie pąków lub zwiotczenie liści? Wykonaj te 3 kroki w ciągu pierwszych 24 godzin, zanim dojdzie do nieodwracalnej embolii naczyń.</p>
+
+            <ol class="home-rescue__steps">
+                <li class="home-step">
+                    <div class="home-step__head">
+                        <span class="home-step__number">01</span>
+                        <span class="ms" aria-hidden="true">waves</span>
+                    </div>
+                    <h3 class="home-step__title">Kąpiel podsiąkowa bryły</h3>
+                    <p class="home-step__text">Zanurz doniczkę w letniej (ok. 20°C), miękkiej wodzie aż po krawędź rantu na 20-30 minut. Czekaj, aż z podłoża całkowicie przestaną wydobywać się pęcherzyki powietrza.</p>
+                    <p class="home-step__note"><strong>Wskazówka mistrza:</strong> Nigdy nie dodawaj nawozu do rośliny w stresie wodnym!</p>
+                </li>
+                <li class="home-step">
+                    <div class="home-step__head">
+                        <span class="home-step__number">02</span>
+                        <span class="ms" aria-hidden="true">shield</span>
+                    </div>
+                    <h3 class="home-step__title">Namiot mikroklimatyczny</h3>
+                    <p class="home-step__text">Dla drzewek liściastych nałóż przezroczysty worek perforowany z mikrootworami. Zmniejszy to transpirację przez aparaty szparkowe o 85%, dając korzeniom czas na odbudowę.</p>
+                    <p class="home-step__note"><strong>Czas trwania:</strong> Maksymalnie 5 dni, wietrząc 10 min dziennie.</p>
+                </li>
+                <li class="home-step">
+                    <div class="home-step__head">
+                        <span class="home-step__number">03</span>
+                        <span class="ms" aria-hidden="true">wb_twilight</span>
+                    </div>
+                    <h3 class="home-step__title">Zacienienie i stabilizacja</h3>
+                    <p class="home-step__text">Odsuń drzewo od bezpośrednich promieni słonecznych i przeciągów. Umieść w jasnym, ale rozproszonym świetle (2000-3000 luksów) o stabilnej temperaturze 18-21°C.</p>
+                    <p class="home-step__note"><strong>Kluczowy błąd:</strong> Nie obracaj doniczki w fazie regeneracji.</p>
+                </li>
+            </ol>
+        </section>
+
+        <section class="home-section home-styles" id="style" aria-labelledby="home-styles-title">
+            <header class="home-section__head home-section__head--split">
                 <div>
-                    <h2 style="font-size: 1.65rem;">Dlaczego drzewka bonsai umierają?</h2>
-                    <p style="color: var(--color-text-muted); font-size: 0.9rem;">Cztery najczęstsze błędy pielęgnacyjne popełniane przez początkujących opiekunów.</p>
+                    <p class="eyebrow">Kanon estetyczny</p>
+                    <h2 class="home-section__title" id="home-styles-title">Tradycyjne Style Formowania</h2>
                 </div>
-            </div>
+                <p class="home-section__aside">Styl to nie tylko kształt – to opowieść o warunkach naturalnych: wietrze, skale, grawitacji i czasie.</p>
+            </header>
 
-            <div class="grid-4">
-                <article class="card">
-                    <span class="badge badge-orange">01 • KORZENIE</span>
-                    <h3 style="font-size: 1.1rem; margin: 0.65rem 0 0.4rem;">Podlewanie według kalendarza</h3>
-                    <p style="font-size: 0.84rem; color: var(--color-text-muted);">
-                        Nawadnianie „co środę” zamiast po przeschnięciu wierzchniej warstwy akadamy prowadzi do gnicia korzeni włośnikowych.
-                    </p>
+            <div class="home-styles__grid">
+                <article class="home-style">
+                    <div class="home-style__media">
+                        <img src="/images/style-chokkan.jpg" alt="Bonsai w stylu Chokkan — prosty, pionowy pień" width="512" height="279" loading="lazy">
+                        <span class="home-style__label" lang="ja-Latn">Chokkan • <span lang="ja">直幹</span></span>
+                    </div>
+                    <div class="home-style__body">
+                        <h3 class="home-style__title">Wyprostowany Formalny</h3>
+                        <p class="home-style__text">Idealnie prosty pień zwężający się ku wierzchołkowi. Symbolizuje drzewo rosnące w otwartym terenie bez konkurencji o światło. Wymaga doskonałego nebari (korzeni powierzchniowych).</p>
+                        <div class="home-style__difficulty">
+                            <span>Trudność formowania:</span>
+                            <span class="home-style__stars" role="img" aria-label="4 na 5">
+                                <span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms" aria-hidden="true">star</span>
+                            </span>
+                        </div>
+                    </div>
                 </article>
-                <article class="card">
-                    <span class="badge badge-orange">02 • ŚWIATŁO</span>
-                    <h3 style="font-size: 1.1rem; margin: 0.65rem 0 0.4rem;">Głód fotonowy w głębi pokoju</h3>
-                    <p style="font-size: 0.84rem; color: var(--color-text-muted);">
-                        Natężenie światła 2 metry od okna spada o 80%. Drzewko zrzuca wewnętrzne liście i wydłuża międzywęźla.
-                    </p>
+                <article class="home-style">
+                    <div class="home-style__media">
+                        <img src="/images/style-moyogi.jpg" alt="Bonsai w stylu Moyogi — pień o łagodnych krzywiznach" width="512" height="279" loading="lazy">
+                        <span class="home-style__label" lang="ja-Latn">Moyogi • <span lang="ja">模様木</span></span>
+                    </div>
+                    <div class="home-style__body">
+                        <h3 class="home-style__title">Wyprostowany Nieformalny</h3>
+                        <p class="home-style__text">Malowniczy pień z rytmicznymi krzywiznami, lecz wierzchołek drzewa znajduje się dokładnie nad podstawą pnia. Najbardziej uniwersalny i poetycki styl japoński.</p>
+                        <div class="home-style__difficulty">
+                            <span>Trudność formowania:</span>
+                            <span class="home-style__stars" role="img" aria-label="3 na 5">
+                                <span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms" aria-hidden="true">star</span><span class="ms" aria-hidden="true">star</span>
+                            </span>
+                        </div>
+                    </div>
                 </article>
-                <article class="card">
-                    <span class="badge badge-orange">03 • KLIMAT</span>
-                    <h3 style="font-size: 1.1rem; margin: 0.65rem 0 0.4rem;">Uprawa gatunków leśnych w domu</h3>
-                    <p style="font-size: 0.84rem; color: var(--color-text-muted);">
-                        Sosny, jałowce i klony wymagają bezwzględnego okresu zimowego spoczynku w temperaturze 0–7°C.
-                    </p>
-                </article>
-                <article class="card">
-                    <span class="badge badge-orange">04 • PODŁOŻE</span>
-                    <h3 style="font-size: 1.1rem; margin: 0.65rem 0 0.4rem;">Ziemia uniwersalna zamiast granulatu</h3>
-                    <p style="font-size: 0.84rem; color: var(--color-text-muted);">
-                        Ciężki torf odcina dostęp tlenu do bryły korzeniowej. Wymagana jest mineralna mieszanka o frakcji 3–5 mm.
-                    </p>
-                </article>
-            </div>
-        </section>
-
-        <!-- 4. PIERWSZA POMOC BONSAI: PROTOKÓŁ RESUSCYTACJI -->
-        <section class="emergency-banner section-block">
-            <span class="badge badge-orange">TRYB RATUNKOWY SOS</span>
-            <h2 style="font-size: 1.8rem; margin: 0.5rem 0 0.4rem;">Pierwsza Pomoc Bonsai: Protokół Resuscytacji</h2>
-            <p style="opacity: 0.85; font-size: 0.9rem; margin-bottom: 1.75rem;">
-                Postępuj zgodnie z trzema krokami, jeśli Twoje drzewko nagle zrzuciło liście lub jego gałązki zaczęły marszczyć korę.
-            </p>
-
-            <div class="grid-3">
-                <div class="emergency-card">
-                    <h3>Krok 1: Test kambium</h3>
-                    <p style="font-size: 0.84rem; opacity: 0.85;">
-                        Delikatnie zarysuj paznokciem korę u nasady pnia. Żywa, zielona warstwa pod spodem oznacza, że drzewko nadal przewodzi soki.
-                    </p>
-                </div>
-                <div class="emergency-card">
-                    <h3>Krok 2: Kąpiel zanurzeniowa</h3>
-                    <p style="font-size: 0.84rem; opacity: 0.85;">
-                        Zanurz całą doniczkę w odstanej wodzie na 15 minut, aż przestaną uchodzić pęcherzyki powietrza z przesuszonej bryły.
-                    </p>
-                </div>
-                <div class="emergency-card">
-                    <h3>Krok 3: Wstrzymanie nawożenia</h3>
-                    <p style="font-size: 0.84rem; opacity: 0.85;">
-                        Nigdy nie podawaj nawozów mineralnych osłabionym okazom — sole mineralne spalą uszkodzone włośniki korzeniowe.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. TRADYCJNE STYLE FORMOWANIA -->
-        <section class="section-block">
-            <div class="section-header">
-                <div>
-                    <h2 style="font-size: 1.65rem;">Tradycyjne Style Formowania</h2>
-                    <p style="color: var(--color-text-muted); font-size: 0.9rem;">Klasyfikacja japońskich kanonów estetycznych w bazie wiedzy KOMOREBI.</p>
-                </div>
-                <a href="/project" class="btn btn-outline">Zobacz pełny atlas</a>
-            </div>
-
-            <div class="grid-3">
-                <article class="card">
-                    <span class="badge badge-green">CHOKKAN</span>
-                    <h3 style="font-size: 1.2rem; margin: 0.5rem 0;">Styl formalny wyprostowany</h3>
-                    <p style="font-size: 0.85rem; color: var(--color-text-muted);">
-                        Idealnie prosty, zwężający się ku górze pień z symetrycznym układem konarów. Polecany dla sosen i cyprysików.
-                    </p>
-                </article>
-                <article class="card">
-                    <span class="badge badge-green">MOYOGI</span>
-                    <h3 style="font-size: 1.2rem; margin: 0.5rem 0;">Styl nieformalny wyprostowany</h3>
-                    <p style="font-size: 0.85rem; color: var(--color-text-muted);">
-                        Pień wygina się w harmonijną literę S, a gałęzie wyrastają zawsze po zewnętrznej stronie łuków.
-                    </p>
-                </article>
-                <article class="card">
-                    <span class="badge badge-green">KENGAI</span>
-                    <h3 style="font-size: 1.2rem; margin: 0.5rem 0;">Styl kaskadowy</h3>
-                    <p style="font-size: 0.85rem; color: var(--color-text-muted);">
-                        Odwzorowuje drzewa rosnące na stromych klifach górskich, których wierzchołek opada poniżej dna donicy.
-                    </p>
+                <article class="home-style">
+                    <div class="home-style__media">
+                        <img src="/images/style-kengai.jpg" alt="Bonsai w stylu Kengai — kaskada opadająca poniżej doniczki" width="512" height="279" loading="lazy">
+                        <span class="home-style__label" lang="ja-Latn">Kengai • <span lang="ja">懸崖</span></span>
+                    </div>
+                    <div class="home-style__body">
+                        <h3 class="home-style__title">Kaskadowy (Urwisko)</h3>
+                        <p class="home-style__text">Pień opada stromo poniżej dolnej krawędzi doniczki. Inspiracją są drzewa zmagające się z lawinami śnieżnymi i spadającymi odłamkami skalnymi na zboczach gór.</p>
+                        <div class="home-style__difficulty">
+                            <span>Trudność formowania:</span>
+                            <span class="home-style__stars" role="img" aria-label="5 na 5">
+                                <span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span><span class="ms ms--fill" aria-hidden="true">star</span>
+                            </span>
+                        </div>
+                    </div>
                 </article>
             </div>
         </section>
 
-        <!-- 6. CYTAT I CTA REJESTRU -->
-        <section class="card section-block" style="text-align: center; padding: 3rem 2rem;">
-            <blockquote class="serif" style="font-size: 1.45rem; max-width: 680px; margin: 0 auto 1rem;">
-                „Bonsai nie należy do nas. Jesteśmy jedynie jego tymczasowymi opiekunami dla kolejnych pokoleń.”
-            </blockquote>
-            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.75rem;">
-                Dołącz do elitarnego rejestru opiekunów bonsai KOMOREBI i prowadź pełną dokumentację swoich drzewek.
-            </p>
-            <a href="/register" class="btn btn-primary">Załóż bezpłatne konto opiekuna</a>
+        <section class="home-section home-masters" id="mistrzowie" aria-labelledby="home-masters-title">
+            <div class="home-masters__main">
+                <h2 class="eyebrow" id="home-masters-title">Świadectwa mistrzów</h2>
+                <figure class="home-masters__figure">
+                    <blockquote class="home-masters__quote">
+                        <p>"Bonsai nie należy do nas. Jesteśmy jedynie jego tymczasowymi opiekunami."</p>
+                    </blockquote>
+                    <figcaption class="home-masters__author">
+                        <img src="/images/master-workshop.jpg" alt="" width="48" height="48" loading="lazy">
+                        <span>
+                            <strong>Toshio Kawabe</strong>
+                            <span>Mistrz 5. pokolenia • Omiya Bonsai Village, Saitama</span>
+                        </span>
+                    </figcaption>
+                </figure>
+            </div>
+
+            <figure class="home-review">
+                <figcaption class="home-review__tag"><span class="ms" aria-hidden="true">verified_user</span>Precyzja podłoża</figcaption>
+                <blockquote class="home-review__quote">
+                    <p>"Zastąpienie przypadkowej ziemi mieszanką Akadama z Kiryuzuna w połączeniu z monitoringiem wilgotności uratowało moją 30-letnią Sosnę przed chlorozą."</p>
+                </blockquote>
+                <p class="home-review__author">— Marek S., kolekcjoner z Krakowa (14 okazów)</p>
+            </figure>
+            <figure class="home-review">
+                <figcaption class="home-review__tag"><span class="ms" aria-hidden="true">psychology</span>Diagnostyka AI</figcaption>
+                <blockquote class="home-review__quote">
+                    <p>"Skan pąków wykrył przędziorka chmielowca na 2 tygodnie przed widocznym zżółknięciem igieł. Bez tej platformy straciłbym cyprysika obtusa."</p>
+                </blockquote>
+                <p class="home-review__author">— Joanna W., arborystka z Poznania</p>
+            </figure>
+        </section>
+
+        <section class="home-section home-cta" aria-labelledby="home-cta-title">
+            <span class="home-cta__icon"><span class="ms" aria-hidden="true">spa</span></span>
+            <h2 class="home-cta__title" id="home-cta-title">Dołącz do elitarnego rejestru opiekunów bonsai</h2>
+            <p class="home-cta__lead">Prowadź cyfrową kartotekę każdego okazu, otrzymuj spersonalizowane alerty przesadzania i konsultuj się z ekspertami botaniki.</p>
+            <div class="home-cta__actions">
+                <a href="/register" class="btn btn--primary btn--lg">Rozpocznij cyfrowy rejestr drzew</a>
+                <a href="#ocena-ryzyka" class="btn btn--secondary btn--lg">Powtórz szybki test</a>
+            </div>
         </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div>
-                <div class="brand-logo" style="margin-bottom: 0.5rem;">🌿 KOMOREBI</div>
-                <p>System wspomagania pielęgnacji, formowania i diagnostyki drzewek bonsai.</p>
-            </div>
-            <div>
-                <h4>Nawigacja</h4>
-                <ul>
-                    <li><a href="/">Strona główna</a></li>
-                    <li><a href="/projects">Kolekcja drzewek</a></li>
-                    <li><a href="/project">Studio formowania</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Konto</h4>
-                <ul>
-                    <li><a href="/login">Zaloguj się</a></li>
-                    <li><a href="/register">Rejestracja</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Baza wiedzy</h4>
-                <ul>
-                    <li>Kalendarz przesadzania</li>
-                    <li>Mieszanki glebowe Akadama</li>
-                </ul>
-            </div>
-        </div>
-    </footer>
-
+    <?php include __DIR__ . '/partials/site-footer.html.php'; ?>
 </body>
 </html>

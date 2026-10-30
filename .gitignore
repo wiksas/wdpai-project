@@ -5,3 +5,5 @@
 vendor/
 node_modules/
 docker/data/
+storage/*
+!storage/.gitkeep

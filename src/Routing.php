@@ -6,19 +6,30 @@ use App\Controllers\DefaultController;
 
 class Routing
 {
+    /** @var array<string, array<string, array{controller: string, action: string}>> trasy pogrupowane po metodzie HTTP */
     public static array $routes = [];
 
     public static function get(string $url, string $controller, string $action): void
     {
-        self::$routes[$url] = [
+        self::add('GET', $url, $controller, $action);
+    }
+
+    public static function post(string $url, string $controller, string $action): void
+    {
+        self::add('POST', $url, $controller, $action);
+    }
+
+    private static function add(string $method, string $url, string $controller, string $action): void
+    {
+        self::$routes[$method][$url] = [
             'controller' => $controller,
             'action' => $action
         ];
     }
 
-    public static function run(string $path): void
+    public static function run(string $path, string $method = 'GET'): void
     {
-        foreach (self::$routes as $route => $target) {
+        foreach (self::$routes[$method] ?? [] as $route => $target) {
             // Zamiana {param} na wyrażenie regularne dopasowujące parametr w URL
             $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route);
             $pattern = '#^' . $pattern . '$#';

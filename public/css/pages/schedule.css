@@ -1,0 +1,1090 @@
+/* ==========================================================================
+   KALENDARZ ZABIEGÓW I ZADAŃ (/schedule)
+   Bazą są wymiary ramki mobile „m_calendar” (390 px); od 769 px komponenty
+   przechodzą na język wizualny ramek desktop (dashboard / studio).
+   ========================================================================== */
+
+.schedule-layout,
+.schedule-main,
+.schedule-side {
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-side {
+    margin-top: 8px;
+}
+
+/* Kropki typów zabiegów -------------------------------------------------- */
+.schedule-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--c-primary);
+}
+
+.schedule-dot--terra {
+    background-color: var(--c-tertiary);
+}
+
+.schedule-dot--green {
+    background-color: var(--c-secondary);
+}
+
+.schedule-dot--light {
+    background-color: var(--c-surface);
+}
+
+/* Etykiety „Pilne” / „Rutynowe” ----------------------------------------- */
+.schedule-pill {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    border-radius: var(--radius-full);
+}
+
+.schedule-pill--urgent {
+    background-color: var(--c-tertiary-container);
+    color: #370e00;
+}
+
+.schedule-pill--routine {
+    background-color: var(--c-surface-container);
+    color: var(--c-on-surface);
+}
+
+/* Nagłówek sekcji (tytuł serif + dodatek po prawej) ---------------------- */
+.schedule-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.schedule-section-head__title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 24px;
+    color: var(--c-on-surface);
+}
+
+/* ==========================================================================
+   1. KARTA PORY ROKU (SEKKI)
+   ========================================================================== */
+.schedule-season {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 198px;
+    padding: 16px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-surface-high);
+    isolation: isolate;
+}
+
+.schedule-season::after {
+    content: "";
+    position: absolute;
+    right: -110px;
+    bottom: -120px;
+    z-index: -1;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(209, 230, 210, 0.9) 0%, rgba(214, 232, 214, 0.55) 40%, rgba(234, 232, 227, 0) 70%);
+}
+
+.schedule-season__info {
+    flex: 0 1 36%;
+    min-width: 0;
+}
+
+.schedule-season__tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    color: var(--c-primary);
+    border-radius: var(--radius-full);
+    background-color: var(--c-surface-container);
+    width: max-content;
+    height: 18px;
+}
+
+.schedule-season__tag .dot {
+    width: 6px;
+    height: 6px;
+}
+
+.schedule-season__title {
+    margin-top: 6px;
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 28.8px;
+    color: var(--c-primary);
+}
+
+.schedule-season__text {
+    margin-top: 5px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-season__date {
+    display: flex;
+    flex: 0 1 33.4%;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 0;
+    text-align: right;
+}
+
+.schedule-season__month {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.07em;
+    color: var(--c-tertiary);
+}
+
+.schedule-season__ko {
+    font-size: 13px;
+    line-height: 20px;
+    color: #6c706b;
+}
+
+/* ==========================================================================
+   2. TYDZIEŃ
+   ========================================================================== */
+.schedule-week {
+    margin-top: 11px;
+}
+
+.schedule-week__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.schedule-week__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--c-on-surface);
+}
+
+.schedule-week__title .ms {
+    margin-left: -1px;
+    color: var(--c-primary);
+}
+
+.schedule-week__nav {
+    display: flex;
+    gap: 8px;
+}
+
+.schedule-week__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--c-surface-container);
+    color: var(--c-on-surface);
+    cursor: pointer;
+    transition: background-color var(--transition);
+}
+
+.schedule-week__arrow .ms {
+    font-size: 18px;
+}
+
+.schedule-week__arrow:hover {
+    background-color: var(--c-surface-highest);
+}
+
+.schedule-week__arrow:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+}
+
+.schedule-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.schedule-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    border-radius: var(--radius-sm);
+    background-color: var(--c-surface-low);
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-day__label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 14px;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+}
+
+.schedule-day__date {
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+}
+
+.schedule-day__dots {
+    display: flex;
+    gap: 3px;
+    height: 6px;
+    margin-top: 4px;
+}
+
+.schedule-day.is-active {
+    margin: -3px;
+    padding-block: 11px;
+    background-color: var(--c-primary);
+    color: var(--c-on-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.schedule-day.is-active .schedule-day__dots {
+    gap: 4px;
+}
+
+.schedule-day.is-active .schedule-dot--green {
+    background-color: var(--c-secondary-container);
+}
+
+.schedule-day.is-active .schedule-dot--terra {
+    background-color: var(--c-tertiary-container);
+}
+
+.schedule-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 18px;
+    margin-top: 12px;
+}
+
+.schedule-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.07em;
+    color: var(--c-on-surface-variant);
+}
+
+/* ==========================================================================
+   3. ZADANIA NA DZIŚ
+   ========================================================================== */
+.schedule-today {
+    margin-top: 24px;
+}
+
+.schedule-today__date {
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.schedule-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-surface-lowest);
+    box-shadow: var(--shadow-md);
+}
+
+.schedule-task__check {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin: 4px 0 0;
+    border-radius: 6px;
+    background-color: var(--c-surface-container);
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--transition);
+}
+
+.schedule-task__check:hover {
+    background-color: var(--c-surface-high);
+}
+
+.schedule-task__check:checked {
+    background: var(--c-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 18px no-repeat;
+}
+
+.schedule-task__check:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+}
+
+.schedule-task__check:checked + .schedule-task__body .schedule-task__title {
+    text-decoration: line-through;
+}
+
+.schedule-task__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.schedule-task__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.schedule-task__time {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.07em;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-task__title {
+    margin-top: 5px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--c-primary);
+}
+
+.schedule-task__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.schedule-task__title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.schedule-task__text {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-task__meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.07em;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-task__specimen {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+
+.schedule-task__icon {
+    margin-top: -1px;
+    font-size: 14px;
+    color: var(--c-secondary);
+}
+
+.schedule-task__icon--terra {
+    color: var(--c-tertiary);
+}
+
+.schedule-task__note {
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.schedule-task__note--terra {
+    font-weight: 500;
+    color: var(--c-tertiary);
+}
+
+/* ==========================================================================
+   4. OKNO SEZONOWE (ciemna karta)
+   ========================================================================== */
+.schedule-window {
+    display: flex;
+    flex-direction: column;
+    min-height: 145px;
+    padding: 16px 16px 8px;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-primary-container);
+    color: var(--c-on-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.schedule-window__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.schedule-window__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.075em;
+    color: #85a490;
+}
+
+.schedule-window__eyebrow .ms {
+    font-size: 15px;
+}
+
+.schedule-window__title {
+    margin-top: 4px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+    color: var(--c-on-primary);
+}
+
+.schedule-window__counter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.schedule-window__count {
+    font-family: var(--font-serif);
+    font-size: 21px;
+    line-height: 22px;
+}
+
+.schedule-window__unit {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 13px;
+    letter-spacing: 0.1em;
+    color: var(--c-on-primary-container);
+}
+
+.schedule-window__text {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 20px;
+    color: rgba(169, 199, 181, 0.72);
+}
+
+.schedule-window__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 8px;
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0.07em;
+}
+
+.schedule-window__species {
+    color: #85a490;
+}
+
+.schedule-window__link {
+    color: #e6efe9;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    white-space: nowrap;
+}
+
+.schedule-window__link:hover {
+    color: var(--c-on-primary);
+}
+
+/* ==========================================================================
+   5. NADCHODZĄCE 14 DNI
+   ========================================================================== */
+.schedule-upcoming {
+    margin-top: 32px;
+}
+
+.schedule-upcoming__sekki {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 6px;
+    padding-left: 24px;
+}
+
+.schedule-timeline::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 7px;
+    left: 4px;
+    width: 2px;
+    background-color: var(--c-surface-high);
+}
+
+.schedule-event {
+    position: relative;
+}
+
+.schedule-event__dot {
+    position: absolute;
+    top: 15px;
+    left: -24px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--c-primary);
+}
+
+.schedule-event__card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    background-color: var(--c-surface-low);
+}
+
+.schedule-event__body {
+    min-width: 0;
+}
+
+.schedule-event__title {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--c-on-surface);
+}
+
+.schedule-event__text {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-event__when {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.schedule-event__in {
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    color: var(--c-on-surface);
+    border-radius: var(--radius-xs);
+    background-color: var(--c-surface-container);
+}
+
+.schedule-event__date {
+    padding-right: 1px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    color: var(--c-on-surface-variant);
+}
+
+/* ==========================================================================
+   6. ZASADA MAJOWA
+   ========================================================================== */
+.schedule-rule {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 28px;
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-surface-container);
+    box-shadow: var(--shadow-sm);
+}
+
+.schedule-rule__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background-color: #e2d6cc;
+    color: var(--c-tertiary);
+}
+
+.schedule-rule__icon .ms {
+    font-size: 22px;
+}
+
+.schedule-rule__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.schedule-rule__eyebrow {
+    padding-right: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.075em;
+    color: var(--c-tertiary);
+}
+
+.schedule-rule__leaf {
+    position: absolute;
+    top: 17px;
+    right: 16px;
+    font-size: 16px;
+    color: var(--c-on-surface-variant);
+}
+
+.schedule-rule__title {
+    margin-top: 4px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--c-primary);
+}
+
+.schedule-rule__text {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 21px;
+    color: var(--c-on-surface-variant);
+}
+
+/* ==========================================================================
+   7. PRZYCISK „ZAPLANUJ”
+   ========================================================================== */
+.schedule-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: var(--c-primary);
+    color: var(--c-on-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: 0.01em;
+    box-shadow: 0 6px 16px rgba(7, 36, 23, 0.18);
+    cursor: pointer;
+    transition: background-color var(--transition), transform var(--transition);
+}
+
+.schedule-cta .ms {
+    font-size: 22px;
+}
+
+.schedule-cta:hover {
+    background-color: var(--c-primary-container);
+}
+
+.schedule-cta:active {
+    transform: translateY(1px);
+}
+
+.schedule-cta:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 3px;
+}
+
+/* ==========================================================================
+   RESPONSYWNOŚĆ
+   ========================================================================== */
+
+/* Mobile 1:1 z ramką (16 px marginesu bocznego) */
+@media (max-width: 768px) {
+    .app-content.schedule {
+        padding-top: 16px;
+        padding-inline: 16px;
+    }
+}
+
+/* Tablet i desktop: komponenty w języku ramek desktop */
+@media (min-width: 769px) {
+    .schedule-season {
+        align-items: flex-start;
+        min-height: 220px;
+        padding: 32px;
+        border-radius: var(--radius-xl);
+    }
+
+    .schedule-season::after {
+        right: -120px;
+        bottom: -200px;
+        width: 520px;
+        height: 520px;
+    }
+
+    .schedule-season__info {
+        flex: 1 1 auto;
+        max-width: 440px;
+    }
+
+    .schedule-season__title {
+        margin-top: 16px;
+        font-size: 40px;
+        line-height: 1.2;
+    }
+
+    .schedule-season__text {
+        margin-top: 10px;
+        font-size: 15px;
+        line-height: 24px;
+    }
+
+    .schedule-season__date {
+        flex: 0 0 auto;
+        max-width: 180px;
+    }
+
+    .schedule-season__month {
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .schedule-season__ko {
+        margin-top: 4px;
+        font-size: 14px;
+        line-height: 22px;
+    }
+
+    .schedule-week {
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        background-color: var(--c-surface-lowest);
+        box-shadow: var(--shadow-md);
+    }
+
+    .schedule-week__title {
+        gap: 10px;
+        font-family: var(--font-serif);
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 32px;
+        color: var(--c-primary);
+    }
+
+    .schedule-week__title .ms {
+        font-size: 22px;
+    }
+
+    .schedule-week__arrow {
+        width: 36px;
+        height: 36px;
+    }
+
+    .schedule-week__arrow .ms {
+        font-size: 20px;
+    }
+
+    .schedule-days {
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .schedule-day {
+        padding-block: 14px;
+        border-radius: var(--radius-md);
+    }
+
+    .schedule-day__date {
+        margin-top: 6px;
+        font-size: 24px;
+        line-height: 28px;
+    }
+
+    .schedule-day__dots {
+        margin-top: 8px;
+    }
+
+    .schedule-day.is-active {
+        margin: -4px 0;
+        padding-block: 18px;
+    }
+
+    .schedule-legend {
+        justify-content: flex-start;
+        gap: 6px 24px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--c-divider);
+    }
+
+    .schedule-today {
+        margin-top: 32px;
+    }
+
+    .schedule-section-head__title {
+        font-size: 24px;
+        line-height: 32px;
+        color: var(--c-primary);
+    }
+
+    .schedule-today__date {
+        margin-top: 2px;
+        font-size: 14px;
+    }
+
+    .schedule-tasks {
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .schedule-task {
+        gap: 16px;
+        padding: 24px;
+    }
+
+    .schedule-task__title {
+        margin-top: 8px;
+        font-size: 18px;
+    }
+
+    .schedule-task__text {
+        margin-top: 4px;
+        font-size: 15px;
+        line-height: 24px;
+    }
+
+    .schedule-task__meta {
+        align-items: center;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid var(--c-divider);
+    }
+
+    .schedule-task__specimen {
+        align-items: center;
+    }
+
+    .schedule-task__icon {
+        margin-top: 0;
+    }
+
+    .schedule-side {
+        margin-top: 32px;
+    }
+
+    .schedule-window {
+        min-height: 0;
+        padding: 24px;
+    }
+
+    .schedule-window__title {
+        margin-top: 8px;
+        font-family: var(--font-serif);
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 30px;
+    }
+
+    .schedule-window__counter {
+        width: 56px;
+        height: 56px;
+    }
+
+    .schedule-window__count {
+        font-size: 24px;
+        line-height: 26px;
+    }
+
+    .schedule-window__text {
+        margin-top: 10px;
+    }
+
+    .schedule-window__foot {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(169, 199, 181, 0.18);
+    }
+
+    .schedule-upcoming {
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        background-color: var(--c-surface-lowest);
+        box-shadow: var(--shadow-md);
+    }
+
+    .schedule-upcoming .schedule-section-head {
+        flex-wrap: wrap;
+    }
+
+    .schedule-timeline {
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .schedule-event__card {
+        padding: 12px;
+    }
+
+    .schedule-event__dot {
+        top: 19px;
+    }
+
+    .schedule-event__title {
+        font-size: 16px;
+    }
+
+    .schedule-rule {
+        margin-top: 24px;
+        gap: 12px;
+        padding: 24px;
+    }
+
+    .schedule-rule__leaf {
+        top: 25px;
+        right: 24px;
+    }
+
+    .schedule-cta {
+        margin-top: 24px;
+        min-height: 56px;
+    }
+}
+
+/* Dwie kolumny: desktop z panelem bocznym (≥1200) lub tablet bez panelu (900–1024) */
+@media (min-width: 1200px), (min-width: 900px) and (max-width: 1024px) {
+    .schedule-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 32px;
+        align-items: start;
+    }
+
+    .schedule-side {
+        margin-top: 0;
+    }
+
+    .schedule-window {
+        padding: 24px 24px 20px;
+    }
+
+    .schedule-window__title {
+        font-size: 20px;
+        line-height: 28px;
+    }
+
+    .schedule-window__foot {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .schedule-event__card {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .schedule-event__when {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        margin-top: 0;
+    }
+
+    .schedule-event__date {
+        line-height: 18px;
+    }
+}

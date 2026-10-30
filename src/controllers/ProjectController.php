@@ -2,32 +2,45 @@
 
 namespace App\Controllers;
 
+use App\Repository\TreeRepository;
+
 class ProjectController extends AppController
 {
-    // Obsługa trasy zwykłej: /projects
+    // Obsługa trasy zwykłej: /projects — panel „Moja Kolekcja”
     public function projects(): void
     {
-        $projectsList = [
-            ['id' => 1, 'name' => 'Aplikacja Webowa WDPAI', 'status' => 'W trakcie', 'author' => 'Jan Kowalski'],
-            ['id' => 2, 'name' => 'Redesign Sklepu UI/UX', 'status' => 'Zakończony', 'author' => 'Anna Nowak'],
-            ['id' => 3, 'name' => 'Integracja API Płatności', 'status' => 'Planowany', 'author' => 'Piotr Wiśniewski']
-        ];
+        $this->requireLogin();
 
-        // 4. Przekazanie co najmniej dwóch wartości z kontrolera do widoku
+        $trees = (new TreeRepository())->findAll();
+
         $this->render('projects', [
-            'title' => 'Panel główny - Lista Projektów',
-            'totalCount' => count($projectsList),
-            'projects' => $projectsList
+            'pageTitle' => 'Moja Kolekcja — KOMOREBI',
+            'activeNav' => 'collection',
+            'trees' => $trees,
+            'treeCount' => count($trees),
         ]);
     }
 
-    // Obsługa trasy z parametrem: /project/{id}
+    // Obsługa trasy z parametrem: /project/{id} — karta okazu
     public function project(string $id): void
     {
+        $this->requireLogin();
+
+        $tree = ctype_digit($id) ? (new TreeRepository())->findById((int) $id) : null;
+
+        if ($tree === null) {
+            http_response_code(404);
+            $this->render('not-found', [
+                'pageTitle' => 'Nie znaleziono okazu — KOMOREBI',
+                'errorMessage' => 'Okaz o podanym identyfikatorze nie istnieje w kolekcji.',
+            ]);
+            return;
+        }
+
         $this->render('project', [
-            'projectId' => $id,
-            'projectTitle' => "Szczegóły projektu #" . htmlspecialchars($id),
-            'projectOwner' => 'Zespół deweloperski Alpha'
+            'pageTitle' => $tree['name'] . ' — Karta okazu — KOMOREBI',
+            'activeNav' => 'collection',
+            'tree' => $tree,
         ]);
     }
 }

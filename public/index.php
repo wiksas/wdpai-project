@@ -4,16 +4,36 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Routing;
 
+// Sesja logowania: ciasteczko niedostępne dla JS i niewysyłane w żądaniach między witrynami.
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
+session_start();
+
 $path = trim($_SERVER['REQUEST_URI'], '/');
-$path = parse_url($path, PHP_URL_PATH);
+$path = (string) parse_url($path, PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // 1. Trasa główna przez DefaultController
 Routing::get('', 'DefaultController', 'index');
-Routing::get('login', 'DefaultController', 'login');
-Routing::get('register', 'DefaultController', 'register');
+
+// 2. Konto: logowanie, rejestracja i wylogowanie
+Routing::get('login', 'AuthController', 'login');
+Routing::post('login', 'AuthController', 'authenticate');
+Routing::get('register', 'AuthController', 'register');
+Routing::post('register', 'AuthController', 'store');
+Routing::post('logout', 'AuthController', 'logout');
 
 // 3. Trasa ze zwykłym adresem i trasa z parametrem {id}
 Routing::get('projects', 'ProjectController', 'projects');
 Routing::get('project/{id}', 'ProjectController', 'project');
 
-Routing::run($path);
+// 4. Moduły pielęgnacji: studio formowania, klinika AI i harmonogram
+Routing::get('studio', 'StudioController', 'index');
+Routing::get('clinic', 'ClinicController', 'index');
+Routing::get('schedule', 'ScheduleController', 'index');
+
+Routing::run($path, $method);
