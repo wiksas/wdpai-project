@@ -152,6 +152,24 @@ Typowy porzadek prac:
 5. Dodaj lub zmien style: wspolne komponenty i tokeny w `public/css/style.css`, style konkretnej strony w `public/css/pages/<strona>.css` (linkowane w widoku po `partials/head.html.php`).
 6. Sprawdz poprawna trase, dane wejsciowe, HTML oraz zachowanie dla bledow i 404.
 
+### Animacje sterowane przewijaniem
+
+Animacje przy przewijaniu (Scroll-driven Animations) sa w czystym CSS — bez JavaScriptu. Wspolne klatki kluczowe i tokeny (`--sd-reveal`, `--sd-reveal-left`, `--sd-zoom`, `--sd-turn`, `--sd-range`, `--sd-range-2…4`) oraz elementy globalne (pasek postepu, cien naglowka, karty, stopka) sa w sekcji 17 `public/css/style.css`. Elementy konkretnej strony dopisuj na koncu jej pliku `public/css/pages/<strona>.css`:
+
+```css
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .x-card {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+    }
+}
+```
+
+Zawsze zachowuj obie ochrony (`prefers-reduced-motion` i `@supports`), zeby tresc byla widoczna w przegladarkach bez obslugi. Nie animuj elementow, ktore maja wlasny `transform` (np. stan `:active`), bo koncowa klatka `transform: none` go nadpisze.
+
 ## Uruchamianie projektu
 
 ```bash

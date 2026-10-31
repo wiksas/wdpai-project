@@ -1931,3 +1931,27 @@
         color: var(--c-on-surface);
     }
 }
+
+/* --- Scroll-driven animations -------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .clinic-hero,
+        .clinic-grid__side > *,
+        .clinic-grid__main > *,
+        .clinic-archive__head,
+        .clinic-archive__grid > *,
+        .clinic-mobile > :not(.clinic-mobile__head) {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        .clinic-archive__grid > :nth-child(2) {
+            animation-range: var(--sd-range-2);
+        }
+
+        .clinic-archive__grid > :nth-child(3) {
+            animation-range: var(--sd-range-3);
+        }
+    }
+}

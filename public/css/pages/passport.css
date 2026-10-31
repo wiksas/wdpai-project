@@ -1076,3 +1076,32 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+/* --- Scroll-driven animations -------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .passport-hero,
+        .passport-specs,
+        .passport-status,
+        .passport-advice,
+        .passport-actions {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        /* Wpisy osi zabiegów wsuwają się z lewej, wzdłuż linii czasu. */
+        .passport-entry {
+            animation: var(--sd-reveal-left);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        /* Zdjęcie w hero lekko się przybliża przy przewijaniu (hero ma overflow: hidden). */
+        .passport-hero__image {
+            animation: var(--sd-zoom);
+            animation-timeline: scroll(root block);
+            animation-range: 0 520px;
+        }
+    }
+}

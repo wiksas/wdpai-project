@@ -1146,3 +1146,50 @@
         font-size: 24px;
     }
 }
+
+/* --- Scroll-driven animations -------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .home-section__head,
+        .home-risk__panel,
+        .home-rescue__title,
+        .home-rescue__lead,
+        .home-masters__main,
+        .home-cta__icon,
+        .home-cta__title,
+        .home-cta__lead,
+        .home-cta__actions,
+        .home-causes__grid > *,
+        .home-rescue__steps > *,
+        .home-styles__grid > *,
+        .home-review {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        .home-causes__grid > :nth-child(2),
+        .home-rescue__steps > :nth-child(2),
+        .home-styles__grid > :nth-child(2),
+        .home-review:nth-of-type(2) {
+            animation-range: var(--sd-range-2);
+        }
+
+        .home-causes__grid > :nth-child(3),
+        .home-rescue__steps > :nth-child(3),
+        .home-styles__grid > :nth-child(3) {
+            animation-range: var(--sd-range-3);
+        }
+
+        .home-causes__grid > :nth-child(4) {
+            animation-range: var(--sd-range-4);
+        }
+
+        /* Zdjęcie okazu w hero powoli się przybliża podczas przewijania. */
+        .home-specimen__media img {
+            animation: var(--sd-zoom);
+            animation-timeline: scroll(root block);
+            animation-range: 0 640px;
+        }
+    }
+}

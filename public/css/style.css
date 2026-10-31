@@ -1537,3 +1537,155 @@ button {
         display: none;
     }
 }
+
+/* ==========================================================================
+   17. SCROLL-DRIVEN ANIMATIONS (czysty CSS, bez JavaScriptu)
+   Animacje sterowane przewijaniem: `animation-timeline: scroll()` / `view()`.
+   Włączają się tylko tam, gdzie przeglądarka je obsługuje i gdy użytkownik nie
+   ograniczył ruchu (prefers-reduced-motion). W pozostałych przypadkach treść
+   jest po prostu widoczna — nic nie jest ukrywane na stałe.
+   Strony dopisują własne elementy w `css/pages/*.css`, używając tokenów:
+     animation: var(--sd-reveal);
+     animation-timeline: view();
+     animation-range: var(--sd-range);
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        :root {
+            --sd-reveal: sd-reveal linear both;
+            --sd-reveal-left: sd-reveal-left linear both;
+            --sd-zoom: sd-zoom linear both;
+            --sd-turn: sd-turn linear both;
+            /* Zakres odsłaniania: do 70% wysokości elementu, nie więcej niż 240 px przewinięcia. */
+            --sd-range: entry 0% entry min(70%, 240px);
+            /* Opóźnione warianty dla kolejnych elementów rzędu (efekt kaskady). */
+            --sd-range-2: entry 8% entry min(78%, 250px);
+            --sd-range-3: entry 16% entry min(86%, 260px);
+            --sd-range-4: entry 24% entry min(94%, 270px);
+        }
+
+        @keyframes sd-reveal {
+            from {
+                opacity: 0;
+                transform: translateY(32px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes sd-reveal-left {
+            from {
+                opacity: 0;
+                transform: translateX(-28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes sd-zoom {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.12);
+            }
+        }
+
+        @keyframes sd-turn {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(50deg);
+            }
+        }
+    }
+
+    @supports (animation-timeline: scroll()) {
+        /* Cienka linia postępu czytania u góry każdej strony. */
+        html::before {
+            content: "";
+            position: fixed;
+            inset: 0 0 auto;
+            z-index: 100;
+            height: 3px;
+            background: linear-gradient(90deg, var(--c-secondary), var(--c-tertiary));
+            transform-origin: 0 50%;
+            pointer-events: none;
+            animation: sd-progress linear both;
+            animation-timeline: scroll(root block);
+        }
+
+        /* Nagłówki nabierają cienia po zjechaniu ze szczytu strony. */
+        .site-header {
+            animation: sd-elevate-site linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 140px;
+        }
+
+        .app-topbar {
+            animation: sd-elevate-app linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 140px;
+        }
+
+        @keyframes sd-progress {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes sd-elevate-site {
+            from {
+                box-shadow: 0 1px 0 var(--c-divider), 0 4px 12px rgba(27, 28, 25, 0.03);
+            }
+
+            to {
+                box-shadow: 0 1px 0 var(--c-divider), 0 12px 32px -8px rgba(27, 28, 25, 0.16);
+            }
+        }
+
+        @keyframes sd-elevate-app {
+            from {
+                box-shadow: 0 0 0 0 rgba(27, 28, 25, 0);
+            }
+
+            to {
+                box-shadow: 0 12px 32px -8px rgba(27, 28, 25, 0.14);
+            }
+        }
+    }
+
+    @supports (animation-timeline: view()) {
+        /* Wspólne bloki: karty, panele, kolumny stopki, karta błędu 404. */
+        .card,
+        .panel,
+        .not-found__card,
+        .site-footer__about,
+        .site-footer__col {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        .site-footer__col:nth-child(3) {
+            animation-range: var(--sd-range-2);
+        }
+
+        .site-footer__col:nth-child(4) {
+            animation-range: var(--sd-range-3);
+        }
+    }
+}

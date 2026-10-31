@@ -1088,3 +1088,15 @@
         line-height: 18px;
     }
 }
+
+/* --- Scroll-driven animations -------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .schedule-main > *,
+        .schedule-side > :not(.schedule-cta) {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+    }
+}
