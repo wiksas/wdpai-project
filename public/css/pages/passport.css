@@ -797,7 +797,7 @@
 @media (max-width: 768px) {
     .passport {
         --passport-bleed: 1.125rem;
-        padding: 0 var(--passport-bleed) calc(var(--bottom-nav-height) + 2rem);
+        padding: 0 var(--passport-bleed) calc(var(--bottom-nav-height) + 2rem + 26vh);
     }
 
     .passport-toolbar {
@@ -1125,7 +1125,7 @@
             transform-origin: 0 50%;
             animation: var(--sd-grow);
             animation-timeline: view();
-            animation-range: entry 0% cover 28%;
+            animation-range: cover 0% cover 34vh;
         }
 
         /* Prawa kolumna wsuwa się z prawej (tylko układ dwukolumnowy). */

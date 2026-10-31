@@ -170,6 +170,8 @@ Animacje przy przewijaniu (Scroll-driven Animations) sa w czystym CSS — bez Ja
 
 Zawsze zachowuj obie ochrony (`prefers-reduced-motion` i `@supports`), zeby tresc byla widoczna w przegladarkach bez obslugi. Nie animuj elementow, ktore maja wlasny `transform` (np. stan `:active`), bo koncowa klatka `transform: none` go nadpisze.
 
+Odslanianie (`--sd-range`) trwa na odcinku ok. 40% wysokosci okna i konczy sie, gdy gorna krawedz elementu dojedzie do ~60% od gory (`cover 0% cover 40vh`) — dzieki temu ruch jest widoczny, a nie ukryty tuz przy dolnej krawedzi. Elementy na samym koncu strony nie maja jak wjechac tak wysoko, wiec: tresc aplikacji ma zapas przewijania (`.app-content` `padding-bottom` w sekcji 17), stopka uzywa bezpiecznego zakresu `entry 0% entry 100%`, a po zmianie ukladu sprawdz w przegladarce (przewin na sam dol), czy zaden element nie zostal polprzezroczysty lub z niedopelnionym paskiem, oraz czy `animation.timeline.source` kazdej animacji to okno (`document.scrollingElement`) — `overflow: hidden/auto` na przodku przejmuje os czasu.
+
 ## Uruchamianie projektu
 
 ```bash

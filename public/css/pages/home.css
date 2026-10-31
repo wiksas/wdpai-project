@@ -1196,7 +1196,7 @@
         .home-cause__icon {
             animation: var(--sd-pop);
             animation-timeline: view();
-            animation-range: entry 10% entry min(100%, 160px);
+            animation-range: cover 0% cover 34vh;
         }
 
         /* Cytat mistrza wsuwa się z lewej, opinie z prawej (tylko szeroki układ). */
@@ -1452,7 +1452,7 @@
         .home-style__media {
             animation: var(--sd-clip);
             animation-timeline: view();
-            animation-range: entry 0% entry min(90%, 280px);
+            animation-range: cover 0% cover 42vh;
         }
 
         .home-style__media img {

@@ -1743,7 +1743,7 @@
         .studio-case__media {
             animation: var(--sd-clip);
             animation-timeline: view();
-            animation-range: entry 0% entry min(90%, 300px);
+            animation-range: cover 0% cover 42vh;
         }
 
         .studio-case__media img {
@@ -1761,7 +1761,7 @@
             transform-origin: 0 50%;
             animation: var(--sd-grow);
             animation-timeline: --sd-gantt;
-            animation-range: entry 0% entry 90%;
+            animation-range: entry 0% cover 30%;
         }
 
         /* Kalkulator wsuwa się z lewej, wzorzec kąta z prawej (tylko szeroki układ). */

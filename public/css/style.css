@@ -1557,18 +1557,19 @@ button {
             --sd-reveal: sd-reveal linear both;
             --sd-reveal-left: sd-reveal-left linear both;
             --sd-turn: sd-turn linear both;
-            /* Zakres odsłaniania: do 70% wysokości elementu, nie więcej niż 240 px przewinięcia. */
-            --sd-range: entry 0% entry min(70%, 240px);
+            /* Zakres odsłaniania: element pojawia się na odcinku ok. 40% wysokości ekranu,
+               czyli kończy, gdy jego góra dojedzie do ~60% od góry okna (widać cały ruch). */
+            --sd-range: cover 0% cover 40vh;
             /* Opóźnione warianty dla kolejnych elementów rzędu (efekt kaskady). */
-            --sd-range-2: entry 8% entry min(78%, 250px);
-            --sd-range-3: entry 16% entry min(86%, 260px);
-            --sd-range-4: entry 24% entry min(94%, 270px);
+            --sd-range-2: cover 2vh cover 44vh;
+            --sd-range-3: cover 4vh cover 48vh;
+            --sd-range-4: cover 6vh cover 52vh;
         }
 
         @keyframes sd-reveal {
             from {
                 opacity: 0;
-                transform: translateY(32px) scale(0.98);
+                transform: translateY(48px) scale(0.97);
             }
 
             to {
@@ -1660,23 +1661,41 @@ button {
     }
 
     @supports (animation-timeline: view()) {
-        /* Wspólne bloki: karty, panele, kolumny stopki, karta błędu 404. */
+        /* Wspólne bloki: karty, panele, karta błędu 404. */
         .card,
         .panel,
-        .not-found__card,
-        .site-footer__about,
-        .site-footer__col {
+        .not-found__card {
             animation: var(--sd-reveal);
             animation-timeline: view();
             animation-range: var(--sd-range);
         }
 
+        /* Stopka jest ostatnia na stronie i nie ma jak wjechać wyżej — odsłania się do pełnego wejścia na ekran. */
+        .site-footer__about,
+        .site-footer__col {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: entry 0% entry 100%;
+        }
+
         .site-footer__col:nth-child(3) {
-            animation-range: var(--sd-range-2);
+            animation-range: entry 12% entry 100%;
         }
 
         .site-footer__col:nth-child(4) {
-            animation-range: var(--sd-range-3);
+            animation-range: entry 24% entry 100%;
+        }
+
+        /* Zapas przewijania pod treścią aplikacji: ostatnie elementy też mogą wjechać wyżej
+           (bez tego zostałyby na dole strony półprzezroczyste lub z niedopełnionym paskiem). */
+        .app-content {
+            padding-bottom: max(4rem, 30vh);
+        }
+
+        @media (max-width: 1024px) {
+            .app-content {
+                padding-bottom: calc(var(--bottom-nav-height) + 2.5rem + 26vh);
+            }
         }
     }
 }
@@ -1805,7 +1824,7 @@ button {
             transform-origin: 0 50%;
             animation: var(--sd-grow);
             animation-timeline: view();
-            animation-range: entry 0% cover 28%;
+            animation-range: cover 0% cover 34vh;
         }
 
         /* Panel boczny sam jest kontenerem przewijania — jego pasek zostaje statyczny. */
