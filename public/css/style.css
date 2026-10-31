@@ -530,7 +530,7 @@ button {
     display: block;
     width: 100%;
     height: 8px;
-    overflow: hidden;
+    overflow: clip;
     border-radius: var(--radius-full);
     background-color: var(--c-surface-high);
 }
@@ -1556,7 +1556,6 @@ button {
         :root {
             --sd-reveal: sd-reveal linear both;
             --sd-reveal-left: sd-reveal-left linear both;
-            --sd-zoom: sd-zoom linear both;
             --sd-turn: sd-turn linear both;
             /* Zakres odsłaniania: do 70% wysokości elementu, nie więcej niż 240 px przewinięcia. */
             --sd-range: entry 0% entry min(70%, 240px);
@@ -1587,16 +1586,6 @@ button {
             to {
                 opacity: 1;
                 transform: none;
-            }
-        }
-
-        @keyframes sd-zoom {
-            from {
-                transform: scale(1);
-            }
-
-            to {
-                transform: scale(1.12);
             }
         }
 
@@ -1697,11 +1686,13 @@ button {
     @supports (animation-timeline: view()) {
         :root {
             --sd-reveal-right: sd-reveal-right linear both;
-            --sd-wipe: sd-wipe linear both;
             --sd-grow: sd-grow-x linear both;
             --sd-pop: sd-pop linear both;
             --sd-exit: sd-exit linear both;
-            --sd-drift: sd-drift linear both;
+            --sd-layer: sd-layer linear both;
+            --sd-pan: sd-pan-y linear both;
+            --sd-clip: sd-clip-in linear both;
+            --sd-lag: sd-lag linear both;
             --sd-draw: sd-draw-y linear both;
         }
 
@@ -1714,19 +1705,6 @@ button {
 
             to {
                 opacity: 1;
-                transform: none;
-            }
-        }
-
-        /* Zdjęcie odsłania się od góry, jednocześnie „osiadając” z lekkiego przybliżenia. */
-        @keyframes sd-wipe {
-            from {
-                clip-path: inset(0 0 100% 0);
-                transform: scale(1.14);
-            }
-
-            to {
-                clip-path: inset(0 0 0 0);
                 transform: none;
             }
         }
@@ -1766,14 +1744,49 @@ button {
             }
         }
 
-        /* Paralaksa: element przesuwa się wolniej niż reszta strony. */
-        @keyframes sd-drift {
+        /* Paralaksa warstwowa: warstwa jedzie od (--sd-x0, --sd-y0) do (--sd-x1, --sd-y1) wzdłuż osi czasu. */
+        @keyframes sd-layer {
             from {
+                transform: translate3d(var(--sd-x0, 0px), var(--sd-y0, 0px), 0);
+            }
+
+            to {
+                transform: translate3d(var(--sd-x1, 0px), var(--sd-y1, 0px), 0);
+            }
+        }
+
+        /* Parallax zdjęcia w ramce (rodzic z overflow: clip): obraz przesuwa się wolniej niż ramka. */
+        @keyframes sd-pan-y {
+            from {
+                transform: translateY(-7%) scale(1.18);
+            }
+
+            to {
+                transform: translateY(7%) scale(1.18);
+            }
+        }
+
+        /* Ramka zdjęcia odsłania się od góry (samo przycięcie, bez ruchu obrazu). */
+        @keyframes sd-clip-in {
+            from {
+                clip-path: inset(0 0 100% 0);
+            }
+
+            to {
+                clip-path: inset(0 0 0 0);
+            }
+        }
+
+        /* Treść hero zostaje w tyle i blednie, gdy strona odjeżdża. */
+        @keyframes sd-lag {
+            from {
+                opacity: 1;
                 transform: none;
             }
 
             to {
-                transform: translateY(44px);
+                opacity: 0.45;
+                transform: translateY(56px);
             }
         }
 
@@ -1793,6 +1806,11 @@ button {
             animation: var(--sd-grow);
             animation-timeline: view();
             animation-range: entry 0% cover 28%;
+        }
+
+        /* Panel boczny sam jest kontenerem przewijania — jego pasek zostaje statyczny. */
+        .app-sidebar .progress__bar {
+            animation: none;
         }
     }
 }

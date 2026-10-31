@@ -153,7 +153,7 @@
 /* --- Hero --------------------------------------------------------------- */
 .studio-hero {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     padding: 48px;
     border-radius: var(--radius-lg);
     background-color: var(--c-surface-low);
@@ -1420,7 +1420,7 @@
 .studio-case {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: clip;
     border-radius: var(--radius-md);
     background-color: var(--c-surface-lowest);
     box-shadow: var(--shadow-md);
@@ -1429,7 +1429,7 @@
 .studio-case__media {
     position: relative;
     height: 223px;
-    overflow: hidden;
+    overflow: clip;
 }
 
 .studio-case__media img {
@@ -1740,10 +1740,16 @@
             animation-range: exit 10% exit 80%;
         }
 
-        .studio-case__media img {
-            animation: var(--sd-wipe);
+        .studio-case__media {
+            animation: var(--sd-clip);
             animation-timeline: view();
             animation-range: entry 0% entry min(90%, 300px);
+        }
+
+        .studio-case__media img {
+            animation: var(--sd-pan);
+            animation-timeline: view();
+            animation-range: cover 0% cover 100%;
         }
 
         /* Wykres Gantta „rysuje się” od lewej; oś czasu wspólna dla całego wykresu. */

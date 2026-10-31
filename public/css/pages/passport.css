@@ -383,7 +383,7 @@
 .passport-meter {
     height: 7px;
     margin-top: 0.375rem;
-    overflow: hidden;
+    overflow: clip;
     background-color: var(--c-surface-high);
     border-radius: var(--radius-full);
 }
@@ -1097,9 +1097,9 @@
             animation-range: var(--sd-range);
         }
 
-        /* Zdjęcie w hero lekko się przybliża przy przewijaniu (hero ma overflow: hidden). */
+        /* Zdjęcie w hero przesuwa się w ramce przy przewijaniu (hero przycina obraz). */
         .passport-hero__image {
-            animation: var(--sd-zoom);
+            animation: var(--sd-pan);
             animation-timeline: scroll(root block);
             animation-range: 0 520px;
         }

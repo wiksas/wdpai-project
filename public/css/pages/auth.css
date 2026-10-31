@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     padding: 48px 48px 46px;
-    overflow: hidden;
+    overflow: clip;
     color: var(--c-on-primary-container);
     background-color: var(--c-primary);
     border-radius: 6px;
