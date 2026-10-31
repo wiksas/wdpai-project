@@ -1780,3 +1780,114 @@
         }
     }
 }
+
+/* --- Paralaksa: warstwy tła Studia ---------------------------------------- */
+/* Dekoracja (kanji) jest widoczna zawsze; ruch dochodzi tylko tam, gdzie działa animation-timeline. */
+.studio-hero::after,
+.studio-section::before {
+    position: absolute;
+    z-index: 0;
+    font-family: var(--font-serif);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}
+
+.studio-hero::after {
+    content: "造";
+    content: "造" / "";
+    top: -34px;
+    right: 6%;
+    font-size: 300px;
+    color: rgba(7, 36, 23, 0.045);
+}
+
+.studio-section {
+    position: relative;
+}
+
+.studio-section > * {
+    position: relative;
+    z-index: 1;
+}
+
+.studio-section::before {
+    content: "";
+    top: 16px;
+    right: 1%;
+    font-size: 280px;
+    color: rgba(7, 36, 23, 0.04);
+}
+
+.studio-section:nth-of-type(even)::before {
+    right: auto;
+    left: 1%;
+}
+
+/* Sekcje: forma, pora roku, linia (drut), technika, zapis — po jednym kanji na sekcję. */
+.studio-section:nth-of-type(2)::before {
+    content: "形";
+    content: "形" / "";
+}
+
+.studio-section:nth-of-type(3)::before {
+    content: "季";
+    content: "季" / "";
+}
+
+.studio-section:nth-of-type(4)::before {
+    content: "線";
+    content: "線" / "";
+}
+
+.studio-section:nth-of-type(5)::before {
+    content: "技";
+    content: "技" / "";
+}
+
+.studio-section:nth-of-type(6)::before {
+    content: "録";
+    content: "録" / "";
+}
+
+@media (max-width: 768px) {
+    .studio-hero::after {
+        font-size: 170px;
+        right: -10px;
+    }
+
+    .studio-section::before {
+        font-size: 170px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .studio-hero::after {
+            --sd-y0: 0px;
+            --sd-y1: 170px;
+            animation: var(--sd-layer);
+            animation-timeline: scroll(root block);
+            animation-range: 0 900px;
+        }
+
+        .studio-section {
+            view-timeline: --sd-studio-section block;
+        }
+
+        /* Kanji sekcji parzystych jadą w jedną stronę, nieparzystych w drugą. */
+        .studio-section::before {
+            --sd-y0: -90px;
+            --sd-y1: 120px;
+            animation: var(--sd-layer);
+            animation-timeline: --sd-studio-section;
+            animation-range: cover 0% cover 100%;
+        }
+
+        .studio-section:nth-of-type(even)::before {
+            --sd-y0: 120px;
+            --sd-y1: -90px;
+        }
+    }
+}

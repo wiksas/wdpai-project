@@ -7,7 +7,7 @@ namespace App\Service;
 use App\Repository\UserRepository;
 
 /**
- * Logowanie i bieżący użytkownik. Jedyne miejsce, które dotyka `$_SESSION`.
+ * Logowanie i bieżący użytkownik.
  */
 final class AuthService
 {
@@ -22,8 +22,10 @@ final class AuthService
         'master' => 'Mistrz',
     ];
 
-    public function __construct(private readonly UserRepository $users)
-    {
+    public function __construct(
+        private readonly UserRepository $users,
+        private readonly Session $session,
+    ) {
     }
 
     /**
@@ -33,14 +35,14 @@ final class AuthService
      */
     public function currentUser(): ?array
     {
-        $id = $_SESSION[self::SESSION_KEY] ?? null;
+        $id = $this->session->get(self::SESSION_KEY);
         if (!is_int($id)) {
             return null;
         }
 
         $user = $this->users->findById($id);
         if ($user === null) {
-            unset($_SESSION[self::SESSION_KEY]);
+            $this->session->forget(self::SESSION_KEY);
             return null;
         }
 
@@ -68,14 +70,14 @@ final class AuthService
 
     public function signIn(int $userId): void
     {
-        session_regenerate_id(true);
-        $_SESSION[self::SESSION_KEY] = $userId;
+        $this->session->regenerate();
+        $this->session->set(self::SESSION_KEY, $userId);
     }
 
     public function logout(): void
     {
-        $_SESSION = [];
-        session_regenerate_id(true);
+        $this->session->clear();
+        $this->session->regenerate();
     }
 
     /**

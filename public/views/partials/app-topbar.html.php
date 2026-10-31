@@ -21,7 +21,7 @@ $topbarBack = $topbarBack ?? null;
     <form class="search app-topbar__search" action="/collection" method="GET" role="search">
         <span class="ms" aria-hidden="true">search</span>
         <label class="visually-hidden" for="app-search">Szukaj okazu</label>
-        <input class="search__input" type="search" id="app-search" name="q" placeholder="Wyszukaj okaz w szklarni (drzewko, styl, donica)...">
+        <input class="search__input" type="search" id="app-search" name="q" value="<?= htmlspecialchars((string) ($criteria['q'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" placeholder="Wyszukaj okaz w szklarni (drzewko, styl, donica)..." autocomplete="off">
     </form>
 
     <div class="app-topbar__actions">
@@ -29,9 +29,7 @@ $topbarBack = $topbarBack ?? null;
             <span class="ms" aria-hidden="true">shield</span>
             Prewencja Usychania: Aktywna
         </span>
-        <a href="/schedule" class="icon-button icon-button--notify app-topbar__notify" aria-label="Powiadomienia (1 nowe)">
-            <span class="ms" aria-hidden="true">notifications</span>
-        </a>
+        <?php include __DIR__ . '/notifications.html.php'; ?>
         <?php if ($topbarBack !== null): ?>
             <button type="button" class="icon-button app-topbar__more" aria-label="Więcej opcji">
                 <span class="ms" aria-hidden="true">more_vert</span>

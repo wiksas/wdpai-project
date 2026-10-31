@@ -407,5 +407,6 @@ $wiredTrees = array_values(array_filter($trees, static fn (array $tree): bool =>
         </div>
     </div>
     <?php include __DIR__ . '/partials/app-bottom-nav.html.php'; ?>
+    <?php include __DIR__ . '/partials/foot.html.php'; ?>
 </body>
 </html>

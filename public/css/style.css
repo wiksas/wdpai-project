@@ -1833,3 +1833,534 @@ button {
         }
     }
 }
+
+/* --- 17c. Paralaksa globalna: stopka i strona 404 ------------------------- */
+.site-footer,
+.not-found__card {
+    position: relative;
+    overflow: clip;
+}
+
+.site-footer__inner,
+.not-found__card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.site-footer::before,
+.not-found__card::before {
+    position: absolute;
+    z-index: 0;
+    font-family: var(--font-serif);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}
+
+.site-footer::before {
+    content: "盆栽";
+    content: "盆栽" / "";
+    right: 3%;
+    bottom: -70px;
+    font-size: 280px;
+    color: rgba(7, 36, 23, 0.04);
+}
+
+.not-found__card::before {
+    content: "迷";
+    content: "迷" / "";
+    top: -40px;
+    right: -10px;
+    font-size: 300px;
+    color: rgba(148, 73, 41, 0.07);
+}
+
+@media (max-width: 768px) {
+    .site-footer::before {
+        font-size: 160px;
+    }
+
+    .not-found__card::before {
+        font-size: 200px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .site-footer {
+            view-timeline: --sd-footer block;
+        }
+
+        .site-footer::before {
+            --sd-y0: -70px;
+            --sd-y1: 50px;
+            animation: var(--sd-layer);
+            animation-timeline: --sd-footer;
+            animation-range: cover 0% cover 100%;
+        }
+
+        .not-found__card {
+            view-timeline: --sd-notfound block;
+        }
+
+        .not-found__card::before {
+            --sd-x0: 0px;
+            --sd-y0: -40px;
+            --sd-x1: -50px;
+            --sd-y1: 50px;
+            animation: var(--sd-layer);
+            animation-timeline: --sd-notfound;
+            animation-range: cover 0% cover 100%;
+        }
+    }
+
+    /* Ikona na stronie 404 delikatnie unosi się w miejscu (animacja czasowa, nie przewijaniem). */
+    .not-found__icon {
+        animation: sd-float 5s ease-in-out infinite;
+    }
+
+    @keyframes sd-float {
+        0%,
+        100% {
+            transform: translateY(0) rotate(-3deg);
+        }
+
+        50% {
+            transform: translateY(-10px) rotate(3deg);
+        }
+    }
+}
+
+/* ==========================================================================
+   18. POWIADOMIENIA (DZWONEK) I TOASTY
+   ========================================================================== */
+.notif {
+    position: relative;
+}
+
+.notif__trigger {
+    position: relative;
+    list-style: none;
+    cursor: pointer;
+}
+
+.notif__trigger::-webkit-details-marker {
+    display: none;
+}
+
+.notif[open] > .notif__trigger {
+    background-color: var(--c-surface-container);
+}
+
+.notif__badge {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    color: var(--c-on-primary);
+    background-color: var(--c-tertiary);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 0 2px var(--c-surface-bright);
+    animation: notif-badge-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.notif__badge[hidden] {
+    display: none;
+}
+
+.notif__panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 24px));
+    max-height: min(560px, calc(100vh - var(--topbar-height) - 24px));
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    transform-origin: calc(100% - 20px) 0;
+}
+
+.notif[open] > .notif__panel {
+    animation: notif-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.notif__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--c-divider);
+}
+
+.notif__title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+}
+
+.notif__all {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--c-tertiary);
+    text-align: right;
+}
+
+.notif__all:hover:not(:disabled) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.notif__all:disabled {
+    color: var(--c-outline);
+    cursor: default;
+}
+
+.notif__list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.notif__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 24px;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 12px 14px 16px;
+    border-bottom: 1px solid var(--c-divider);
+    transition: background-color var(--transition), opacity 300ms ease;
+}
+
+.notif__item:last-child {
+    border-bottom: 0;
+}
+
+.notif__item:hover {
+    background-color: var(--c-surface-low);
+}
+
+.notif[open] .notif__item {
+    animation: notif-item-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.notif[open] .notif__item:nth-child(2) { animation-delay: 40ms; }
+.notif[open] .notif__item:nth-child(3) { animation-delay: 80ms; }
+.notif[open] .notif__item:nth-child(4) { animation-delay: 120ms; }
+.notif[open] .notif__item:nth-child(5) { animation-delay: 160ms; }
+.notif[open] .notif__item:nth-child(n + 6) { animation-delay: 200ms; }
+
+.notif__item.is-unread {
+    background-color: var(--c-tertiary-soft);
+}
+
+.notif__item:not(.is-unread) .notif__item-title {
+    font-weight: 500;
+}
+
+.notif__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background-color: var(--c-surface-high);
+    color: var(--c-primary);
+}
+
+.notif__icon .ms {
+    font-size: 20px;
+}
+
+.notif__item--critical .notif__icon,
+.notif__item--warning .notif__icon {
+    background-color: var(--c-tertiary-container);
+    color: var(--c-tertiary);
+}
+
+.notif__item--success .notif__icon {
+    background-color: var(--c-secondary-container);
+    color: var(--c-secondary);
+}
+
+.notif__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    color: inherit;
+}
+
+.notif__item-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--c-primary);
+}
+
+.notif__text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--c-on-surface-variant);
+}
+
+.notif__when {
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-outline);
+}
+
+.notif__read {
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+}
+
+.notif__dot {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+}
+
+.notif__dot::after {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    background-color: var(--c-tertiary);
+    transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.notif__dot:hover:not(:disabled) {
+    background-color: var(--c-tertiary-container);
+}
+
+.notif__dot:disabled {
+    cursor: default;
+}
+
+.notif__dot:disabled::after {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.notif__empty {
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--c-on-surface-variant);
+}
+
+.notif__foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--c-divider);
+}
+
+.notif__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-primary);
+}
+
+.notif__link .ms {
+    font-size: 16px;
+    transition: transform var(--transition);
+}
+
+.notif__link:hover .ms {
+    transform: translateX(4px);
+}
+
+@keyframes notif-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes notif-item-in {
+    from {
+        opacity: 0;
+        transform: translateX(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes notif-badge-pop {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Dzwonek lekko „dzwoni”, gdy są nowe powiadomienia (raz, po wejściu na stronę). */
+.notif__trigger:has(.notif__badge:not([hidden])) > .ms {
+    transform-origin: 50% 12%;
+    animation: notif-ring 900ms ease-in-out 600ms 1 both;
+}
+
+@keyframes notif-ring {
+    0%,
+    100% {
+        transform: rotate(0);
+    }
+
+    15% {
+        transform: rotate(14deg);
+    }
+
+    30% {
+        transform: rotate(-12deg);
+    }
+
+    45% {
+        transform: rotate(9deg);
+    }
+
+    60% {
+        transform: rotate(-6deg);
+    }
+
+    75% {
+        transform: rotate(3deg);
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Na mobile panel rozciąga się na szerokość paska (pasek jest kontenerem pozycjonowania). */
+    .notif {
+        position: static;
+    }
+
+    .notif__panel {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        transform-origin: calc(100% - 60px) 0;
+    }
+}
+
+/* --- Toasty (komunikaty po zapisaniu akcji) ------------------------------- */
+.toasts {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 120;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: calc(100vw - 40px);
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 420px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--c-on-primary);
+    background-color: var(--c-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    pointer-events: auto;
+    animation: toast-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both, toast-out 320ms ease 4.2s forwards;
+}
+
+.toast .ms {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: var(--c-on-primary-container);
+}
+
+.toast--error {
+    background-color: #7d3a1f;
+}
+
+.toast--error .ms {
+    color: var(--c-tertiary-container);
+}
+
+.toast.is-leaving {
+    animation: toast-out 260ms ease forwards;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes toast-out {
+    to {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+        visibility: hidden;
+    }
+}
+
+@media (max-width: 1024px) {
+    .toasts {
+        right: 12px;
+        bottom: calc(var(--bottom-nav-height) + 12px);
+        left: 12px;
+        align-items: stretch;
+    }
+
+    .toast {
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notif__badge,
+    .notif__trigger > .ms,
+    .notif[open] > .notif__panel,
+    .notif[open] .notif__item {
+        animation: none;
+    }
+
+    .toast {
+        animation: none;
+    }
+}

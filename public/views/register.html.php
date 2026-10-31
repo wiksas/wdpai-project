@@ -109,6 +109,7 @@
             ];
             ?>
             <form action="/register" method="POST" class="auth-form" novalidate>
+                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                 <?php if ($errors !== []): ?>
                     <p class="auth-alert" role="alert">
                         <span class="ms" aria-hidden="true">error</span>
@@ -197,5 +198,6 @@
             </ul>
         </main>
     </div>
+    <?php include __DIR__ . '/partials/foot.html.php'; ?>
 </body>
 </html>

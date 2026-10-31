@@ -94,6 +94,7 @@
             <p class="auth-divider"><span>lub e-mailem</span></p>
 
             <form action="/login" method="POST" class="auth-form">
+                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                 <?php if (isset($errors['form'])): ?>
                     <p class="auth-alert" role="alert">
                         <span class="ms" aria-hidden="true">error</span>
@@ -157,5 +158,6 @@
             <p class="auth-tagline"><span lang="ja">木漏れ日</span> · Światło przesączające się przez liście drzew</p>
         </main>
     </div>
+    <?php include __DIR__ . '/partials/foot.html.php'; ?>
 </body>
 </html>

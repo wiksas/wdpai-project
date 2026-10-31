@@ -1967,3 +1967,100 @@
         }
     }
 }
+
+/* --- Paralaksa: warstwy tła Kliniki --------------------------------------- */
+.clinic-hero,
+.clinic-archive {
+    position: relative;
+}
+
+.clinic-hero > *,
+.clinic-archive > * {
+    position: relative;
+    z-index: 1;
+}
+
+.clinic-hero::before,
+.clinic-hero::after,
+.clinic-archive::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}
+
+/* Hero: kanji „diagnoza” i terakotowa poświata. */
+.clinic-hero::before {
+    content: "診";
+    content: "診" / "";
+    top: -50px;
+    left: 46%;
+    font-family: var(--font-serif);
+    font-size: 300px;
+    line-height: 1;
+    color: rgba(7, 36, 23, 0.04);
+}
+
+.clinic-hero::after {
+    right: 8%;
+    bottom: -120px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(254, 158, 119, 0.22), transparent 68%);
+}
+
+/* Archiwum: kanji „uzdrowienie”. */
+.clinic-archive::before {
+    content: "癒";
+    content: "癒" / "";
+    top: -20px;
+    right: 3%;
+    font-family: var(--font-serif);
+    font-size: 260px;
+    line-height: 1;
+    color: rgba(7, 36, 23, 0.04);
+}
+
+@media (max-width: 768px) {
+    .clinic-hero::before,
+    .clinic-archive::before {
+        font-size: 160px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .clinic-hero::before {
+            --sd-y0: 0px;
+            --sd-y1: 170px;
+            animation: var(--sd-layer);
+            animation-timeline: scroll(root block);
+            animation-range: 0 800px;
+        }
+
+        .clinic-hero::after {
+            --sd-x0: 0px;
+            --sd-y0: 0px;
+            --sd-x1: -80px;
+            --sd-y1: -140px;
+            animation: var(--sd-layer);
+            animation-timeline: scroll(root block);
+            animation-range: 0 800px;
+        }
+
+        .clinic-archive {
+            view-timeline: --sd-clinic-archive block;
+        }
+
+        .clinic-archive::before {
+            --sd-y0: -100px;
+            --sd-y1: 100px;
+            animation: var(--sd-layer);
+            animation-timeline: --sd-clinic-archive;
+            animation-range: cover 0% cover 100%;
+        }
+    }
+}

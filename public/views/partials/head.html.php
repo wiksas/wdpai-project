@@ -7,6 +7,8 @@ $asset = static function (string $path): string {
 };
 ?>
 <meta charset="UTF-8">
+<meta name="csrf-token" content="<?= htmlspecialchars((string) ($csrfToken ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+<script>document.documentElement.classList.add('js');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars((string) ($pageTitle ?? 'KOMOREBI'), ENT_QUOTES, 'UTF-8') ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">

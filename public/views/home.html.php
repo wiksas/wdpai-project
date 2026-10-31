@@ -347,5 +347,6 @@
     </main>
 
     <?php include __DIR__ . '/partials/site-footer.html.php'; ?>
+    <?php include __DIR__ . '/partials/foot.html.php'; ?>
 </body>
 </html>

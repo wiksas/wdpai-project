@@ -36,6 +36,7 @@ final class TreeRepository
             'care' => null,
             'reminder' => 'Uszczykiwanie świeczek za 3 dni',
             'action' => null,
+            'actionType' => null,
             'phenology' => [
                 'phase' => 'Wiosna – faza pękania świeczek szczytowych',
                 'description' => 'Intensywny przepływ soków, wysokie zapotrzebowanie na światło.',
@@ -107,6 +108,7 @@ final class TreeRepository
             'care' => null,
             'reminder' => 'Nawożenie Biogold: za 4 dni • Przygotuj koszyczki nawozowe',
             'action' => 'Zarejestruj kąpiel',
+            'actionType' => 'water',
             'phenology' => [
                 'phase' => 'Wiosna – rozwijanie pierwszych liści',
                 'description' => 'Młode liście są wrażliwe na wiatr i ostre słońce południowe.',
@@ -169,6 +171,7 @@ final class TreeRepository
             ],
             'reminder' => null,
             'action' => 'Odnotuj korektę',
+            'actionType' => 'adjust',
             'phenology' => [
                 'phase' => 'Wiosna – wybijanie nowych łusek',
                 'description' => 'Aktywny wzrost pędów; kontroluj napięcie drutu co tydzień.',
@@ -230,6 +233,7 @@ final class TreeRepository
             'care' => null,
             'reminder' => null,
             'action' => 'Wykonano nawadnianie',
+            'actionType' => 'water',
             'phenology' => [
                 'phase' => 'Wiosna – pękanie pąków liściowych',
                 'description' => 'Najwyższe zapotrzebowanie na wodę w całym sezonie.',

@@ -28,6 +28,7 @@ $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, 
             Moja Kolekcja
         </a>
         <form action="/logout" method="POST">
+            <?php include __DIR__ . '/csrf.html.php'; ?>
             <button type="submit" class="user-menu__item user-menu__item--danger">
                 <span class="ms" aria-hidden="true">logout</span>
                 Wyloguj się

@@ -26,6 +26,8 @@ class AuthController extends AppController
     // Obsługa trasy: POST /login
     public function authenticate(): void
     {
+        $this->requireCsrf();
+
         $this->redirectIfLoggedIn();
 
         $login = trim((string) ($_POST['login'] ?? ''));
@@ -59,6 +61,8 @@ class AuthController extends AppController
     // Obsługa trasy: POST /register
     public function store(): void
     {
+        $this->requireCsrf();
+
         $this->redirectIfLoggedIn();
 
         $name = trim((string) ($_POST['name'] ?? ''));
@@ -114,6 +118,8 @@ class AuthController extends AppController
     // Obsługa trasy: POST /logout
     public function logout(): void
     {
+        $this->requireCsrf();
+
         $this->auth()->logout();
         $this->redirect('/');
     }

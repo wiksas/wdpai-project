@@ -1138,3 +1138,46 @@
         }
     }
 }
+
+/* --- Paralaksa: warstwy tła karty okazu ----------------------------------- */
+.passport-status {
+    position: relative;
+    overflow: clip;
+}
+
+.passport-status > * {
+    position: relative;
+    z-index: 1;
+}
+
+.passport-status::before {
+    content: "命";
+    content: "命" / "";
+    position: absolute;
+    z-index: 0;
+    top: -40px;
+    right: -10px;
+    font-family: var(--font-serif);
+    font-size: 240px;
+    line-height: 1;
+    color: rgba(7, 36, 23, 0.045);
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .passport-status {
+            view-timeline: --sd-passport-status block;
+        }
+
+        .passport-status::before {
+            --sd-y0: -80px;
+            --sd-y1: 80px;
+            animation: var(--sd-layer);
+            animation-timeline: --sd-passport-status;
+            animation-range: cover 0% cover 100%;
+        }
+    }
+}

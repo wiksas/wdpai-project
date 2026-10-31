@@ -227,5 +227,6 @@ $nextStepParts = explode(':', (string) $tree['recommendation']['nextStep'], 2);
         </div>
     </div>
     <?php include __DIR__ . '/partials/app-bottom-nav.html.php'; ?>
+    <?php include __DIR__ . '/partials/foot.html.php'; ?>
 </body>
 </html>

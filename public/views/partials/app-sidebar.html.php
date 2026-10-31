@@ -17,17 +17,22 @@ $sidebarLinks = [
         </span>
     </a>
 
+    <?php
+    $sbHealth = (int) ($sidebarSummary['health'] ?? 100);
+    $sbThirsty = (int) ($sidebarSummary['thirsty'] ?? 0);
+    $sbTotal = (int) ($sidebarSummary['total'] ?? 0);
+    ?>
     <section class="status-card" aria-label="Status kolekcji">
         <div class="status-card__row">
             <span>Status Kolekcji</span>
-            <span class="status-card__value">98% Zdrowia</span>
+            <span class="status-card__value" data-sidebar-health><?= $sbHealth ?>% Zdrowia</span>
         </div>
         <div class="progress progress--thin" role="presentation">
-            <span class="progress__bar" style="--value: 98%"></span>
+            <span class="progress__bar" style="--value: <?= $sbHealth ?>%"></span>
         </div>
         <div class="status-card__row status-card__row--meta">
-            <span class="status-card__alert"><span class="ms" aria-hidden="true">water_drop</span>1 wymaga podlania</span>
-            <span>12 okazów</span>
+            <span class="status-card__alert" data-sidebar-thirsty><span class="ms" aria-hidden="true">water_drop</span><?= $sbThirsty === 0 ? 'Wszystko nawodnione' : $sbThirsty . ' ' . ($sbThirsty === 1 ? 'wymaga podlania' : 'wymagają podlania') ?></span>
+            <span><?= $sbTotal ?> <?= \App\Support\PolishDate::plural($sbTotal, 'okaz', 'okazy', 'okazów') ?></span>
         </div>
     </section>
 
