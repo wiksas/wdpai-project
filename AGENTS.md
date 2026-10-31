@@ -20,7 +20,7 @@ Aktualnie aplikacja obsluguje:
 - Nginx jako serwer HTTP
 - PHP-FPM do wykonywania kodu PHP
 - Docker oraz Docker Compose
-- HTML i CSS bez frameworka frontendowego
+- HTML i CSS bez frameworka frontendowego; czysty JavaScript (bez bundlera) jako progresywne ulepszenie
 
 ## Struktura katalogow
 
@@ -33,15 +33,17 @@ Aktualnie aplikacja obsluguje:
 │   ├── css/style.css          # globalne style: tokeny, komponenty, powloka aplikacji
 │   ├── css/pages/             # style pojedynczych stron (selektory z prefiksem strony, np. `.home-`)
 │   ├── images/                # zdjecia z projektu Figma
+│   ├── js/                    # czysty JavaScript: app.js (wspolny) + skrypty stron
 │   ├── index.php              # front controller i definicje tras
 │   └── views/                 # szablony HTML renderowane przez kontrolery
 │       └── partials/          # wspolne fragmenty: head, naglowek, stopka, powloka aplikacji
 ├── src/
 │   ├── controllers/           # kontrolery aplikacji
-│   ├── Repository/            # repozytoria: dane demonstracyjne i konta (bez bazy danych)
-│   ├── Service/               # serwisy, np. AuthService (sesja i logowanie)
+│   ├── Repository/            # repozytoria: dane demonstracyjne, konta, stan uzytkownika (bez bazy danych)
+│   ├── Service/               # serwisy: Session, Csrf, Flash, AuthService, MediaStorage, Collection/Schedule/Notification/Clinic/Studio…
+│   ├── Support/               # klasy pomocnicze bez zaleznosci (PolishDate)
 │   └── Routing.php            # rejestracja i obsluga tras
-├── storage/                   # dane uruchomieniowe poza `public/` (np. users.json, w .gitignore)
+├── storage/                   # dane uruchomieniowe poza `public/` (users.json, state/, uploads/ — w .gitignore)
 ├── composer.json              # konfiguracja autoloadingu
 └── docker-compose.yaml        # uslugi `server` i `php`
 ```
@@ -120,12 +122,30 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 
 ## Uwierzytelnianie
 
-- Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\AuthService`; kontrolery i widoki z niego korzystaja.
+- Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\Session` (uzywana przez `AuthService`, `Csrf`, `Flash`); kontrolery i widoki korzystaja z tych serwisow.
 - `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `email`, `role`, `initials`, `label` — bez hasha hasla).
 - Strony aplikacji (`/collection`, `/collection/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
 - Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia zyje w kontrolerze, hasla zapisujemy tylko przez `password_hash()`.
 - Konta obsluguje `App\Repository\UserRepository`: konto demonstracyjne `admin` / `admin` jest w kodzie, a konta z rejestracji laduja w `storage/users.json` (poza `public/`, w `.gitignore`). To rozwiazanie tymczasowe — po dodaniu bazy danych podmien implementacje repozytorium na PDO bez zmiany kontrolerow. Konto demonstracyjne usun przed wdrozeniem produkcyjnym.
 - Menu konta (`partials/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.
+
+## Zabezpieczenia formularzy i stan uzytkownika
+
+- **CSRF:** kazdy `POST` (w tym `fetch`) wymaga tokenu. Formularze HTML wstawiaja `<?php include __DIR__ . '/partials/csrf.html.php'; ?>` (pole `_csrf`), a `fetch` wysyla naglowek `X-CSRF-Token` (token jest w `<meta name="csrf-token">` z `partials/head.html.php`). Kontroler na poczatku akcji `POST` wywoluje `$this->requireCsrf()` (brak/zly token = 419). Nowa akcja `POST` bez tego wywolania jest bledem.
+- **Sesja:** do `$_SESSION` siega wylacznie `App\Service\Session` (oraz przez nia `AuthService`, `Csrf`, `Flash`). Komunikaty jednorazowe: `Flash` (`$this->flash()`), wyswietlane jako toasty (`partials/foot.html.php`).
+- **Odpowiedzi dla JS i bez JS:** akcje zapisujace koncza sie `$this->respond($message, $redirect, $extra, $ok, $status)` — dla zadan `fetch` (`X-Requested-With: fetch`) zwraca JSON `{ok, message, …}`, w pozostalych przypadkach ustawia flash i przekierowuje (z ochrona przed open redirect). Dzieki temu kazda funkcja dziala takze bez JavaScriptu.
+- **Stan uzytkownika** (odczytane powiadomienia, odhaczone zadania, wlasne zabiegi, podlewanie, dziennik, zdjecia, skany, zamglawianie) zapisuje `App\Repository\UserStateRepository` w `storage/state/user-{id}.json` (blokada `flock`). Nowe pole dodaj do `UserStateRepository::DEFAULTS`.
+- **Zdjecia:** wgrywa je `App\Service\MediaStorage` (kontrola MIME przez `finfo`, limit 2 MB i 6000 px, losowe nazwy) do `storage/uploads/{userId}/`. Pliki sa serwowane tylko wlascicielowi przez `GET /media/{name}` (`MediaController`); `storage/` nie jest publiczne.
+- **Serwisy domenowe:** `CollectionService` (stan drzewek po zabiegach), `ScheduleService` (zadania generowane regulami + wlasne), `NotificationService` (powiadomienia liczone z danych, ID zawieraja date/status), `ClinicKnowledge` (baza wiedzy konsultanta — dopasowanie slow kluczowych, nie model jezykowy), `StudioCatalog` (style i kalendarze gatunkow), `Support\PolishDate` (polskie daty).
+
+## JavaScript
+
+Czysty JS bez bundlera i bibliotek, w `public/js/`, ladowany `defer` na koncu widoku (`<script src="<?= $asset('/js/x.js') ?>" defer>`). Zasady:
+
+- **Progresywne ulepszenie:** nawigacja, zapisy danych i filtry musza dzialac bez JS (linki, formularze, `?query`); JS tylko przechwytuje je, by zrobic to bez przeladowania. Wyjatek: czysto klienckie kalkulatory i symulatory (Studio, kalkulator ryzyka na stronie glownej) pokazuja bez JS wartosci domyslne.
+- `app.js` (ladowany wszedzie przez `partials/foot.html.php`) udostepnia `window.Komorebi`: `request`, `post`, `fetchDocument`, `swap`, `play`, `toast`, `sleep`, `reduceMotion`, `resizeImage`, panel powiadomien. Skrypty stron (`schedule.js`, `collection.js`, `specimen.js`, `clinic.js`, `studio.js`, `home.js`) z niego korzystaja i nie powtarzaja logiki.
+- Szanuj `prefers-reduced-motion` (`K.reduceMotion`); nie uzywaj `confirm`/`alert` (blokuja strone) — uzywaj toastow.
+- Dane z serwera wstawiaj przez `textContent`, nie `innerHTML` (wyjatek: stale, wlasne stringi HTML).
 
 ## Konwencje implementacji
 
@@ -171,6 +191,8 @@ Animacje przy przewijaniu (Scroll-driven Animations) sa w czystym CSS — bez Ja
 Zawsze zachowuj obie ochrony (`prefers-reduced-motion` i `@supports`), zeby tresc byla widoczna w przegladarkach bez obslugi. Nie animuj elementow, ktore maja wlasny `transform` (np. stan `:active`), bo koncowa klatka `transform: none` go nadpisze.
 
 Odslanianie (`--sd-range`) trwa na odcinku ok. 40% wysokosci okna i konczy sie, gdy gorna krawedz elementu dojedzie do ~60% od gory (`cover 0% cover 40vh`) — dzieki temu ruch jest widoczny, a nie ukryty tuz przy dolnej krawedzi. Elementy na samym koncu strony nie maja jak wjechac tak wysoko, wiec: tresc aplikacji ma zapas przewijania (`.app-content` `padding-bottom` w sekcji 17), stopka uzywa bezpiecznego zakresu `entry 0% entry 100%`, a po zmianie ukladu sprawdz w przegladarce (przewin na sam dol), czy zaden element nie zostal polprzezroczysty lub z niedopelnionym paskiem, oraz czy `animation.timeline.source` kazdej animacji to okno (`document.scrollingElement`) — `overflow: hidden/auto` na przodku przejmuje os czasu.
+
+Przejscia miedzy stronami to View Transitions API w trybie MPA (sekcja 20 `style.css`: `@view-transition { navigation: auto; }`). Stale elementy ukladu (`.app-sidebar`, `.app-topbar`, `.bottom-nav`, `.site-header`) maja `view-transition-name` i zostaja w miejscu, a tresc plynnie zanika i wjezdza. Nowy staly element ukladu dostaje wlasna nazwe; przegladarki bez wsparcia po prostu pomijaja blok.
 
 ## Uruchamianie projektu
 

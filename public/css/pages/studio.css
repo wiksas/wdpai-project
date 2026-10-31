@@ -1891,3 +1891,167 @@
         }
     }
 }
+
+/* ==========================================================================
+   Interakcje Studio: przełączanie stylów/gatunków, kalkulatory, symulator cięcia
+   ========================================================================== */
+.studio-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.studio-style {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.studio-style:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.studio-style__bar {
+    transition: width 0.6s ease;
+}
+
+/* Diagram stylu: pień i gałęzie „rysują się", korona wyrasta */
+.studio-diagram__trunk,
+.studio-diagram__branch {
+    stroke-dasharray: 1;
+}
+
+.studio-sim__leaf {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.studio-sim__branch path {
+    stroke-dasharray: 1 1;
+    transition: stroke-dasharray 0.55s ease, stroke 0.4s ease;
+}
+
+.studio-sim__branch.is-cut .studio-sim__leaf {
+    opacity: 0;
+    transform: scale(0.35);
+}
+
+.studio-sim__branch.is-cut path {
+    stroke-dasharray: 0.14 1;
+}
+
+.studio-sim__branch.is-cut.is-jin path {
+    stroke: #d9d2c5;
+    stroke-dasharray: 0.42 1;
+}
+
+.studio-sim__marker {
+    cursor: pointer;
+    outline: none;
+}
+
+.studio-sim__marker circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.2s ease, fill 0.3s ease;
+}
+
+.studio-sim__marker:hover circle,
+.studio-sim__marker:focus-visible circle {
+    transform: scale(1.18);
+}
+
+.studio-sim__marker:focus-visible circle {
+    stroke: var(--c-tertiary);
+    stroke-width: 2;
+}
+
+.studio-sim__marker.is-cut circle {
+    fill: var(--c-tertiary-bright);
+}
+
+.studio-sim__button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.studio-sim__button[aria-pressed='true'] {
+    background-color: var(--c-primary-container);
+    color: var(--c-on-primary);
+}
+
+.studio-indicator__bar,
+.studio-range__input {
+    transition: width 0.5s ease;
+}
+
+.studio-angle__badge {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.studio-angle__badge.is-warn {
+    background-color: var(--c-tertiary-container);
+    color: var(--c-on-tertiary-container);
+}
+
+.studio-angle__note.is-warn .ms {
+    color: var(--c-tertiary);
+}
+
+.studio-result__size,
+.studio-result__alloy {
+    transition: opacity 0.25s ease;
+}
+
+.studio-result.is-updating .studio-result__size {
+    opacity: 0.4;
+}
+
+@media print {
+    .studio-section:not(:has(.studio-calendar)),
+    .studio-hero,
+    .studio-tabs,
+    .studio-calendar__print {
+        display: none !important;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .studio-diagram__trunk {
+        animation: studio-draw 0.9s ease-out both;
+    }
+
+    .studio-diagram__branch {
+        animation: studio-draw 0.7s ease-out 0.5s both;
+    }
+
+    .studio-diagram__foliage {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: studio-grow 0.6s ease-out 0.9s both;
+    }
+
+    .studio-diagram__triangle {
+        animation: studio-fade 0.8s ease-out 1s both;
+    }
+
+    @keyframes studio-draw {
+        from { stroke-dashoffset: 1; }
+        to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes studio-grow {
+        from { opacity: 0; transform: scale(0.2); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes studio-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+}

@@ -10,13 +10,16 @@ Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bons
 | Logowanie | `/login` | gość | Logowanie loginem lub e-mailem, komunikaty o błędach |
 | Rejestracja | `/register` | gość | Założenie konta hodowcy (walidacja, hasło hashowane), automatyczne zalogowanie |
 | Wylogowanie | `POST /logout` | zalogowany | Menu konta w nagłówku |
-| Moja Kolekcja | `/collection` | zalogowany | Panel kolekcji: statystyki, karty drzewek, mikroklimat, kalendarz prac, dziennik obserwacji |
-| Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia kuratora, oś zabiegów (404 dla nieznanego id) |
-| Studio Formowania | `/studio` | zalogowany | Kanony stylów, kalendarz cięcia, zasady drutowania, symulator balansu korony |
-| Klinika AI | `/clinic` | zalogowany | Skaner okazu i wynik diagnostyki fitopatologicznej |
-| Harmonogram | `/schedule` | zalogowany | Tydzień zabiegów, zadania na dziś, nadchodzące okna sezonowe |
+| Moja Kolekcja | `/collection` | zalogowany | Panel kolekcji: filtry (iglaste/liściaste/do podlania) i wyszukiwarka na żywo, podlewanie, dziennik obserwacji, zamgławianie, nadchodzące zabiegi |
+| Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia, podlanie z animowanym paskiem, galeria zdjęć (upload ze zmniejszaniem), druk i udostępnianie (404 dla nieznanego id) |
+| Studio Formowania | `/studio` | zalogowany | 5 stylów klasycznych i 4 gatunki (`?style=`, `?species=`), kalendarz zabiegów dla bieżącego miesiąca, kalkulator grubości drutu, wzorzec kąta owijania, symulator balansu korony z zapisem planu cięcia do harmonogramu |
+| Klinika AI | `/clinic` | zalogowany | Wgrywanie zdjęcia z animacją skanowania i analizą barwy, historia skanów, konsultant z bazą wiedzy (czat), protokół ratunkowy → harmonogram, filtr archiwum |
+| Harmonogram | `/schedule` | zalogowany | Tydzień ze strzałkami (animowane przesuwanie, gest przeciągnięcia, „Dziś”), zadania dnia z odhaczaniem, własne zabiegi, okna sezonowe (sekki) |
+| Powiadomienia | dzwonek w pasku górnym | zalogowany | Panel powiadomień liczonych z danych (podlewanie, zadania, okna sezonowe), oznaczanie jako przeczytane |
 
 Niezalogowany użytkownik wchodzący na stronę aplikacji jest przekierowywany na `/login`.
+
+Strona startowa ma kalkulator ryzyka utraty turgoru liczony na żywo. Nawigacja, zapisy i filtry działają także bez JavaScriptu (formularze i linki z przeładowaniem); kalkulatory i symulator w Studio oraz kalkulator ryzyka wymagają JS. Każdy `POST` wymaga tokenu CSRF. Przejścia między stronami korzystają z View Transitions API.
 
 ## Konto demonstracyjne
 

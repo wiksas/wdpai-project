@@ -63,7 +63,7 @@
             </header>
 
             <div class="home-risk__panel">
-                <form class="home-risk__form" action="/clinic" method="GET">
+                <form class="home-risk__form" action="/clinic" method="GET" data-risk-form>
                     <fieldset class="home-risk__group">
                         <legend class="home-risk__label">1. Wybierz gatunek drzewka</legend>
                         <div class="home-risk__choices">
@@ -125,17 +125,17 @@
                         <div class="home-risk__field">
                             <label class="home-risk__label" for="home-watering">3. Częstotliwość nawadniania</label>
                             <select class="home-risk__select" id="home-watering" name="watering">
-                                <option selected>Raz w tygodniu (wg harmonogramu)</option>
-                                <option>Po przeschnięciu wierzchniej warstwy</option>
-                                <option>Codziennie</option>
+                                <option value="weekly" selected>Raz w tygodniu (wg harmonogramu)</option>
+                                <option value="dry-top">Po przeschnięciu wierzchniej warstwy</option>
+                                <option value="daily">Codziennie</option>
                             </select>
                         </div>
                         <div class="home-risk__field">
                             <label class="home-risk__label" for="home-light">4. Ekspozycja na światło</label>
                             <select class="home-risk__select" id="home-light" name="light">
-                                <option selected>Jasne stanowisko za szybą południową</option>
-                                <option>Parapet wschodni</option>
-                                <option>Taras zewnętrzny (półcień)</option>
+                                <option value="south" selected>Jasne stanowisko za szybą południową</option>
+                                <option value="east">Parapet wschodni</option>
+                                <option value="terrace">Taras zewnętrzny (półcień)</option>
                             </select>
                         </div>
                     </div>
@@ -144,21 +144,21 @@
                 <aside class="home-result" aria-label="Wynik oceny ryzyka">
                     <div class="home-result__head">
                         <span class="home-result__kicker">Diagnostyka czasu rzeczywistego</span>
-                        <span class="home-result__badge">Umiarkowane ryzyko</span>
+                        <span class="home-result__badge" data-risk-badge>Umiarkowane ryzyko</span>
                     </div>
                     <div class="home-result__score">
                         <h3 class="home-result__title">Wskaźnik Zagrożenia Korzeni</h3>
-                        <span class="home-result__value">50%</span>
+                        <span class="home-result__value" data-risk-value aria-live="polite">50%</span>
                     </div>
-                    <div class="progress home-result__progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Wskaźnik zagrożenia korzeni">
-                        <span class="progress__bar progress__bar--bright" style="--value: 50%"></span>
+                    <div class="progress home-result__progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Wskaźnik zagrożenia korzeni" data-risk-progress>
+                        <span class="progress__bar progress__bar--bright" style="--value: 50%" data-risk-bar></span>
                     </div>
-                    <p class="home-result__text">Główne czynniki stresu: podlewanie wg sztywnego kalendarza raz w tygodniu grozi przesuszeniem.</p>
+                    <p class="home-result__text" data-risk-text>Główne czynniki stresu: podlewanie wg sztywnego kalendarza raz w tygodniu grozi przesuszeniem.</p>
                     <div class="home-result__alert">
                         <span class="ms" aria-hidden="true">warning</span>
                         <div>
-                            <strong>Zalecana natychmiastowa akcja:</strong>
-                            <p>Sprawdzaj wilgotność drewnianym patyczkiem bambusowym. Podlewaj obficie tylko wtedy, gdy górny centymetr podłoża wyschnie.</p>
+                            <strong data-risk-action-title>Zalecana natychmiastowa akcja:</strong>
+                            <p data-risk-action>Sprawdzaj wilgotność drewnianym patyczkiem bambusowym. Podlewaj obficie tylko wtedy, gdy górny centymetr podłoża wyschnie.</p>
                         </div>
                     </div>
                     <a href="/clinic" class="btn btn--tertiary btn--block home-result__cta">Otwórz Protokół Ratunkowy (PDF &amp; Krok po kroku)</a>
@@ -348,5 +348,6 @@
 
     <?php include __DIR__ . '/partials/site-footer.html.php'; ?>
     <?php include __DIR__ . '/partials/foot.html.php'; ?>
+    <script src="<?= $asset('/js/home.js') ?>" defer></script>
 </body>
 </html>

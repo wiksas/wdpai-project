@@ -1,79 +1,22 @@
 <?php
 $e = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 
-$styles = [
-    ['number' => '01', 'kanji' => '直幹', 'icon' => 'north', 'name' => 'Chokkan', 'subtitle' => 'Pionowy formalny', 'value' => 92, 'active' => false],
-    ['number' => '02', 'kanji' => '模様木', 'icon' => 'show_chart', 'name' => 'Moyogi', 'subtitle' => 'Pionowy swobodny', 'value' => 75, 'active' => true],
-    ['number' => '03', 'kanji' => '斜幹', 'icon' => 'trending_up', 'name' => 'Shakan', 'subtitle' => 'Pochylony grawitacyjnie', 'value' => 60, 'active' => false],
-    ['number' => '04', 'kanji' => '懸崖', 'icon' => 'south_east', 'name' => 'Kengai', 'subtitle' => 'Pełna kaskada skalna', 'value' => 40, 'active' => false],
-    ['number' => '05', 'kanji' => '吹流し', 'icon' => 'air', 'name' => 'Fukinagashi', 'subtitle' => 'Smagane wiatrem wybrzeża', 'value' => 85, 'active' => false],
-];
 
-$styleMetrics = [
-    ['label' => 'Wierzchołek (Tenjin)', 'value' => 'Pochylenie 8° do przodu', 'tone' => ''],
-    ['label' => 'Podstawa (Nebari)', 'value' => 'Promieniste 360°', 'tone' => ''],
-    ['label' => 'Dominanta (Sashi-eda)', 'value' => '1/3 wysokości pnia', 'tone' => 'terra'],
-];
-
-$styleErrors = [
-    ['term' => 'Kuruma-eda (Koła szprychowe):', 'text' => 'Więcej niż jedna gałąź wyrastająca z tej samej wysokości pnia.'],
-    ['term' => 'Kaeru-mata (Żabie nogi):', 'text' => "Symetryczne rozgałęzienie 'Y' rozbijające dynamikę stożka."],
-    ['term' => 'Kannonuki (Gałąź ryglująca):', 'text' => 'Gałąź rosnąca wprost ku widzowi na linii wzroku.'],
-];
-
-$speciesTabs = [
-    ['label' => 'Sosna<br>Gęstokwiatowa', 'active' => true],
-    ['label' => 'Klon<br>Japoński', 'active' => false],
-    ['label' => 'Jałowiec<br>Chiński', 'active' => false],
-    ['label' => 'Azalia<br>Satsuki', 'active' => false],
-];
 
 $months = ['STY', 'LUT', 'MAR', 'KWI', 'MAJ', 'CZE', 'LIP', 'SIE', 'WRZ', 'PAŹ', 'LIS', 'GRU'];
-$currentMonth = 9;
-
-// Cell keys: month index => cell variant (see .studio-gantt__cell--* in studio.css).
-$ganttRows = [
-    [
-        'icon' => 'content_cut',
-        'tone' => 'terra',
-        'title' => 'Cięcie strukturalne (Grube konary)',
-        'note' => 'Najlepiej w okresie uśpienia (XII - II)',
-        'cells' => [0 => 'dark', 1 => 'dark', 9 => 'window', 10 => 'muted', 11 => 'dark'],
-    ],
-    [
-        'icon' => 'spa',
-        'tone' => 'green',
-        'title' => 'Uszczykiwanie pędów (Mekiri / Candling)',
-        'note' => 'Równoważenie wigoru (VI - VII)',
-        'cells' => [4 => 'pale', 5 => 'green', 6 => 'green', 9 => 'window'],
-    ],
-    [
-        'icon' => 'change_circle',
-        'tone' => 'terra',
-        'title' => 'Przerzedzanie igieł / Prześwietlanie pąków',
-        'note' => 'Jesienna selekcja (X - XI)',
-        'cells' => [9 => 'terra', 10 => 'terra'],
-    ],
-    [
-        'icon' => 'all_inclusive',
-        'tone' => 'dark',
-        'title' => 'Czas bezpiecznego drutowania (Wymóg braku soku)',
-        'note' => 'Późna jesień i zima (X - III)',
-        'cells' => [0 => 'safe', 1 => 'safe', 2 => 'soft', 9 => 'safe', 10 => 'safe', 11 => 'safe'],
-    ],
-];
+$currentMonth = $calendar['currentMonth'];
 
 $balanceIndicators = [
-    ['label' => 'Równowaga Optyczna (Nebari vs Korona):', 'value' => '74%', 'percent' => 74, 'tone' => 'dark'],
-    ['label' => 'Penetracja Światła do Pąków Wewnętrznych:', 'value' => '48%', 'percent' => 48, 'tone' => 'green'],
-    ['label' => 'Ryzyko Odumierania Pnia (Cofanie soku):', 'value' => 'Niskie (12%)', 'percent' => 12, 'tone' => 'terra'],
+    ['key' => 'balance', 'label' => 'Równowaga Optyczna (Nebari vs Korona):', 'value' => '74%', 'percent' => 74, 'tone' => 'dark'],
+    ['key' => 'light', 'label' => 'Penetracja Światła do Pąków Wewnętrznych:', 'value' => '48%', 'percent' => 48, 'tone' => 'green'],
+    ['key' => 'risk', 'label' => 'Ryzyko Odumierania Pnia (Cofanie soku):', 'value' => 'Niskie (12%)', 'percent' => 12, 'tone' => 'terra'],
 ];
 
 $simulatorMetrics = [
-    ['label' => 'Gęstość liści', 'value' => '100%', 'tone' => ''],
-    ['label' => 'Doświetlenie pnia', 'value' => 'Średnie (42%)', 'tone' => ''],
-    ['label' => 'Przepływ soku', 'value' => 'Zbalansowany', 'tone' => 'green'],
-    ['label' => 'Wycena estetyczna', 'value' => '68 / 100', 'tone' => 'terra'],
+    ['key' => 'density', 'label' => 'Gęstość liści', 'value' => '100%', 'tone' => ''],
+    ['key' => 'trunk', 'label' => 'Doświetlenie pnia', 'value' => 'Średnie (42%)', 'tone' => ''],
+    ['key' => 'sap', 'label' => 'Przepływ soku', 'value' => 'Zbalansowany', 'tone' => 'green'],
+    ['key' => 'aesthetic', 'label' => 'Wycena estetyczna', 'value' => '68 / 100', 'tone' => 'terra'],
 ];
 
 $caseStudies = [
@@ -153,16 +96,16 @@ $caseStudies = [
                     </header>
 
                     <ul class="studio-styles" aria-label="Style klasyczne">
-                        <?php foreach ($styles as $style): ?>
+                        <?php foreach ($styles as $item): ?>
                             <li>
-                                <a href="/studio" class="studio-style<?= $style['active'] ? ' is-active' : '' ?>"<?= $style['active'] ? ' aria-current="true"' : '' ?>>
+                                <a href="/studio?style=<?= $e($item['id']) ?>&amp;species=<?= $e($calendar['id']) ?>#studio-styles-title" class="studio-style<?= $item['active'] ? ' is-active' : '' ?>" data-style="<?= $e($item['id']) ?>"<?= $item['active'] ? ' aria-current="true"' : '' ?>>
                                     <span class="studio-style__top">
-                                        <span class="studio-style__number"><?= $e($style['number']) ?> / <span lang="ja"><?= $e($style['kanji']) ?></span></span>
-                                        <span class="ms" aria-hidden="true"><?= $e($style['icon']) ?></span>
+                                        <span class="studio-style__number"><?= $e($item['number']) ?> / <span lang="ja"><?= $e($item['kanji']) ?></span></span>
+                                        <span class="ms" aria-hidden="true"><?= $e($item['icon']) ?></span>
                                     </span>
-                                    <span class="studio-style__name"><?= $e($style['name']) ?></span>
-                                    <span class="studio-style__subtitle"><?= $e($style['subtitle']) ?></span>
-                                    <span class="studio-style__bar" style="--value: <?= (int) $style['value'] ?>%" aria-hidden="true"></span>
+                                    <span class="studio-style__name"><?= $e($item['name']) ?></span>
+                                    <span class="studio-style__subtitle"><?= $e($item['subtitle']) ?></span>
+                                    <span class="studio-style__bar" style="--value: <?= (int) $item['value'] ?>%" aria-hidden="true"></span>
                                 </a>
                             </li>
                         <?php endforeach; ?>
@@ -171,38 +114,13 @@ $caseStudies = [
                     <article class="card studio-detail" aria-labelledby="studio-detail-title">
                         <figure class="studio-detail__visual">
                             <div class="studio-detail__chips">
-                                <span class="studio-chip studio-chip--style"><span lang="ja">模様木</span> · Moyogi</span>
-                                <span class="studio-chip studio-chip--green">Balans: Trójkąt Asymetryczny</span>
+                                <span class="studio-chip studio-chip--style"><span lang="ja"><?= $e($style['kanji']) ?></span> · <?= $e($style['name']) ?></span>
+                                <span class="studio-chip studio-chip--green">Balans: <?= $e($style['balance']) ?></span>
                                 <span class="studio-chip studio-chip--plain"><span class="ms" aria-hidden="true">straighten</span>Kątomierz Gałęzi</span>
                             </div>
-                            <svg class="studio-detail__diagram" viewBox="24 48 446 412" role="img" aria-label="Diagram stylu Moyogi: trójkąt asymetryczny wierzchołka i gałęzi">
-                                <polygon points="248,158 122,322 366,266" fill="#fe9e77" fill-opacity="0.08"/>
-                                <line x1="246" y1="150" x2="246" y2="394" stroke="#c2c8c1" stroke-width="1" stroke-dasharray="3 3"/>
-                                <line x1="111" y1="382" x2="383" y2="382" stroke="#727973" stroke-width="1.5"/>
-                                <path d="M214 382 C 234 378, 240 362, 246 348 C 252 362, 258 378, 278 382 Z" fill="#486554"/>
-                                <path d="M244 268 C 290 256, 330 262, 362 266" fill="none" stroke="#1e3a2b" stroke-width="4" stroke-linecap="round"/>
-                                <path d="M240 236 L 294 214" fill="none" stroke="#8e9a92" stroke-width="3" stroke-linecap="round"/>
-                                <ellipse cx="302" cy="213" rx="19" ry="6.5" fill="#b7c4ba"/>
-                                <path d="M232 314 C 200 316, 168 318, 136 318" fill="none" stroke="#1e3a2b" stroke-width="4" stroke-linecap="round"/>
-                                <path d="M246 352 C 224 322, 226 290, 240 262 C 256 232, 258 200, 248 160" fill="none" stroke="#1e3a2b" stroke-width="12" stroke-linecap="round"/>
-                                <ellipse cx="126" cy="320" rx="27" ry="10.5" fill="#3d5a4a"/>
-                                <ellipse cx="132" cy="316" rx="17" ry="6" fill="#4d6b5a"/>
-                                <ellipse cx="362" cy="266" rx="32" ry="12" fill="#3d5a4a"/>
-                                <ellipse cx="352" cy="262" rx="21" ry="7" fill="#4d6b5a"/>
-                                <ellipse cx="248" cy="156" rx="34" ry="13" fill="#1e3a2b"/>
-                                <ellipse cx="253" cy="151" rx="24" ry="8" fill="#2f4d3d"/>
-                                <g fill="none" stroke="#fe9e77" stroke-width="1" stroke-dasharray="3 3">
-                                    <line x1="248" y1="158" x2="122" y2="322"/>
-                                    <line x1="248" y1="158" x2="366" y2="266"/>
-                                    <line x1="122" y1="322" x2="366" y2="266"/>
-                                    <path d="M206 316 A 10 10 0 0 0 214 306"/>
-                                </g>
-                                <circle cx="248" cy="158" r="2.5" fill="#e8efe9"/>
-                                <text x="196" y="306" class="studio-svg-label studio-svg-label--terra">82°</text>
-                                <text x="313" y="254" class="studio-svg-label studio-svg-label--muted">Uke-eda (+15°)</text>
-                            </svg>
+                            <?php include __DIR__ . '/partials/studio-diagram.html.php'; ?>
                             <figcaption class="studio-metrics studio-metrics--three">
-                                <?php foreach ($styleMetrics as $metric): ?>
+                                <?php foreach ($style['metrics'] as $metric): ?>
                                     <span class="studio-metric">
                                         <span class="studio-metric__label"><?= $e($metric['label']) ?></span>
                                         <span class="studio-metric__value<?= $metric['tone'] !== '' ? ' studio-metric__value--' . $e($metric['tone']) : '' ?>"><?= $e($metric['value']) ?></span>
@@ -212,13 +130,13 @@ $caseStudies = [
                         </figure>
 
                         <div class="studio-detail__info">
-                            <h3 class="studio-detail__title" id="studio-detail-title">Moyogi (Drzewo Faliste) <span class="badge badge--terra studio-detail__badge">Popularny</span></h3>
-                            <p class="studio-detail__text">Styl odwzorowujący drzewa z nizin i lasów, które walcząc o światło wykształciły sinusoidalny pień. Kluczowa zasada: kolejne wygięcia pnia muszą maleć ku górze, a wierzchołek zawsze wraca pionowo ponad nasadę korzeniową (środek ciężkości).</p>
+                            <h3 class="studio-detail__title" id="studio-detail-title"><?= $e($style['title']) ?> <span class="badge badge--terra studio-detail__badge"><?= $e($style['badge']) ?></span></h3>
+                            <p class="studio-detail__text"><?= $e($style['text']) ?></p>
 
                             <div class="studio-errors">
                                 <h4 class="studio-label">Błędy dyskwalifikujące styl (Imi-eda):</h4>
                                 <ul class="studio-errors__list">
-                                    <?php foreach ($styleErrors as $error): ?>
+                                    <?php foreach ($style['errors'] as $error): ?>
                                         <li class="studio-errors__item">
                                             <span class="ms" aria-hidden="true">do_not_disturb_on</span>
                                             <p><strong><?= $e($error['term']) ?></strong> <?= $e($error['text']) ?></p>
@@ -230,13 +148,13 @@ $caseStudies = [
                             <div class="studio-species">
                                 <h4 class="studio-label">Polecane gatunki dla tego stylu:</h4>
                                 <ul class="studio-species__list">
-                                    <li class="studio-tag">Pinus densiflora (Sosna)</li>
-                                    <li class="studio-tag">Acer palmatum (Klon)</li>
-                                    <li class="studio-tag">Juniperus chinensis (Jałowiec)</li>
+                                    <?php foreach ($style['species'] as $name): ?>
+                                        <li class="studio-tag"><?= $e($name) ?></li>
+                                    <?php endforeach; ?>
                                 </ul>
                             </div>
 
-                            <button type="button" class="btn btn--primary btn--block studio-detail__cta"><span class="ms" aria-hidden="true">tune</span>Wczytaj styl do Symulatora Cięcia</button>
+                            <button type="button" class="btn btn--primary btn--block studio-detail__cta" data-style-load="<?= $e($style['model']) ?>"><span class="ms" aria-hidden="true">tune</span>Wczytaj styl do Symulatora Cięcia</button>
                         </div>
                     </article>
                 </section>
@@ -248,22 +166,22 @@ $caseStudies = [
                             <p class="studio-kicker"><span class="studio-kicker__module">Moduł 02</span><span class="dot dot--terra" aria-hidden="true"></span><span class="studio-kicker__topic">Fizjologia &amp; Okna Czasowe</span></p>
                             <h2 class="studio-head__title studio-head__title--calendar" id="studio-calendar-title">Kalendarz Sezonowości Cięcia i Zabiegów</h2>
                         </div>
-                        <div class="studio-tabs" role="group" aria-label="Grupa gatunków">
+                        <nav class="studio-tabs" aria-label="Grupa gatunków">
                             <?php foreach ($speciesTabs as $tab): ?>
-                                <button type="button" class="studio-tabs__tab<?= $tab['active'] ? ' is-active' : '' ?>" aria-pressed="<?= $tab['active'] ? 'true' : 'false' ?>"><?= $tab['label'] ?></button>
+                                <a href="/studio?style=<?= $e($style['id']) ?>&amp;species=<?= $e($tab['id']) ?>#studio-calendar-title" class="studio-tabs__tab<?= $tab['active'] ? ' is-active' : '' ?>" data-species="<?= $e($tab['id']) ?>"<?= $tab['active'] ? ' aria-current="true"' : '' ?>><?= $tab['tab'] ?></a>
                             <?php endforeach; ?>
-                        </div>
+                        </nav>
                     </header>
 
                     <article class="card studio-calendar" aria-labelledby="studio-species-title">
                         <header class="studio-calendar__head">
-                            <span class="icon-tile icon-tile--green studio-calendar__icon"><span class="ms" aria-hidden="true">park</span></span>
+                            <span class="icon-tile icon-tile--green studio-calendar__icon"><span class="ms" aria-hidden="true"><?= $e($calendar['icon']) ?></span></span>
                             <div>
-                                <h3 class="studio-calendar__title" id="studio-species-title">Sosna Gęstokwiatowa (Pinus densiflora / Akamatsu)</h3>
-                                <p class="studio-calendar__subtitle">Gatunek iglasty dwuigielny o silnej apikalnej dominacji pąków szczytowych.</p>
+                                <h3 class="studio-calendar__title" id="studio-species-title"><?= $e($calendar['title']) ?></h3>
+                                <p class="studio-calendar__subtitle"><?= $e($calendar['subtitle']) ?></p>
                             </div>
                         </header>
-                        <p class="studio-calendar__now"><span class="studio-calendar__now-dot" aria-hidden="true"></span>Bieżący miesiąc: Październik (Stan spoczynku / Drutowanie)</p>
+                        <p class="studio-calendar__now"><span class="studio-calendar__now-dot" aria-hidden="true"></span>Bieżący miesiąc: <?= $e($monthName) ?> (<?= $e($calendar['season']['state']) ?>)</p>
 
                         <div class="studio-gantt" role="region" aria-label="Wykres sezonowości zabiegów" tabindex="0">
                             <div class="studio-gantt__inner">
@@ -272,7 +190,7 @@ $caseStudies = [
                                         <li<?= $index === $currentMonth ? ' class="is-current"' : '' ?>><?= $e($month) ?></li>
                                     <?php endforeach; ?>
                                 </ol>
-                                <?php foreach ($ganttRows as $row): ?>
+                                <?php foreach ($calendar['rows'] as $row): ?>
                                     <div class="studio-gantt__row">
                                         <div class="studio-gantt__label">
                                             <h4 class="studio-gantt__title"><span class="ms studio-gantt__icon studio-gantt__icon--<?= $e($row['tone']) ?>" aria-hidden="true"><?= $e($row['icon']) ?></span><?= $e($row['title']) ?></h4>
@@ -293,8 +211,8 @@ $caseStudies = [
 
                         <aside class="studio-calendar__alert">
                             <span class="ms" aria-hidden="true">warning</span>
-                            <p><strong>Krytyczne ostrzeżenie na Październik:</strong> Drewno twardnieje przed przymrozkami. Zastosuj maść gojącą z hormonem kalusa (Kiyonal) na każde cięcie powyżej 4 mm średnicy, by zapobiec wyciekowi żywicy.</p>
-                            <button type="button" class="btn btn--secondary studio-calendar__print"><span class="ms" aria-hidden="true">print</span>Drukuj Kartę Zabiegów</button>
+                            <p><strong><?= $e($calendar['season']['label']) ?> na <?= $e($monthName) ?>:</strong> <?= $e($calendar['season']['alert']) ?></p>
+                            <button type="button" class="btn btn--secondary studio-calendar__print" data-print><span class="ms" aria-hidden="true">print</span>Drukuj Kartę Zabiegów</button>
                         </aside>
                     </article>
                 </section>
@@ -310,7 +228,7 @@ $caseStudies = [
                     </header>
 
                     <div class="studio-wiring">
-                        <form class="card studio-calc" action="/studio" method="get" aria-labelledby="studio-calc-title">
+                        <form class="card studio-calc" action="/studio" method="get" aria-labelledby="studio-calc-title" data-wire-calc>
                             <header class="studio-calc__head">
                                 <span class="ms" aria-hidden="true">calculate</span>
                                 <h3 class="studio-card-title" id="studio-calc-title">Kalkulator Grubości Drutu</h3>
@@ -338,9 +256,9 @@ $caseStudies = [
                             <div class="studio-range">
                                 <div class="studio-range__head">
                                     <label for="studio-diameter" class="studio-range__label">Średnica gałęzi w punkcie naciągu:</label>
-                                    <output for="studio-diameter" class="studio-range__value studio-range__value--terra">12.0 mm</output>
+                                    <output for="studio-diameter" class="studio-range__value studio-range__value--terra" data-wire-output>12.0 mm</output>
                                 </div>
-                                <input class="studio-range__input" type="range" id="studio-diameter" name="diameter" min="2" max="35" step="0.5" value="12" style="--value: 30%">
+                                <input class="studio-range__input" type="range" id="studio-diameter" name="diameter" min="2" max="35" step="0.5" value="12" style="--value: 30%" data-wire-diameter>
                                 <div class="studio-range__scale" aria-hidden="true">
                                     <span>2 mm (młody pęd)</span>
                                     <span>18 mm (konar)</span>
@@ -348,21 +266,21 @@ $caseStudies = [
                                 </div>
                             </div>
 
-                            <dl class="studio-result">
+                            <dl class="studio-result" aria-live="polite">
                                 <div class="studio-result__main">
                                     <dt>Rekomendowany przekrój:</dt>
                                     <dd>
-                                        <span class="studio-result__size">4.0 mm</span>
-                                        <span class="studio-result__alloy">Anodyzowane Aluminium</span>
+                                        <span class="studio-result__size" data-wire-size>4.0 mm</span>
+                                        <span class="studio-result__alloy" data-wire-alloy>Anodyzowane Aluminium</span>
                                     </dd>
                                 </div>
                                 <div class="studio-result__row">
                                     <dt>Maks. czas na roślinie:</dt>
-                                    <dd>6-9 miesięcy</dd>
+                                    <dd data-wire-time>6-9 miesięcy</dd>
                                 </div>
                                 <div class="studio-result__row">
                                     <dt>Metoda kotwienia:</dt>
-                                    <dd>Podwójna spirala (Jin Anchor)</dd>
+                                    <dd data-wire-anchor>Podwójna spirala (Jin Anchor)</dd>
                                 </div>
                             </dl>
 
@@ -375,7 +293,7 @@ $caseStudies = [
                                     <h3 class="studio-card-title" id="studio-angle-title">Interaktywny Wzorzec Kąta Owijania (Kanon 45°)</h3>
                                     <p class="studio-angle__text">Sprawdź zachowanie splotu przy zbyt ostrym lub zbyt łagodnym nachyleniu spirali.</p>
                                 </div>
-                                <span class="studio-angle__badge">Kąt optymalny (45°)</span>
+                                <span class="studio-angle__badge" data-angle-badge>Kąt optymalny (45°)</span>
                             </header>
 
                             <svg class="studio-angle__diagram" viewBox="0 0 467 222" role="img" aria-label="Drut owinięty wokół gałęzi pod kątem 45 stopni">
@@ -383,26 +301,29 @@ $caseStudies = [
                                 <line x1="45" y1="88" x2="422" y2="88" stroke="#5f6661" stroke-width="1.5"/>
                                 <line x1="45" y1="136" x2="422" y2="136" stroke="#5f6661" stroke-width="1.5"/>
                                 <text x="58" y="116" class="studio-svg-label studio-svg-label--wood">DREWNO KSZTAŁTOWANE (TWARDZIEJ)</text>
-                                <g fill="none" stroke="#a7aca6" stroke-width="5" stroke-dasharray="2.5 2.5">
+                                <defs><clipPath id="studio-angle-clip"><rect x="45" y="88" width="377" height="48"/></clipPath></defs>
+                                <g fill="none" stroke="#a7aca6" stroke-width="5" stroke-dasharray="2.5 2.5" clip-path="url(#studio-angle-clip)" data-angle-under>
                                     <?php for ($i = 0; $i < 4; $i++): ?>
                                         <line x1="<?= 120 + 75 * $i ?>" y1="88" x2="<?= 146 + 75 * $i ?>" y2="136"/>
                                     <?php endfor; ?>
                                 </g>
-                                <g stroke="#1e3a2b" stroke-width="7" stroke-linecap="round">
-                                    <?php for ($i = 0; $i < 5; $i++): ?>
-                                        <line x1="<?= 71 + 75 * $i ?>" y1="136" x2="<?= 120 + 75 * $i ?>" y2="88"/>
-                                    <?php endfor; ?>
+                                <g data-angle-diagram>
+                                    <g stroke="#1e3a2b" stroke-width="7" stroke-linecap="round" clip-path="url(#studio-angle-clip)" data-angle-wire>
+                                        <?php for ($i = 0; $i < 5; $i++): ?>
+                                            <line x1="<?= 71 + 75 * $i ?>" y1="136" x2="<?= 120 + 75 * $i ?>" y2="88"/>
+                                        <?php endfor; ?>
+                                    </g>
+                                    <line x1="195" y1="88" x2="243" y2="88" stroke="#944929" stroke-width="1.5" stroke-dasharray="2 2" data-angle-measure/>
+                                    <text x="219" y="79" text-anchor="middle" class="studio-svg-label studio-svg-label--angle" data-angle-label>45°</text>
                                 </g>
-                                <line x1="195" y1="88" x2="243" y2="88" stroke="#944929" stroke-width="1.5" stroke-dasharray="2 2"/>
-                                <text x="219" y="79" text-anchor="middle" class="studio-svg-label studio-svg-label--angle">45°</text>
                             </svg>
 
                             <div class="studio-range">
                                 <div class="studio-range__head">
                                     <label for="studio-angle" class="studio-range__label">Regulacja Kąta Przebiegu Drutu:</label>
-                                    <output for="studio-angle" class="studio-range__value">45 stopni</output>
+                                    <output for="studio-angle" class="studio-range__value" data-angle-output>45 stopni</output>
                                 </div>
-                                <input class="studio-range__input" type="range" id="studio-angle" name="angle" min="15" max="75" step="1" value="45" style="--value: 50%">
+                                <input class="studio-range__input" type="range" id="studio-angle" name="angle" min="15" max="75" step="1" value="45" style="--value: 50%" data-angle-input>
                                 <p class="studio-range__legend">
                                     <span class="studio-range__risk">15° (Ryzyko: uduszenie wiązek)</span>
                                     <span class="studio-range__ideal">45° (Idealna mechanika sił)</span>
@@ -410,7 +331,7 @@ $caseStudies = [
                                 </p>
                             </div>
 
-                            <p class="studio-angle__note"><span class="ms" aria-hidden="true">check_circle</span><span><strong>Kąt prawidłowy:</strong> Zapewnia optymalne przełożenie wektora gięcia bez punktowego nacisku na wiązki sitowe.</span></p>
+                            <p class="studio-angle__note" data-angle-note><span class="ms" aria-hidden="true">check_circle</span><span><strong>Kąt prawidłowy:</strong> Zapewnia optymalne przełożenie wektora gięcia bez punktowego nacisku na wiązki sitowe.</span></p>
                         </article>
                     </div>
                 </section>
@@ -428,9 +349,9 @@ $caseStudies = [
                     <article class="card studio-sim" aria-label="Symulator balansu korony">
                         <div class="studio-sim__stage">
                             <div class="studio-sim__toolbar">
-                                <p class="studio-sim__model"><span class="dot dot--green" aria-hidden="true"></span>Model: Jałowiec Shin-Moyogi #204</p>
+                                <p class="studio-sim__model"><span class="dot dot--green" aria-hidden="true"></span><span data-sim-model>Model: <?= $e($style['model']) ?></span></p>
                                 <div class="studio-sim__actions">
-                                    <button type="button" class="studio-sim__reset"><span class="ms" aria-hidden="true">refresh</span>Reset cięć</button>
+                                    <button type="button" class="studio-sim__reset" data-sim-reset><span class="ms" aria-hidden="true">refresh</span>Reset cięć</button>
                                     <span class="studio-sim__mode">Tryb Aktywny</span>
                                 </div>
                             </div>
@@ -445,27 +366,33 @@ $caseStudies = [
                                     <path d="M298 410 L 360 444" stroke="#1e3a2b" stroke-width="6" stroke-linecap="round"/>
                                     <path d="M272 164 C 271 200, 272 226, 266 252 C 256 276, 244 296, 244 330 C 244 360, 252 386, 260 402 L 276 402 C 280 380, 280 360, 282 330 C 284 300, 300 270, 300 232 C 300 200, 298 180, 298 164 Z" fill="#1e3a2b"/>
                                     <path d="M274 262 C 262 290, 256 330, 260 370 C 270 340, 276 300, 274 262 Z" fill="#0b130f" stroke="#c5c7c1" stroke-width="3" stroke-linejoin="round"/>
-                                    <g fill="none" stroke="#1e3a2b" stroke-linecap="round">
-                                        <path d="M250 350 C 210 350, 170 352, 136 354" stroke-width="8"/>
-                                        <path d="M272 340 C 310 344, 350 350, 384 352" stroke-width="8"/>
-                                        <path d="M262 286 C 236 274, 210 264, 184 258" stroke-width="7"/>
-                                        <path d="M292 250 C 330 244, 360 238, 392 234" stroke-width="7"/>
+                                    <g class="studio-sim__branch" data-branch="1">
+                                        <path d="M250 350 C 210 350, 170 352, 136 354" fill="none" stroke="#1e3a2b" stroke-width="8" stroke-linecap="round" pathLength="1"/>
+                                        <ellipse class="studio-sim__leaf" cx="98" cy="358" rx="46" ry="17.6" fill="#1e3a2b"/>
+                                        <ellipse class="studio-sim__leaf" cx="112" cy="352" rx="34" ry="11" fill="#31503f"/>
                                     </g>
-                                    <ellipse cx="98" cy="358" rx="46" ry="17.6" fill="#1e3a2b"/>
-                                    <ellipse cx="112" cy="352" rx="34" ry="11" fill="#31503f"/>
-                                    <ellipse cx="418" cy="354" rx="41.6" ry="16" fill="#1e3a2b"/>
-                                    <ellipse cx="157" cy="256" rx="32" ry="13.6" fill="#476553"/>
-                                    <ellipse cx="428" cy="230" rx="44" ry="16" fill="#1e3a2b"/>
-                                    <ellipse cx="416" cy="226" rx="30" ry="10" fill="#31503f"/>
+                                    <g class="studio-sim__branch" data-branch="2">
+                                        <path d="M272 340 C 310 344, 350 350, 384 352" fill="none" stroke="#1e3a2b" stroke-width="8" stroke-linecap="round" pathLength="1"/>
+                                        <ellipse class="studio-sim__leaf" cx="418" cy="354" rx="41.6" ry="16" fill="#1e3a2b"/>
+                                    </g>
+                                    <g class="studio-sim__branch" data-branch="3">
+                                        <path d="M262 286 C 236 274, 210 264, 184 258" fill="none" stroke="#1e3a2b" stroke-width="7" stroke-linecap="round" pathLength="1"/>
+                                        <ellipse class="studio-sim__leaf" cx="157" cy="256" rx="32" ry="13.6" fill="#476553"/>
+                                    </g>
+                                    <g class="studio-sim__branch" data-branch="4">
+                                        <path d="M292 250 C 330 244, 360 238, 392 234" fill="none" stroke="#1e3a2b" stroke-width="7" stroke-linecap="round" pathLength="1"/>
+                                        <ellipse class="studio-sim__leaf" cx="428" cy="230" rx="44" ry="16" fill="#1e3a2b"/>
+                                        <ellipse class="studio-sim__leaf" cx="416" cy="226" rx="30" ry="10" fill="#31503f"/>
+                                    </g>
                                     <ellipse cx="284" cy="148" rx="56" ry="17.6" fill="#1e3a2b"/>
                                     <ellipse cx="294" cy="142" rx="42" ry="12.8" fill="#31503f"/>
                                     <line x1="284" y1="150" x2="284" y2="448" stroke="#e8907a" stroke-width="1" stroke-dasharray="4 3"/>
                                     <circle cx="278.4" cy="298.4" r="6.4" fill="#f08a65" stroke="#ffffff" stroke-width="1.5"/>
                                     <g class="studio-sim__markers">
-                                        <circle cx="94.4" cy="358" r="12.8"/><text x="94.4" y="362.5">1</text>
-                                        <circle cx="416" cy="352.8" r="12.8"/><text x="416" y="357.3">2</text>
-                                        <circle cx="156" cy="256.8" r="12.8"/><text x="156" y="261.3">3</text>
-                                        <circle cx="426.4" cy="229.6" r="12.8"/><text x="426.4" y="234.1">4</text>
+                                        <g class="studio-sim__marker" data-branch-toggle="1" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 1: symuluj usunięcie"><circle cx="94.4" cy="358" r="12.8"/><text x="94.4" y="362.5">1</text></g>
+                                        <g class="studio-sim__marker" data-branch-toggle="2" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 2: symuluj usunięcie"><circle cx="416" cy="352.8" r="12.8"/><text x="416" y="357.3">2</text></g>
+                                        <g class="studio-sim__marker" data-branch-toggle="3" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 3: symuluj usunięcie"><circle cx="156" cy="256.8" r="12.8"/><text x="156" y="261.3">3</text></g>
+                                        <g class="studio-sim__marker" data-branch-toggle="4" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 4: symuluj usunięcie"><circle cx="426.4" cy="229.6" r="12.8"/><text x="426.4" y="234.1">4</text></g>
                                     </g>
                                 </svg>
                                 <p class="studio-sim__hint"><span class="ms" aria-hidden="true">touch_app</span>Kliknij numerowaną gałąź (1-4), aby dokonać wirtualnego cięcia.</p>
@@ -475,7 +402,7 @@ $caseStudies = [
                                 <?php foreach ($simulatorMetrics as $metric): ?>
                                     <span class="studio-metric">
                                         <span class="studio-metric__label"><?= $e($metric['label']) ?></span>
-                                        <span class="studio-metric__value<?= $metric['tone'] !== '' ? ' studio-metric__value--' . $e($metric['tone']) : '' ?>"><?= $e($metric['value']) ?></span>
+                                        <span class="studio-metric__value<?= $metric['tone'] !== '' ? ' studio-metric__value--' . $e($metric['tone']) : '' ?>" data-sim-metric="<?= $e($metric['key']) ?>"><?= $e($metric['value']) ?></span>
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -490,21 +417,21 @@ $caseStudies = [
                                     <li class="studio-indicator">
                                         <span class="studio-indicator__head">
                                             <span><?= $e($indicator['label']) ?></span>
-                                            <span class="studio-indicator__value studio-indicator__value--<?= $e($indicator['tone']) ?>"><?= $e($indicator['value']) ?></span>
+                                            <span class="studio-indicator__value studio-indicator__value--<?= $e($indicator['tone']) ?>" data-sim-indicator="<?= $e($indicator['key']) ?>"><?= $e($indicator['value']) ?></span>
                                         </span>
-                                        <span class="studio-indicator__track"><span class="studio-indicator__bar studio-indicator__bar--<?= $e($indicator['tone']) ?>" style="--value: <?= (int) $indicator['percent'] ?>%"></span></span>
+                                        <span class="studio-indicator__track"><span class="studio-indicator__bar studio-indicator__bar--<?= $e($indicator['tone']) ?>" style="--value: <?= (int) $indicator['percent'] ?>%" data-sim-bar="<?= $e($indicator['key']) ?>"></span></span>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
 
                             <div class="studio-advice">
                                 <h4 class="studio-advice__title"><span class="ms" aria-hidden="true">tips_and_updates</span>Rekomendacja Mistrza:</h4>
-                                <p>Gałąź #2 tworzy klasyczny błąd Kannonuki (gałąź przeciwległa na tej samej wysokości co gałąź główna #1). Rekomendowane jej całkowite usunięcie lub przekształcenie w suchy sęk Jin.</p>
+                                <p data-sim-advice>Gałąź #2 tworzy klasyczny błąd Kannonuki (gałąź przeciwległa na tej samej wysokości co gałąź główna #1). Rekomendowane jej całkowite usunięcie lub przekształcenie w suchy sęk Jin.</p>
                             </div>
 
                             <div class="studio-sim__buttons">
-                                <button type="button" class="btn btn--primary studio-sim__button"><span class="ms" aria-hidden="true">bookmark_add</span><span>Zapisz Plan Cięcia w Dzienniku Drzewka</span></button>
-                                <button type="button" class="btn btn--tonal studio-sim__button"><span class="ms" aria-hidden="true">brush</span><span>Konwertuj cięcie na martwe drewno (Jin/Shari)</span></button>
+                                <button type="button" class="btn btn--primary studio-sim__button" data-sim-save disabled><span class="ms" aria-hidden="true">bookmark_add</span><span>Zapisz Plan Cięcia w Dzienniku Drzewka</span></button>
+                                <button type="button" class="btn btn--tonal studio-sim__button" data-sim-jin aria-pressed="false" disabled><span class="ms" aria-hidden="true">brush</span><span>Konwertuj cięcie na martwe drewno (Jin/Shari)</span></button>
                             </div>
                         </aside>
                     </article>
@@ -542,5 +469,6 @@ $caseStudies = [
 
     <?php include __DIR__ . '/partials/app-bottom-nav.html.php'; ?>
     <?php include __DIR__ . '/partials/foot.html.php'; ?>
+    <script src="<?= $asset('/js/studio.js') ?>" defer></script>
 </body>
 </html>

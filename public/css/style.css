@@ -2409,3 +2409,40 @@ button {
         transition: none;
     }
 }
+
+/* --- 20. Przejścia między stronami (View Transitions API, MPA) --------------
+   Stałe elementy układu (panel boczny, pasek górny, nawigacja) zostają w miejscu,
+   a treść strony płynnie zanika i wjeżdża. Przeglądarki bez wsparcia pomijają blok. */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+
+    .app-sidebar { view-transition-name: vt-sidebar; }
+    .app-topbar { view-transition-name: vt-topbar; }
+    .bottom-nav { view-transition-name: vt-bottom-nav; }
+    .site-header { view-transition-name: vt-site-header; }
+
+    ::view-transition-group(vt-sidebar),
+    ::view-transition-group(vt-topbar),
+    ::view-transition-group(vt-bottom-nav),
+    ::view-transition-group(vt-site-header) {
+        animation-duration: 0s;
+    }
+
+    ::view-transition-old(root) {
+        animation: vt-out 0.2s ease-in both;
+    }
+
+    ::view-transition-new(root) {
+        animation: vt-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+    }
+
+    @keyframes vt-out {
+        to { opacity: 0; transform: translateY(-6px); }
+    }
+
+    @keyframes vt-in {
+        from { opacity: 0; transform: translateY(14px); }
+    }
+}
