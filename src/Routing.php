@@ -31,7 +31,7 @@ class Routing
     {
         foreach (self::$routes[$method] ?? [] as $route => $target) {
             // Zamiana {param} na wyrażenie regularne dopasowujące parametr w URL
-            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route);
+            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_.-]+)', $route);
             $pattern = '#^' . $pattern . '$#';
 
             if (preg_match($pattern, $path, $matches)) {

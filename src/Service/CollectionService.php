@@ -168,15 +168,24 @@ final class CollectionService
         $today = $now->format('Y-m-d');
 
         $wateredAt = $this->todayTimestamp($care['water'] ?? null, $now);
-        if ($wateredAt !== null && $tree['actionType'] === 'water') {
-            $tree['moisture'] = self::WATERED_MOISTURE;
-            $tree['moistureLabel'] = 'Optymalna';
-            $tree['status'] = 'ideal';
-            $tree['statusLabel'] = 'Idealny';
-            $tree['alert'] = null;
-            $tree['action'] = null;
-            $tree['done'] = 'water';
+        if ($wateredAt !== null) {
             $tree['lastWatering'] = 'dzisiaj, ' . $wateredAt->format('H:i');
+            $tree['done'] = 'water';
+            $tree['moisture'] = max((int) $tree['moisture'], self::WATERED_MOISTURE);
+            $tree['moistureLabel'] = 'Optymalna';
+            $tree['vitality'] = [
+                'label' => $tree['vitality']['label'],
+                'value' => 'Prawidłowy',
+                'description' => 'Podłoże nawodnione — turgor wraca do normy w ciągu kilku godzin.',
+            ];
+
+            // Drzewko, dla którego podlanie było „akcją”, wraca do pełni zdrowia i traci alert.
+            if ($tree['actionType'] === 'water') {
+                $tree['status'] = 'ideal';
+                $tree['statusLabel'] = 'Idealny';
+                $tree['alert'] = null;
+                $tree['action'] = null;
+            }
         }
 
         $adjustedAt = $this->todayTimestamp($care['adjust'] ?? null, $now);

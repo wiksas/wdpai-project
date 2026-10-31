@@ -261,5 +261,29 @@
         input.focus();
     });
 
-    window.Komorebi = { request, post, fetchDocument, swap, play, toast, sleep, reduceMotion, applyUnread, refreshNotifications };
+    /**
+     * Zmniejsza zdjęcie przed wysłaniem (maks. `maxSide` px, JPEG) — telefony robią zdjęcia po kilka MB,
+     * a serwer przyjmuje do 2 MB. Zwraca Blob; przy błędzie dekodowania oryginalny plik.
+     */
+    async function resizeImage(file, maxSide = 1600, quality = 0.86) {
+        if (!file.type.startsWith('image/')) {
+            return file;
+        }
+
+        try {
+            const bitmap = await createImageBitmap(file);
+            const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+            const canvas = doc.createElement('canvas');
+            canvas.width = Math.round(bitmap.width * scale);
+            canvas.height = Math.round(bitmap.height * scale);
+            canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+            bitmap.close?.();
+
+            return await new Promise((resolve) => canvas.toBlob((blob) => resolve(blob ?? file), 'image/jpeg', quality));
+        } catch {
+            return file;
+        }
+    }
+
+    window.Komorebi = { request, post, fetchDocument, swap, play, toast, sleep, reduceMotion, applyUnread, refreshNotifications, resizeImage };
 })();

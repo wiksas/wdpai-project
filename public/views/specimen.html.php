@@ -36,10 +36,10 @@ $nextStepParts = explode(':', (string) $tree['recommendation']['nextStep'], 2);
                         Wróć do ogrodu
                     </a>
                     <div class="passport-toolbar__actions">
-                        <button type="button" class="icon-button" aria-label="Edytuj kartę okazu">
-                            <span class="ms" aria-hidden="true">edit</span>
+                        <button type="button" class="icon-button" aria-label="Drukuj kartę okazu" data-print>
+                            <span class="ms" aria-hidden="true">print</span>
                         </button>
-                        <button type="button" class="icon-button" aria-label="Udostępnij kartę okazu">
+                        <button type="button" class="icon-button" aria-label="Udostępnij kartę okazu" data-share data-share-title="<?= $e($tree['name'] . ' — karta okazu KOMOREBI') ?>">
                             <span class="ms" aria-hidden="true">share</span>
                         </button>
                     </div>
@@ -206,16 +206,53 @@ $nextStepParts = explode(':', (string) $tree['recommendation']['nextStep'], 2);
                                 <?php endforeach; ?>
                             </ol>
                         </section>
+                        <section class="passport-photos" aria-labelledby="passport-photos-title" data-photos>
+                            <header class="passport-history__header">
+                                <h2 class="passport-history__title" id="passport-photos-title">Twoje zdjęcia</h2>
+                                <span class="passport-history__count"><?= count($photos) ?> <?= $e(\App\Support\PolishDate::plural(count($photos), 'zdjęcie', 'zdjęcia', 'zdjęć')) ?></span>
+                            </header>
+                            <?php if ($photos === []): ?>
+                                <p class="passport-photos__empty">Dodaj pierwsze zdjęcie, aby śledzić rozwój okazu w czasie.</p>
+                            <?php else: ?>
+                                <ul class="passport-photos__grid">
+                                    <?php foreach ($photos as $photo): ?>
+                                        <li class="passport-photos__item">
+                                            <a href="/media/<?= $e($photo['file']) ?>" target="_blank" rel="noopener" class="passport-photos__link">
+                                                <img src="/media/<?= $e($photo['file']) ?>" alt="<?= $e($photo['caption'] !== '' ? $photo['caption'] : 'Zdjęcie okazu ' . $tree['name']) ?>" loading="lazy">
+                                                <span class="passport-photos__date"><?= $e(\App\Support\PolishDate::dayMonth(\App\Support\PolishDate::now()->setTimestamp((int) $photo['at']))) ?></span>
+                                            </a>
+                                            <form action="/collection/<?= (int) $tree['id'] ?>/photos/delete" method="POST" class="passport-photos__remove" data-photo-delete>
+                                                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                                <input type="hidden" name="photo" value="<?= $e($photo['id']) ?>">
+                                                <input type="hidden" name="_back" value="/collection/<?= (int) $tree['id'] ?>">
+                                                <button type="submit" aria-label="Usuń zdjęcie"><span class="ms" aria-hidden="true">delete</span></button>
+                                            </form>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </section>
 
                         <div class="passport-actions">
-                            <button type="button" class="passport-action passport-action--water">
-                                <span class="ms" aria-hidden="true">water_drop</span>
-                                Zarejestruj Podlanie
-                            </button>
-                            <button type="button" class="passport-action passport-action--photo">
-                                <span class="ms" aria-hidden="true">add_a_photo</span>
-                                Dodaj Zdjęcie
-                            </button>
+                            <form class="passport-actions__form" action="/collection/<?= (int) $tree['id'] ?>/care" method="POST" data-care-form>
+                                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                <input type="hidden" name="type" value="water">
+                                <input type="hidden" name="_back" value="/collection/<?= (int) $tree['id'] ?>">
+                                <button type="submit" class="passport-action passport-action--water">
+                                    <span class="ms" aria-hidden="true">water_drop</span>
+                                    Zarejestruj Podlanie
+                                </button>
+                            </form>
+                            <form class="passport-actions__form" action="/collection/<?= (int) $tree['id'] ?>/photos" method="POST" enctype="multipart/form-data" data-photo-form>
+                                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                <input type="hidden" name="_back" value="/collection/<?= (int) $tree['id'] ?>">
+                                <label class="passport-action passport-action--photo" for="passport-photo">
+                                    <span class="ms" aria-hidden="true">add_a_photo</span>
+                                    Dodaj Zdjęcie
+                                </label>
+                                <input class="visually-hidden" id="passport-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" data-photo-input required>
+                                <button type="submit" class="passport-photo__send">Wyślij zdjęcie</button>
+                            </form>
                             <a href="/clinic" class="passport-action passport-action--ai">
                                 <span class="ms" aria-hidden="true">psychology</span>
                                 Skonsultuj z AI Bonsai Master
@@ -228,5 +265,7 @@ $nextStepParts = explode(':', (string) $tree['recommendation']['nextStep'], 2);
     </div>
     <?php include __DIR__ . '/partials/app-bottom-nav.html.php'; ?>
     <?php include __DIR__ . '/partials/foot.html.php'; ?>
+    <script src="<?= $asset('/js/collection.js') ?>" defer></script>
+    <script src="<?= $asset('/js/specimen.js') ?>" defer></script>
 </body>
 </html>

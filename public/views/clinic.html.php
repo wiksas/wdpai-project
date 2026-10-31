@@ -25,7 +25,7 @@
                             <button type="button" class="clinic-mobile__tool" aria-label="Lampa błyskowa">
                                 <span class="ms" aria-hidden="true">flash_on</span>
                             </button>
-                            <button type="button" class="clinic-mobile__tool" aria-label="Siatka kadrowania">
+                            <button type="button" class="clinic-mobile__tool" aria-label="Siatka kadrowania" aria-pressed="false" data-grid-toggle>
                                 <span class="ms" aria-hidden="true">grid_4x4</span>
                             </button>
                             <button type="button" class="clinic-mobile__tool" aria-label="Ustawienia skanera">
@@ -70,6 +70,14 @@
                             </span>
                         </div>
                     </figure>
+
+                    <div class="clinic-mobile__scan">
+                        <input class="visually-hidden" type="file" id="clinic-photo-mobile" accept="image/jpeg,image/png,image/webp" capture="environment" data-scan-input-mobile>
+                        <label class="btn btn--primary btn--block" for="clinic-photo-mobile">
+                            <span class="ms" aria-hidden="true">photo_camera</span>
+                            Zrób zdjęcie lub wgraj z galerii
+                        </label>
+                    </div>
 
                     <nav class="clinic-chips" aria-label="Kategoria skanowania">
                         <a href="/clinic" class="clinic-chips__item is-active" aria-current="true">
@@ -153,17 +161,10 @@
 
                     <section class="clinic-previous" aria-labelledby="clinic-previous-title">
                         <header class="clinic-previous__head">
-                            <h2 class="clinic-previous__title" id="clinic-previous-title">Poprzednie Skanowania Okazu</h2>
-                            <span class="clinic-previous__tag">Pinus #04</span>
+                            <h2 class="clinic-previous__title" id="clinic-previous-title">Poprzednie Skanowania</h2>
+                            <span class="clinic-previous__tag"><?= count($scans) ?></span>
                         </header>
-                        <a href="/collection/1" class="clinic-previous__item">
-                            <img src="/images/bonsai-thumb.jpg" alt="" width="40" height="40">
-                            <span class="clinic-previous__text">
-                                <span class="clinic-previous__meta">14 dni temu • 89 pkt witalności</span>
-                                <span class="clinic-previous__note">Przed letnim formowaniem drutem</span>
-                            </span>
-                            <span class="ms" aria-hidden="true">chevron_right</span>
-                        </a>
+                        <?php include __DIR__ . '/partials/clinic-scans.html.php'; ?>
                     </section>
                 </section>
 
@@ -210,7 +211,8 @@
                                     <span class="clinic-scanner__version">v4.2 Neural Bonsai</span>
                                 </header>
 
-                                <form class="clinic-scanner__form" action="/clinic" method="post" enctype="multipart/form-data">
+                                <form class="clinic-scanner__form" action="/clinic/scans" method="post" enctype="multipart/form-data" data-scan-form>
+                                    <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                     <fieldset class="clinic-parts">
                                         <legend class="clinic-parts__legend">Wybierz obserwowany element:</legend>
                                         <div class="clinic-parts__grid">
@@ -250,16 +252,27 @@
                                     </fieldset>
 
                                     <div class="clinic-upload">
-                                        <input class="clinic-upload__input visually-hidden" type="file" id="clinic-photo" name="photo" accept="image/jpeg,image/png,image/heic">
-                                        <label class="clinic-upload__zone" for="clinic-photo">
+                                        <input class="clinic-upload__input visually-hidden" type="file" id="clinic-photo" name="photo" accept="image/jpeg,image/png,image/webp" data-scan-input required>
+                                        <label class="clinic-upload__zone" for="clinic-photo" data-dropzone>
                                             <span class="clinic-upload__icon" aria-hidden="true"><span class="ms">photo_camera</span></span>
                                             <span class="clinic-upload__title">Przeciągnij lub wgraj makrofotografię</span>
                                             <span class="clinic-upload__text">Zrób zbliżenie w naturalnym świetle dziennym (min. 1200x1200px dla dokładności splotu aparatów szparkowych)</span>
                                         </label>
                                         <div class="clinic-upload__row">
                                             <label class="clinic-upload__button" for="clinic-photo">Wybierz plik</label>
-                                            <span class="clinic-upload__formats">JPG, PNG, HEIC do 25MB</span>
+                                            <span class="clinic-upload__formats">JPG, PNG, WebP • zmniejszane automatycznie</span>
                                         </div>
+                                        <figure class="clinic-preview" data-scan-preview hidden>
+                                            <div class="clinic-preview__frame">
+                                                <img class="clinic-preview__img" data-scan-preview-img alt="Podgląd wgranego zdjęcia">
+                                                <span class="clinic-preview__scanline" aria-hidden="true"></span>
+                                            </div>
+                                            <figcaption class="clinic-preview__caption" data-scan-summary aria-live="polite"></figcaption>
+                                        </figure>
+                                        <input type="hidden" name="level" value="watch" data-scan-level>
+                                        <input type="hidden" name="vitality" value="0" data-scan-vitality>
+                                        <input type="hidden" name="title" value="" data-scan-title>
+                                        <button type="submit" class="clinic-upload__save">Zapisz skan</button>
                                     </div>
                                 </form>
 
@@ -325,11 +338,23 @@
                                     </li>
                                 </ul>
                             </section>
+
+                            <!-- Historia skanów -->
+                            <section class="clinic-card clinic-history" aria-labelledby="clinic-history-title">
+                                <header class="clinic-catalog__head">
+                                    <div>
+                                        <h2 class="clinic-card__title" id="clinic-history-title">Ostatnie skany</h2>
+                                        <p class="clinic-card__subtitle">Twoja historia diagnoz</p>
+                                    </div>
+                                    <span class="ms clinic-catalog__book" aria-hidden="true">history</span>
+                                </header>
+                                <?php include __DIR__ . '/partials/clinic-scans.html.php'; ?>
+                            </section>
                         </div>
 
                         <div class="clinic-grid__main">
                             <!-- Aktywny wynik analizy -->
-                            <article class="clinic-result" aria-labelledby="clinic-result-title">
+                            <article class="clinic-result" aria-labelledby="clinic-result-title" data-result>
                                 <header class="clinic-result__head">
                                     <div class="clinic-result__top">
                                         <h2 class="clinic-result__title" id="clinic-result-title">
@@ -340,10 +365,10 @@
                                     </div>
                                     <div class="clinic-result__meta">
                                         <span>Czas analizy: Dzisiaj, 14:28</span>
-                                        <button type="button" class="clinic-result__action" aria-label="Drukuj raport">
+                                        <button type="button" class="clinic-result__action" aria-label="Drukuj raport" data-print>
                                             <span class="ms" aria-hidden="true">print</span>
                                         </button>
-                                        <button type="button" class="clinic-result__action" aria-label="Udostępnij raport">
+                                        <button type="button" class="clinic-result__action" aria-label="Udostępnij raport" data-share data-share-title="Raport Kliniki KOMOREBI">
                                             <span class="ms" aria-hidden="true">share</span>
                                         </button>
                                     </div>
@@ -444,13 +469,17 @@
                                             </p>
                                         </li>
                                     </ol>
-                                    <div class="clinic-protocol__confirm">
+                                    <form class="clinic-protocol__confirm" action="/clinic/protocol" method="post" data-protocol-form>
+                                        <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                        <input type="hidden" name="steps[]" value="Kąpiel zanurzeniowa (15 min)">
+                                        <input type="hidden" name="steps[]" value="Odstawienie do półcienia">
+                                        <input type="hidden" name="steps[]" value="Blokada nawożenia azotem">
                                         <p class="clinic-protocol__note">Zastosowanie procedury przywraca optymalne ciśnienie osmotyczne włośników korzeniowych.</p>
-                                        <button type="button" class="clinic-protocol__button">
-                                            <span class="ms" aria-hidden="true">check</span>
-                                            Zatwierdź wykonanie protokołu
+                                        <button type="submit" class="clinic-protocol__button">
+                                            <span class="ms" aria-hidden="true">event_available</span>
+                                            Dodaj kroki do harmonogramu
                                         </button>
-                                    </div>
+                                    </form>
                                 </section>
                             </article>
 
@@ -460,36 +489,37 @@
                                     <span class="clinic-chat__avatar" aria-hidden="true">AI</span>
                                     <div class="clinic-chat__heading">
                                         <h2 class="clinic-chat__title" id="clinic-chat-title">Konsultant Botaniczny Komorebi</h2>
-                                        <p class="clinic-chat__subtitle">Dedykowany model fitopatologiczny • Aktywny</p>
+                                        <p class="clinic-chat__subtitle">Baza wiedzy pielęgnacyjnej Komorebi • Aktywna</p>
                                     </div>
                                     <p class="clinic-chat__status"><span class="dot dot--green" aria-hidden="true"></span>Gotowy do odpowiedzi</p>
                                 </header>
-                                <div class="clinic-chat__thread">
+                                <div class="clinic-chat__thread" data-chat-thread aria-live="polite">
                                     <span class="clinic-chat__bot" aria-hidden="true"><span class="ms ms--fill">eco</span></span>
                                     <div class="clinic-chat__message">
                                         <p class="clinic-chat__meta">Komorebi AI • 14:29</p>
                                         <p class="clinic-chat__bubble">Na podstawie zdjęcia Twojej sosny czarnej: igły wykazują typową utratę turgoru bez martwicy drewna. Nie wykonuj teraz żadnego cięcia formującego ani drutowania gałęzi giętych – drewno jest kruche. Czy chcesz sprawdzić metodę drapania kory (cambium test)?</p>
                                     </div>
                                 </div>
-                                <form class="clinic-chat__form" action="/clinic" method="get">
+                                <form class="clinic-chat__form" action="/clinic/ask" method="post" data-chat-form>
+                                    <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                     <p class="clinic-chat__faq-title">Częste pytania do tej diagnozy:</p>
                                     <div class="clinic-chat__faq">
-                                        <button type="submit" class="clinic-chat__question" name="question" value="Jak sprawdzić czy gałązka jeszcze żyje pod korą?">
+                                        <button type="submit" class="clinic-chat__question" name="faq" value="Jak sprawdzić czy gałązka jeszcze żyje pod korą?">
                                             <span class="ms" aria-hidden="true">help</span>
                                             Jak sprawdzić czy gałązka jeszcze żyje pod korą?
                                         </button>
-                                        <button type="submit" class="clinic-chat__question" name="question" value="Kiedy bezpiecznie podlać po kąpieli zanurzeniowej?">
+                                        <button type="submit" class="clinic-chat__question" name="faq" value="Kiedy bezpiecznie podlać po kąpieli zanurzeniowej?">
                                             <span class="ms" aria-hidden="true">help</span>
                                             Kiedy bezpiecznie podlać po kąpieli zanurzeniowej?
                                         </button>
-                                        <button type="submit" class="clinic-chat__question" name="question" value="Czy usunąć całkowicie zżółknięte igły z zeszłego roku?">
+                                        <button type="submit" class="clinic-chat__question" name="faq" value="Czy usunąć całkowicie zżółknięte igły z zeszłego roku?">
                                             <span class="ms" aria-hidden="true">help</span>
                                             Czy usunąć całkowicie zżółknięte igły z zeszłego roku?
                                         </button>
                                     </div>
                                     <div class="clinic-chat__compose">
                                         <label class="visually-hidden" for="clinic-question">Pytanie do asystenta</label>
-                                        <input class="clinic-chat__input" type="text" id="clinic-question" name="q" placeholder="Zadaj pytanie asystentowi (np. jak dawkować chelat żelaza)...">
+                                        <input class="clinic-chat__input" type="text" id="clinic-question" name="q" maxlength="300" autocomplete="off" placeholder="Zadaj pytanie asystentowi (np. jak dawkować chelat żelaza)...">
                                         <button type="submit" class="clinic-chat__send" aria-label="Wyślij pytanie">
                                             <span class="ms" aria-hidden="true">send</span>
                                         </button>
@@ -507,13 +537,13 @@
                                 <p class="clinic-archive__lead">Przykłady powrotu do równowagi biologicznej dzięki wczesnej detekcji algorytmu.</p>
                             </div>
                             <nav class="clinic-archive__filters" aria-label="Filtr gatunków">
-                                <a href="/clinic" class="clinic-archive__filter">Wszystkie gatunki</a>
-                                <a href="/clinic" class="clinic-archive__filter is-active" aria-current="true">Iglaste (Conifers)</a>
-                                <a href="/clinic" class="clinic-archive__filter">Liściaste (Deciduous)</a>
+                                <a href="/clinic" class="clinic-archive__filter<?= $archiveFilter === 'all' ? ' is-active' : '' ?>" data-archive-filter="all"<?= $archiveFilter === 'all' ? ' aria-current="true"' : '' ?>>Wszystkie gatunki</a>
+                                <a href="/clinic?species=conifer" class="clinic-archive__filter<?= $archiveFilter === 'conifer' ? ' is-active' : '' ?>" data-archive-filter="conifer"<?= $archiveFilter === 'conifer' ? ' aria-current="true"' : '' ?>>Iglaste (Conifers)</a>
+                                <a href="/clinic?species=deciduous" class="clinic-archive__filter<?= $archiveFilter === 'deciduous' ? ' is-active' : '' ?>" data-archive-filter="deciduous"<?= $archiveFilter === 'deciduous' ? ' aria-current="true"' : '' ?>>Liściaste (Deciduous)</a>
                             </nav>
                         </header>
                         <div class="clinic-archive__grid">
-                            <article class="clinic-case">
+                            <article class="clinic-case" data-category="deciduous">
                                 <div class="clinic-case__media">
                                     <img src="/images/garden-red-maple-lantern.jpg" alt="Klon palmowy z czerwonymi liśćmi w ogrodzie z latarnią" width="512" height="279" loading="lazy">
                                     <span class="clinic-case__badge">Uzdrowiono w 28 dni</span>
@@ -522,7 +552,7 @@
                                 <h3 class="clinic-case__title">Martwica wierzchołkowa po wietrze</h3>
                                 <p class="clinic-case__text">Interwencja: Osłona parawanem bambusowym i zraszanie poranne....</p>
                             </article>
-                            <article class="clinic-case">
+                            <article class="clinic-case" data-category="conifer">
                                 <div class="clinic-case__media">
                                     <img src="/images/bonsai-white-room.jpg" alt="Jałowiec Shimpaku z jasnym drewnem jin na białym tle" width="512" height="279" loading="lazy">
                                     <span class="clinic-case__badge">Uzdrowiono w 14 dni</span>
@@ -531,7 +561,7 @@
                                 <h3 class="clinic-case__title">Infestacja przędziorka chmielowca</h3>
                                 <p class="clinic-case__text">Interwencja: Mechaniczne spłukiwanie strumieniem wody i oprysk olejkiem neem</p>
                             </article>
-                            <article class="clinic-case">
+                            <article class="clinic-case" data-category="deciduous">
                                 <div class="clinic-case__media">
                                     <img src="/images/bonsai-wooden-table.jpg" alt="Wiąz drobnolistny na drewnianym stole przy oknie" width="512" height="279" loading="lazy">
                                     <span class="clinic-case__badge">Uzdrowiono w 42 dni</span>
@@ -548,5 +578,6 @@
     </div>
     <?php include __DIR__ . '/partials/app-bottom-nav.html.php'; ?>
     <?php include __DIR__ . '/partials/foot.html.php'; ?>
+    <script src="<?= $asset('/js/clinic.js') ?>" defer></script>
 </body>
 </html>

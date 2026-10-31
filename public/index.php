@@ -31,12 +31,18 @@ Routing::post('logout', 'AuthController', 'logout');
 Routing::get('collection', 'CollectionController', 'index');
 Routing::get('collection/{id}', 'CollectionController', 'show');
 Routing::post('collection/{id}/care', 'CollectionController', 'care');
+Routing::post('collection/{id}/photos', 'CollectionController', 'addPhoto');
+Routing::post('collection/{id}/photos/delete', 'CollectionController', 'deletePhoto');
+Routing::get('media/{name}', 'MediaController', 'show');
 Routing::post('journal', 'CollectionController', 'journal');
 Routing::post('misting', 'CollectionController', 'misting');
 
 // 4. Moduły pielęgnacji: studio formowania, klinika AI i harmonogram z zadaniami
 Routing::get('studio', 'StudioController', 'index');
 Routing::get('clinic', 'ClinicController', 'index');
+Routing::post('clinic/scans', 'ClinicController', 'scan');
+Routing::post('clinic/ask', 'ClinicController', 'ask');
+Routing::post('clinic/protocol', 'ClinicController', 'protocol');
 Routing::get('schedule', 'ScheduleController', 'index');
 Routing::post('schedule/tasks', 'ScheduleController', 'store');
 Routing::post('schedule/tasks/done', 'ScheduleController', 'done');

@@ -1181,3 +1181,176 @@
         }
     }
 }
+
+/* ==========================================================================
+   INTERAKCJE: zdjęcia użytkownika, formularze akcji, drukowanie
+   ========================================================================== */
+.passport-actions__form {
+    display: contents;
+}
+
+label.passport-action {
+    cursor: pointer;
+}
+
+label.passport-action.is-busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.passport-action:focus-within,
+label.passport-action:has(+ input:focus-visible) {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+}
+
+.passport-action--water:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.passport-photo__send {
+    grid-column: 1 / -1;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-primary);
+    background-color: var(--c-surface-container);
+    border-radius: var(--radius-sm);
+}
+
+.js .passport-photo__send {
+    display: none;
+}
+
+.passport-toolbar__actions {
+    display: none;
+}
+
+.js .passport-toolbar__actions {
+    display: flex;
+}
+
+.passport-photos {
+    margin-top: 2rem;
+}
+
+.passport-photos__empty {
+    margin-top: 12px;
+    padding: 18px 16px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--c-on-surface-variant);
+    background-color: var(--c-surface-low);
+    border-radius: var(--radius-lg);
+}
+
+.passport-photos__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.passport-photos__item {
+    position: relative;
+    overflow: clip;
+    border-radius: var(--radius-md);
+    background-color: var(--c-surface-high);
+    transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.passport-photos__item.is-removing {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.passport-photos__link {
+    display: block;
+    aspect-ratio: 1;
+}
+
+.passport-photos__link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+}
+
+.passport-photos__link:hover img {
+    transform: scale(1.06);
+}
+
+.passport-photos__date {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--c-on-primary);
+    background-color: rgba(7, 36, 23, 0.7);
+    border-radius: var(--radius-full);
+}
+
+.passport-photos__remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.passport-photos__remove button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--c-on-primary);
+    background-color: rgba(7, 36, 23, 0.6);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity var(--transition), background-color var(--transition);
+}
+
+.passport-photos__item:hover .passport-photos__remove button,
+.passport-photos__remove button:focus-visible {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .passport-photos__remove button {
+        opacity: 1;
+    }
+}
+
+.passport-photos__remove button:hover {
+    background-color: var(--c-tertiary);
+}
+
+.passport-photos__remove .ms {
+    font-size: 16px;
+}
+
+@media print {
+    .app-sidebar,
+    .app-topbar,
+    .bottom-nav,
+    .passport-toolbar,
+    .passport-actions,
+    .passport-photos__remove,
+    .toasts {
+        display: none !important;
+    }
+
+    .app {
+        display: block;
+    }
+
+    .app-content {
+        padding: 0 !important;
+    }
+
+    .passport-layout {
+        grid-template-columns: 1fr;
+    }
+}

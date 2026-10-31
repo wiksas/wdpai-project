@@ -26,6 +26,8 @@ final class UserStateRepository
         'customTasks' => [],
         'care' => [],
         'journal' => [],
+        'photos' => [],
+        'scans' => [],
         'misting' => true,
     ];
 

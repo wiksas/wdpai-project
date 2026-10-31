@@ -76,7 +76,7 @@ Routing::post('example', 'ExampleController', 'store');
 
 ### Router
 
-`src/Routing.php` laczy metode HTTP i sciezke URL z publiczna metoda kontrolera (`App\Controllers\<Nazwa>`). Parametry zapisane jako `{name}` sa dopasowywane do znakow `a-zA-Z0-9_-` i przekazywane do akcji kontrolera jako `string` — akcja musi sama zwalidowac typ (np. `ctype_digit`).
+`src/Routing.php` laczy metode HTTP i sciezke URL z publiczna metoda kontrolera (`App\Controllers\<Nazwa>`). Parametry zapisane jako `{name}` sa dopasowywane do znakow `a-zA-Z0-9_.-` i przekazywane do akcji kontrolera jako `string` — akcja musi sama zwalidowac typ (np. `ctype_digit`).
 
 Przyklad: `collection/{id}` wywoluje `CollectionController::show(string $id)`.
 
