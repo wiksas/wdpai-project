@@ -1105,3 +1105,36 @@
         }
     }
 }
+
+/* --- Scroll-driven animations: dodatkowe efekty --------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        /* Linia osi zabiegów „rysuje się” w dół w miarę przewijania. */
+        .passport-timeline {
+            view-timeline: --sd-timeline block;
+        }
+
+        .passport-timeline::before {
+            transform-origin: 50% 0;
+            animation: var(--sd-draw);
+            animation-timeline: --sd-timeline;
+            animation-range: entry 10% cover 55%;
+        }
+
+        .passport-meter__bar {
+            transform-origin: 0 50%;
+            animation: var(--sd-grow);
+            animation-timeline: view();
+            animation-range: entry 0% cover 28%;
+        }
+
+        /* Prawa kolumna wsuwa się z prawej (tylko układ dwukolumnowy). */
+        @media (min-width: 1025px) {
+            .passport-side > * {
+                animation: var(--sd-reveal-right);
+                animation-timeline: view();
+                animation-range: var(--sd-range);
+            }
+        }
+    }
+}

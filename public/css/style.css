@@ -1297,7 +1297,7 @@ button {
 /* ==========================================================================
    16. RESPONSYWNOŚĆ POWŁOKI
    ========================================================================== */
-@media (max-width: 1180px) {
+@media (max-width: 1240px) {
     .site-header__inner {
         gap: 1.25rem;
     }
@@ -1305,7 +1305,9 @@ button {
     .site-header__search {
         display: none;
     }
+}
 
+@media (max-width: 1180px) {
     .user-chip__text,
     .user-chip__chevron {
         display: none;
@@ -1686,6 +1688,111 @@ button {
 
         .site-footer__col:nth-child(4) {
             animation-range: var(--sd-range-3);
+        }
+    }
+}
+
+/* --- 17b. Dodatkowe efekty: wsuwanie z boku, odsłanianie zdjęć, paski, ikony ---- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        :root {
+            --sd-reveal-right: sd-reveal-right linear both;
+            --sd-wipe: sd-wipe linear both;
+            --sd-grow: sd-grow-x linear both;
+            --sd-pop: sd-pop linear both;
+            --sd-exit: sd-exit linear both;
+            --sd-drift: sd-drift linear both;
+            --sd-draw: sd-draw-y linear both;
+        }
+
+        /* Wsuwanie z prawej — tylko tam, gdzie jest margines (patrz media min-width: 1025px w stronach). */
+        @keyframes sd-reveal-right {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Zdjęcie odsłania się od góry, jednocześnie „osiadając” z lekkiego przybliżenia. */
+        @keyframes sd-wipe {
+            from {
+                clip-path: inset(0 0 100% 0);
+                transform: scale(1.14);
+            }
+
+            to {
+                clip-path: inset(0 0 0 0);
+                transform: none;
+            }
+        }
+
+        @keyframes sd-grow-x {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: none;
+            }
+        }
+
+        @keyframes sd-pop {
+            from {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Wyjście: blok delikatnie unosi się i blednie, gdy odjeżdża z ekranu. */
+        @keyframes sd-exit {
+            from {
+                opacity: 1;
+                transform: none;
+            }
+
+            to {
+                opacity: 0.15;
+                transform: translateY(-36px);
+            }
+        }
+
+        /* Paralaksa: element przesuwa się wolniej niż reszta strony. */
+        @keyframes sd-drift {
+            from {
+                transform: none;
+            }
+
+            to {
+                transform: translateY(44px);
+            }
+        }
+
+        @keyframes sd-draw-y {
+            from {
+                transform: scaleY(0);
+            }
+
+            to {
+                transform: none;
+            }
+        }
+
+        /* Paski postępu (wilgotność, witalność) „dopełniają się” przy wejściu na ekran. */
+        .progress__bar {
+            transform-origin: 0 50%;
+            animation: var(--sd-grow);
+            animation-timeline: view();
+            animation-range: entry 0% cover 28%;
         }
     }
 }

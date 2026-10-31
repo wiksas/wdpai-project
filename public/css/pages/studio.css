@@ -1730,3 +1730,47 @@
         }
     }
 }
+
+/* --- Scroll-driven animations: dodatkowe efekty --------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .studio-hero__content {
+            animation: var(--sd-exit);
+            animation-timeline: view();
+            animation-range: exit 10% exit 80%;
+        }
+
+        .studio-case__media img {
+            animation: var(--sd-wipe);
+            animation-timeline: view();
+            animation-range: entry 0% entry min(90%, 300px);
+        }
+
+        /* Wykres Gantta „rysuje się” od lewej; oś czasu wspólna dla całego wykresu. */
+        .studio-gantt {
+            view-timeline: --sd-gantt block;
+        }
+
+        .studio-gantt__cell {
+            transform-origin: 0 50%;
+            animation: var(--sd-grow);
+            animation-timeline: --sd-gantt;
+            animation-range: entry 0% entry 90%;
+        }
+
+        /* Kalkulator wsuwa się z lewej, wzorzec kąta z prawej (tylko szeroki układ). */
+        .studio-wiring > :first-child {
+            animation: var(--sd-reveal-left);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        @media (min-width: 1025px) {
+            .studio-wiring > :last-child {
+                animation: var(--sd-reveal-right);
+                animation-timeline: view();
+                animation-range: var(--sd-range-2);
+            }
+        }
+    }
+}

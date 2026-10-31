@@ -1193,3 +1193,53 @@
         }
     }
 }
+
+/* --- Scroll-driven animations: dodatkowe efekty --------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        /* Treść hero delikatnie wygasa, gdy odjeżdża z ekranu; karta okazu przesuwa się wolniej (paralaksa). */
+        .home-hero__content {
+            animation: var(--sd-exit);
+            animation-timeline: view();
+            animation-range: exit 10% exit 80%;
+        }
+
+        .home-specimen {
+            animation: var(--sd-drift);
+            animation-timeline: scroll(root block);
+            animation-range: 0 700px;
+        }
+
+        /* Ikony błędów „wyskakują”, zdjęcia stylów odsłaniają się od góry. */
+        .home-cause__icon {
+            animation: var(--sd-pop);
+            animation-timeline: view();
+            animation-range: entry 10% entry min(100%, 160px);
+        }
+
+        .home-style__media img {
+            animation: var(--sd-wipe);
+            animation-timeline: view();
+            animation-range: entry 0% entry min(90%, 300px);
+        }
+
+        /* Cytat mistrza wsuwa się z lewej, opinie z prawej (tylko szeroki układ). */
+        .home-masters__main {
+            animation: var(--sd-reveal-left);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        @media (min-width: 1025px) {
+            .home-review {
+                animation: var(--sd-reveal-right);
+                animation-timeline: view();
+                animation-range: var(--sd-range);
+            }
+
+            .home-review:nth-of-type(2) {
+                animation-range: var(--sd-range-2);
+            }
+        }
+    }
+}

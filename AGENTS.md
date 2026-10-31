@@ -154,7 +154,7 @@ Typowy porzadek prac:
 
 ### Animacje sterowane przewijaniem
 
-Animacje przy przewijaniu (Scroll-driven Animations) sa w czystym CSS — bez JavaScriptu. Wspolne klatki kluczowe i tokeny (`--sd-reveal`, `--sd-reveal-left`, `--sd-zoom`, `--sd-turn`, `--sd-range`, `--sd-range-2…4`) oraz elementy globalne (pasek postepu, cien naglowka, karty, stopka) sa w sekcji 17 `public/css/style.css`. Elementy konkretnej strony dopisuj na koncu jej pliku `public/css/pages/<strona>.css`:
+Animacje przy przewijaniu (Scroll-driven Animations) sa w czystym CSS — bez JavaScriptu. Wspolne klatki kluczowe i tokeny sa w sekcji 17 `public/css/style.css`: wejscia `--sd-reveal` (z dolu), `--sd-reveal-left` / `--sd-reveal-right` (z boku), `--sd-pop` (ikony), `--sd-wipe` (zdjecia), `--sd-grow` (paski, os X), `--sd-draw` (linie, os Y), wyjscie `--sd-exit`, paralaksa `--sd-drift`, `--sd-zoom`, `--sd-turn` oraz zakresy `--sd-range`, `--sd-range-2…4`. Globalnie dzialaja tez pasek postepu, cien naglowka, karty, stopka i `.progress__bar`. Wsuwanie z prawej wlaczaj tylko w ukladzie dwukolumnowym (`@media (min-width: 1025px)`), zeby nie wywolac poziomego przewijania na mobile. Elementy konkretnej strony dopisuj na koncu jej pliku `public/css/pages/<strona>.css`. Zawsze ustawiaj pelna trojke `animation` + `animation-timeline` + `animation-range` (skrot `animation` zeruje os czasu):
 
 ```css
 @media (prefers-reduced-motion: no-preference) {
