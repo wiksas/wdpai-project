@@ -38,14 +38,35 @@
                 'enthusiast' => ['Pasjonat', '2–5 lat doświadczenia'],
                 'master' => ['Mistrz', 'Ponad 5 lat praktyki'],
             ];
+            // Etykiety i pola do listy błędów u góry formularza (link przenosi do pola).
+            $errorTargets = [
+                'name' => ['Imię', 'register-name'],
+                'email' => ['Adres e-mail', 'register-email'],
+                'password' => ['Hasło', 'register-password'],
+                'password_repeat' => ['Powtórz hasło', 'register-password-repeat'],
+                'terms' => ['Zgoda', 'register-terms'],
+            ];
+            $fieldError = static fn (string $field): string => isset($errors[$field])
+                ? '<p class="auth-error" id="register-' . str_replace('_', '-', $field) . '-error"><span class="ms" aria-hidden="true">error</span>' . $e($errors[$field]) . '</p>'
+                : '';
             ?>
             <form action="/register" method="POST" class="auth-form" novalidate>
                 <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                 <?php if ($errors !== []): ?>
-                    <p class="auth-alert" role="alert">
+                    <div class="auth-alert auth-alert--list" role="alert" tabindex="-1" data-error-summary>
                         <span class="ms" aria-hidden="true">error</span>
-                        Popraw zaznaczone pola i spróbuj ponownie.
-                    </p>
+                        <div>
+                            <p class="auth-alert__title">Konto nie zostało założone. Popraw <?= count($errors) === 1 ? 'jedno pole' : count($errors) . ' pola' ?>:</p>
+                            <ul class="auth-alert__list">
+                                <?php foreach ($errorTargets as $field => [$label, $target]): ?>
+                                    <?php if (isset($errors[$field])): ?>
+                                        <li><a href="#<?= $target ?>"><?= $label ?>:</a> <?= $e($errors[$field]) ?></li>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </ul>
+                            <p class="auth-alert__note">Ze względów bezpieczeństwa hasło nie jest zachowywane. Wpisz je ponownie w obu polach.</p>
+                        </div>
+                    </div>
                 <?php endif; ?>
 
                 <div class="auth-form__row">
@@ -55,7 +76,7 @@
                             <span class="ms" aria-hidden="true">person</span>
                             <input class="input" type="text" id="register-name" name="name" value="<?= $e($old['name']) ?>" autocomplete="name" required<?= isset($errors['name']) ? ' aria-invalid="true" aria-describedby="register-name-error"' : '' ?>>
                         </div>
-                        <?php if (isset($errors['name'])): ?><p class="auth-error" id="register-name-error"><?= $e($errors['name']) ?></p><?php endif; ?>
+                        <?= $fieldError('name') ?>
                     </div>
                     <div class="field auth-field">
                         <label class="field__label auth-field__label" for="register-email">Adres e-mail</label>
@@ -63,7 +84,7 @@
                             <span class="ms" aria-hidden="true">mail</span>
                             <input class="input" type="email" id="register-email" name="email" value="<?= $e($old['email']) ?>" placeholder="ty@przyklad.pl" autocomplete="email" required<?= isset($errors['email']) ? ' aria-invalid="true" aria-describedby="register-email-error"' : '' ?>>
                         </div>
-                        <?php if (isset($errors['email'])): ?><p class="auth-error" id="register-email-error"><?= $e($errors['email']) ?></p><?php endif; ?>
+                        <?= $fieldError('email') ?>
                     </div>
                 </div>
 
@@ -78,7 +99,7 @@
                             </button>
                         </div>
                         <p class="auth-hint" id="register-password-hint">Od 8 do 128 znaków. Zapisujemy tylko skrót hasła (Argon2id), nigdy samo hasło.</p>
-                        <?php if (isset($errors['password'])): ?><p class="auth-error" id="register-password-error"><?= $e($errors['password']) ?></p><?php endif; ?>
+                        <?= $fieldError('password') ?>
                     </div>
 
                     <div class="field auth-field">
@@ -90,7 +111,7 @@
                                 <span class="ms" aria-hidden="true">visibility</span>
                             </button>
                         </div>
-                        <?php if (isset($errors['password_repeat'])): ?><p class="auth-error" id="register-password-repeat-error"><?= $e($errors['password_repeat']) ?></p><?php endif; ?>
+                        <?= $fieldError('password_repeat') ?>
                     </div>
                 </div>
 
@@ -119,11 +140,13 @@
                     </div>
                 </fieldset>
 
-                <label class="checkbox auth-terms">
-                    <input type="checkbox" name="terms" value="1"<?= $old['terms'] ? ' checked' : '' ?> required<?= isset($errors['terms']) ? ' aria-invalid="true" aria-describedby="register-terms-error"' : '' ?>>
-                    <span>Rozumiem, że KOMOREBI to projekt edukacyjny, a dane konta są zapisywane na tym serwerze demonstracyjnym.</span>
-                </label>
-                <?php if (isset($errors['terms'])): ?><p class="auth-error" id="register-terms-error"><?= $e($errors['terms']) ?></p><?php endif; ?>
+                <div class="auth-terms-box<?= isset($errors['terms']) ? ' is-invalid' : '' ?>" data-invalid-box>
+                    <label class="checkbox auth-terms">
+                        <input type="checkbox" id="register-terms" name="terms" value="1"<?= $old['terms'] ? ' checked' : '' ?> required<?= isset($errors['terms']) ? ' aria-invalid="true" aria-describedby="register-terms-error"' : '' ?>>
+                        <span>Rozumiem, że KOMOREBI to projekt edukacyjny, a dane konta są zapisywane na tym serwerze demonstracyjnym.</span>
+                    </label>
+                    <?= $fieldError('terms') ?>
+                </div>
 
                 <button type="submit" class="btn btn--primary btn--block auth-submit">Załóż konto</button>
             </form>

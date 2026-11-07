@@ -390,8 +390,23 @@
     cursor: pointer;
 }
 
-.auth-terms + .auth-error {
-    margin-top: -12px;
+/* Zgoda z błędem: cały blok w ramce, żeby był widoczny także pod długim formularzem. */
+.auth-terms-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.auth-terms-box.is-invalid {
+    padding: 12px 14px;
+    border-color: var(--c-tertiary);
+    background-color: var(--c-tertiary-soft);
+}
+
+.auth-terms-box .auth-error {
     padding-left: 30px;
 }
 
@@ -422,15 +437,66 @@
     font-size: 18px;
 }
 
-.auth-error {
+.auth-alert--list {
+    padding: 14px 16px;
+    border: 1px solid var(--c-tertiary);
+    outline: none;
+}
+
+.auth-alert__title {
+    font-weight: 700;
+}
+
+.auth-alert__list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 6px 0 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+
+.auth-alert__list a {
+    font-weight: 700;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.auth-alert__note {
+    margin-top: 8px;
     font-size: 13px;
+}
+
+/* Błąd pola: ikona + pogrubiony tekst, nie sam drobny kolor (WCAG 1.4.1: nie tylko kolorem). */
+.auth-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
     line-height: 1.4;
     color: var(--c-tertiary);
 }
 
+.auth-error .ms {
+    margin-top: 1px;
+    font-size: 16px;
+}
+
+.auth-error[hidden] {
+    display: none;
+}
+
 .auth-form .input[aria-invalid="true"] {
     border-color: var(--c-tertiary);
+    border-width: 2px;
     background-color: var(--c-tertiary-soft);
+}
+
+.auth-terms input[aria-invalid="true"] {
+    outline: 2px solid var(--c-tertiary);
+    outline-offset: 2px;
 }
 
 .auth-demo {

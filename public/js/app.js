@@ -261,6 +261,29 @@
         input.focus();
     });
 
+    /* ------------------------------------------------------ Błędy formularzy */
+    // Po nieudanym wysłaniu fokus trafia na listę błędów: czytnik ekranu ją odczyta, a widok przewinie się do niej.
+    doc.querySelector('[data-error-summary]')?.focus();
+
+    // Poprawione pole przestaje być oznaczone jako błędne, zanim formularz zostanie wysłany ponownie.
+    const clearFieldError = (event) => {
+        const field = event.target;
+        if (!(field instanceof HTMLElement) || field.getAttribute('aria-invalid') !== 'true') {
+            return;
+        }
+        if (field.type === 'checkbox' && !field.checked) {
+            return;
+        }
+
+        field.removeAttribute('aria-invalid');
+        (field.getAttribute('aria-describedby') ?? '').split(/\s+/).filter((id) => id.endsWith('-error')).forEach((id) => {
+            doc.getElementById(id)?.setAttribute('hidden', '');
+        });
+        field.closest('[data-invalid-box]')?.classList.remove('is-invalid');
+    };
+    doc.addEventListener('input', clearFieldError);
+    doc.addEventListener('change', clearFieldError);
+
     /**
      * Zmniejsza zdjęcie przed wysłaniem (maks. `maxSide` px, JPEG) — telefony robią zdjęcia po kilka MB,
      * a serwer przyjmuje do 2 MB. Zwraca Blob; przy błędzie dekodowania oryginalny plik.
