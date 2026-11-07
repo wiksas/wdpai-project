@@ -404,6 +404,13 @@ input[type="range"],
     font-size: 13px;
 }
 
+/* Na ekranach dotykowych i wąskich mały przycisk zachowuje wygląd, ale cel dotyku ma 44 px. */
+@media (pointer: coarse), (max-width: 768px) {
+    .btn--sm {
+        min-height: 44px;
+    }
+}
+
 .btn--block {
     width: 100%;
 }
@@ -1547,8 +1554,8 @@ input[type="range"],
     }
 
     .site-header .brand__mark {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
     }
 
     .site-header__auth,

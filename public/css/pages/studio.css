@@ -68,6 +68,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px;
     font-weight: 500;
     color: var(--c-primary);
     text-decoration: underline;
@@ -916,6 +917,15 @@ path.studio-svg-back {
 
 .studio-sim__marker.is-cut text {
     fill: var(--c-on-tertiary);
+}
+
+/* Niewidoczny większy krąg: cel dotyku ok. 44 px także na wąskim ekranie, gdzie rysunek jest pomniejszony. */
+.studio-sim__marker circle.studio-sim__hit,
+.studio-sim__marker:hover circle.studio-sim__hit,
+.studio-sim__marker:focus-visible circle.studio-sim__hit,
+.studio-sim__marker.is-cut circle.studio-sim__hit {
+    fill: transparent;
+    stroke: none;
 }
 
 .studio-sim__panel {

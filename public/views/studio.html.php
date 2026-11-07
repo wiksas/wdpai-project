@@ -322,10 +322,10 @@ $techniques = [
                                 <line class="studio-svg-axis" x1="284" y1="130" x2="284" y2="448"/>
                                 <circle class="studio-svg-center" cx="284" cy="300" r="7" data-sim-center/>
                                 <g class="studio-sim__markers">
-                                    <g class="studio-sim__marker" data-branch-toggle="1" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 1: zaznacz do usunięcia"><circle cx="94.4" cy="358" r="14"/><text x="94.4" y="363">1</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="2" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 2: zaznacz do usunięcia"><circle cx="416" cy="352.8" r="14"/><text x="416" y="357.8">2</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="3" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 3: zaznacz do usunięcia"><circle cx="156" cy="256.8" r="14"/><text x="156" y="261.8">3</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="4" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 4: zaznacz do usunięcia"><circle cx="426.4" cy="229.6" r="14"/><text x="426.4" y="234.6">4</text></g>
+                                    <g class="studio-sim__marker" data-branch-toggle="1" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 1: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="94.4" cy="358" r="36"/><circle cx="94.4" cy="358" r="14"/><text x="94.4" y="363">1</text></g>
+                                    <g class="studio-sim__marker" data-branch-toggle="2" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 2: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="416" cy="352.8" r="36"/><circle cx="416" cy="352.8" r="14"/><text x="416" y="357.8">2</text></g>
+                                    <g class="studio-sim__marker" data-branch-toggle="3" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 3: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="156" cy="256.8" r="36"/><circle cx="156" cy="256.8" r="14"/><text x="156" y="261.8">3</text></g>
+                                    <g class="studio-sim__marker" data-branch-toggle="4" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 4: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="426.4" cy="229.6" r="36"/><circle cx="426.4" cy="229.6" r="14"/><text x="426.4" y="234.6">4</text></g>
                                 </g>
                             </svg>
                             <p class="studio-sim__hint">Kliknij numer gałęzi albo wybierz go klawiszem Tab i naciśnij Enter. Linia pionowa to oś pnia, kropka to środek masy korony.</p>

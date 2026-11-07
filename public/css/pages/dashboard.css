@@ -435,6 +435,7 @@
 }
 
 .dash-timeline__item {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -442,10 +443,17 @@
     border-top: 1px solid var(--c-divider);
 }
 
+/* Cały wiersz (tytuł + data) jest celem kliknięcia, nie tylko linia tytułu. */
 .dash-timeline__title {
     font-size: 15px;
     font-weight: 500;
     color: var(--c-primary);
+}
+
+.dash-timeline__title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
 }
 
 .dash-timeline__title:hover {
@@ -598,10 +606,6 @@
 
     .dash-side {
         display: flex;
-    }
-
-    .dash .btn--sm {
-        min-height: 44px;
     }
 
     .dash-due__item,
