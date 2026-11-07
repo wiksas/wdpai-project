@@ -126,7 +126,7 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 ## Uwierzytelnianie
 
 - Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\Session` (uzywana przez `AuthService`, `Csrf`, `Flash`); kontrolery i widoki korzystaja z tych serwisow.
-- `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `email`, `role`, `initials`, `label` — bez hasha hasla).
+- `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `login`, `email`, `role`, `initials`, `label` — bez hasha hasla).
 - Strony aplikacji (`/collection`, `/collection/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
 - Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia (login, imie, e-mail, haslo 8–128 znakow, powtorzenie hasla, zgoda) zyje w kontrolerze; zapis i logowanie robi `AuthService` (`register()`, `attempt()`, `emailTaken()`, `loginTaken()`). Logowanie przyjmuje login albo e-mail.
 - Login wybiera uzytkownik przy rejestracji: zapisany malymi literami, 3–30 znakow, zaczyna sie litera, potem litery, cyfry, `.`, `_`, `-` (`AuthController::LOGIN_PATTERN`, w bazie ograniczenie `users_login_format` z `docker/db/02-login-format.sql`). Bez `@`, wiec nie myli sie z e-mailem. Zarezerwowane loginy: `AuthController::RESERVED_LOGINS`. Gdy login lub e-mail zajmie ktos w trakcie rejestracji, `UserRepository::create()` rzuca `DuplicateUserException` z nazwa pola.
