@@ -25,7 +25,10 @@
     networks:
       - pg-network
     volumes:
+      # Schemat (01-schema.sql) wykonuje się przy pierwszym starcie pustej bazy.
       - ./docker/db:/docker-entrypoint-initdb.d
+      # Dane bazy (konta) przetrwają `docker compose down` i przebudowę kontenera.
+      - pg-data:/var/lib/postgresql/data
 
   php:
     build:
@@ -33,6 +36,14 @@
       dockerfile: docker/php/Dockerfile
     volumes:
       - .:/app
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      - db
     networks:
       - pg-network
 

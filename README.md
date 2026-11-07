@@ -28,12 +28,18 @@ Strona startowa ma kalkulator ryzyka utraty turgoru liczony na żywo. Nawigacja,
 |---|---|
 | `admin` | `admin` |
 
-Konta założone w formularzu rejestracji są zapisywane w `storage/users.json` (plik poza `public/`, ignorowany przez git). Dane drzewek są demonstracyjne (`src/Repository/TreeRepository.php`). Aplikacja nie ma jeszcze warstwy bazy danych, a konto demonstracyjne należy usunąć przed wdrożeniem produkcyjnym.
+Konta są zapisywane w bazie PostgreSQL (usługa `db`, tabele `users` i `user_species`). Hasła przechowujemy wyłącznie jako skrót Argon2id (`password_hash`), e-mail i login są unikalne bez względu na wielkość liter. Schemat (`docker/db/01-schema.sql`) tworzy się automatycznie przy pierwszym starcie bazy, razem z kontem demonstracyjnym, które należy usunąć przed wdrożeniem produkcyjnym. Dane bazy leżą w wolumenie `pg-data`, więc przetrwają `docker compose down`. Dane drzewek są demonstracyjne (`src/Repository/TreeRepository.php`).
 
 ## Uruchomienie
 
 ```bash
-docker compose up --build -d server php
+docker compose up --build -d server php db
 ```
 
-Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`).
+Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`). Dane dostępowe bazy (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) pochodzą z `.env` (wzór w `.env.example`). Podgląd bazy: pgAdmin pod `http://localhost:5050` albo `docker compose exec db psql -U wdpai_user -d wdpai_db`.
+
+Jeśli wolumen bazy już istniał przed dodaniem schematu, wykonaj go ręcznie:
+
+```bash
+docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/01-schema.sql
+```

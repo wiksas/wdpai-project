@@ -67,17 +67,31 @@
                     </div>
                 </div>
 
-                <div class="field auth-field">
-                    <label class="field__label auth-field__label" for="register-password">Hasło</label>
-                    <div class="input-group auth-input">
-                        <span class="ms" aria-hidden="true">lock</span>
-                        <input class="input" type="password" id="register-password" name="password" minlength="8" autocomplete="new-password" required aria-describedby="register-password-hint<?= isset($errors['password']) ? ' register-password-error' : '' ?>"<?= isset($errors['password']) ? ' aria-invalid="true"' : '' ?>>
-                        <button type="button" class="input-group__action auth-input__action" aria-label="Pokaż hasło" aria-pressed="false">
-                            <span class="ms" aria-hidden="true">visibility</span>
-                        </button>
+                <div class="auth-form__row">
+                    <div class="field auth-field">
+                        <label class="field__label auth-field__label" for="register-password">Hasło</label>
+                        <div class="input-group auth-input">
+                            <span class="ms" aria-hidden="true">lock</span>
+                            <input class="input" type="password" id="register-password" name="password" minlength="8" maxlength="128" autocomplete="new-password" required aria-describedby="register-password-hint<?= isset($errors['password']) ? ' register-password-error' : '' ?>"<?= isset($errors['password']) ? ' aria-invalid="true"' : '' ?>>
+                            <button type="button" class="input-group__action auth-input__action" aria-label="Pokaż hasło" aria-pressed="false">
+                                <span class="ms" aria-hidden="true">visibility</span>
+                            </button>
+                        </div>
+                        <p class="auth-hint" id="register-password-hint">Od 8 do 128 znaków. Zapisujemy tylko skrót hasła (Argon2id), nigdy samo hasło.</p>
+                        <?php if (isset($errors['password'])): ?><p class="auth-error" id="register-password-error"><?= $e($errors['password']) ?></p><?php endif; ?>
                     </div>
-                    <p class="auth-hint" id="register-password-hint">Co najmniej 8 znaków.</p>
-                    <?php if (isset($errors['password'])): ?><p class="auth-error" id="register-password-error"><?= $e($errors['password']) ?></p><?php endif; ?>
+
+                    <div class="field auth-field">
+                        <label class="field__label auth-field__label" for="register-password-repeat">Powtórz hasło</label>
+                        <div class="input-group auth-input">
+                            <span class="ms" aria-hidden="true">lock</span>
+                            <input class="input" type="password" id="register-password-repeat" name="password_repeat" minlength="8" maxlength="128" autocomplete="new-password" required<?= isset($errors['password_repeat']) ? ' aria-invalid="true" aria-describedby="register-password-repeat-error"' : '' ?>>
+                            <button type="button" class="input-group__action auth-input__action" aria-label="Pokaż hasło" aria-pressed="false">
+                                <span class="ms" aria-hidden="true">visibility</span>
+                            </button>
+                        </div>
+                        <?php if (isset($errors['password_repeat'])): ?><p class="auth-error" id="register-password-repeat-error"><?= $e($errors['password_repeat']) ?></p><?php endif; ?>
+                    </div>
                 </div>
 
                 <fieldset class="auth-fieldset">

@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Repository\Database;
 use App\Repository\TreeRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserStateRepository;
@@ -32,7 +33,7 @@ class AppController
 
     protected function auth(): AuthService
     {
-        return $this->auth ??= new AuthService(new UserRepository(), $this->session());
+        return $this->auth ??= new AuthService(new UserRepository(Database::connection()), $this->session());
     }
 
     protected function csrf(): Csrf
@@ -195,7 +196,8 @@ class AppController
         $templatePath = __DIR__ . '/../../public/views/' . $template . '.html.php';
         $output = 'File not found';
 
-        $user = $this->auth()->currentUser();
+        // Widok może podać `currentUser` sam (np. strona 503, gdy baza nie odpowiada i nie da się go odczytać).
+        $user = array_key_exists('currentUser', $variables) ? $variables['currentUser'] : $this->auth()->currentUser();
 
         // Każdy widok (nagłówek, panel boczny, formularze, toasty) dostaje dane wspólne dla całej aplikacji.
         $variables += [
@@ -217,5 +219,21 @@ class AppController
         }
 
         echo $output;
+    }
+
+    /**
+     * Strona 503, gdy baza danych nie odpowiada. Nie odpytuje bazy (gość, bez powiadomień).
+     */
+    public function databaseUnavailable(): void
+    {
+        http_response_code(503);
+        header('Retry-After: 30');
+        $this->render('not-found', [
+            'pageTitle' => 'Serwis chwilowo niedostępny | KOMOREBI',
+            'currentUser' => null,
+            'errorCode' => 503,
+            'errorTitle' => 'Baza danych chwilowo nie odpowiada',
+            'errorMessage' => 'Nie możemy teraz odczytać kont ani zapisać zmian. Spróbuj ponownie za chwilę.',
+        ]);
     }
 }

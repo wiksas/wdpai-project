@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\AppController;
 use App\Routing;
 
 // Sesja logowania: ciasteczko niedostępne dla JS i niewysyłane w żądaniach między witrynami.
@@ -54,4 +55,20 @@ Routing::post('notifications/read', 'NotificationController', 'read');
 // 6. Motyw jasny/ciemny (ciasteczko)
 Routing::post('theme', 'ThemeController', 'update');
 
-Routing::run($path, $method);
+try {
+    Routing::run($path, $method);
+} catch (PDOException $exception) {
+    // Baza nie odpowiada (np. kontener `db` nie działa): czytelna strona 503 zamiast błędu PHP.
+    error_log('KOMOREBI: baza danych niedostępna: ' . $exception->getMessage());
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch') {
+        http_response_code(503);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['ok' => false, 'message' => 'Baza danych chwilowo nie odpowiada. Spróbuj ponownie za chwilę.'], JSON_UNESCAPED_UNICODE);
+    } else {
+        (new AppController())->databaseUnavailable();
+    }
+}

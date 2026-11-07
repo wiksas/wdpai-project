@@ -13,14 +13,21 @@ final class AuthService
 {
     private const SESSION_KEY = 'user_id';
 
-    // Hash losowego ciągu — używany tylko po to, by wyrównać czas odpowiedzi dla nieistniejących kont.
-    private const DUMMY_HASH = '$2y$10$oqut/KBQRpeCmXEWD/MJZeSGVEHc1gtPWybk7F00I8spkNZCpJVda';
+    /** Argon2id: odporny na łamanie na GPU; starsze hashe (bcrypt) są przeliczane przy logowaniu. */
+    private const HASH_ALGORITHM = PASSWORD_ARGON2ID;
+
+    // Hash losowego ciągu: używany tylko po to, by wyrównać czas odpowiedzi dla nieistniejących kont.
+    private const DUMMY_HASH = '$argon2id$v=19$m=65536,t=4,p=1$aE16c2Y4ZDRXMTNDN0c3Wg$Q/0dR+oc+72HYi+WsxmSVa7ib40F8cBAEwuxKKdhKRY';
 
     private const LEVEL_LABELS = [
         'beginner' => 'Początkujący',
         'enthusiast' => 'Pasjonat',
         'master' => 'Mistrz',
     ];
+
+    /** Zapamiętany wynik currentUser() dla bieżącego żądania (jedno zapytanie zamiast kilku). */
+    private ?array $current = null;
+    private bool $resolved = false;
 
     public function __construct(
         private readonly UserRepository $users,
@@ -35,22 +42,28 @@ final class AuthService
      */
     public function currentUser(): ?array
     {
+        if ($this->resolved) {
+            return $this->current;
+        }
+
+        $this->resolved = true;
         $id = $this->session->get(self::SESSION_KEY);
         if (!is_int($id)) {
-            return null;
+            return $this->current = null;
         }
 
         $user = $this->users->findById($id);
         if ($user === null) {
             $this->session->forget(self::SESSION_KEY);
-            return null;
+            return $this->current = null;
         }
 
-        return $this->present($user);
+        return $this->current = $this->present($user);
     }
 
     /**
-     * Sprawdza dane logowania; przy poprawnych otwiera sesję.
+     * Sprawdza dane logowania; przy poprawnych otwiera sesję, zapisuje czas logowania
+     * i przelicza hash, jeśli powstał starszym algorytmem.
      */
     public function attempt(string $login, string $password): bool
     {
@@ -63,21 +76,50 @@ final class AuthService
             return false;
         }
 
+        $rehash = password_needs_rehash($user['passwordHash'], self::HASH_ALGORITHM)
+            ? password_hash($password, self::HASH_ALGORITHM)
+            : null;
+        $this->users->recordLogin((int) $user['id'], $rehash);
         $this->signIn((int) $user['id']);
 
         return true;
+    }
+
+    /**
+     * Zakłada konto z zahashowanym hasłem i od razu loguje. Zwraca false, gdy e-mail jest zajęty.
+     *
+     * @param list<string> $species
+     */
+    public function register(string $name, string $email, string $password, string $level, array $species): bool
+    {
+        $user = $this->users->create($name, $email, password_hash($password, self::HASH_ALGORITHM), $level, $species);
+        if ($user === null) {
+            return false;
+        }
+
+        $this->users->recordLogin((int) $user['id']);
+        $this->signIn((int) $user['id']);
+
+        return true;
+    }
+
+    public function emailTaken(string $email): bool
+    {
+        return $this->users->emailExists($email);
     }
 
     public function signIn(int $userId): void
     {
         $this->session->regenerate();
         $this->session->set(self::SESSION_KEY, $userId);
+        $this->resolved = false;
     }
 
     public function logout(): void
     {
         $this->session->clear();
         $this->session->regenerate();
+        $this->resolved = false;
     }
 
     /**

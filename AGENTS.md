@@ -40,14 +40,15 @@ Aktualnie aplikacja obsluguje:
 │       └── partials/          # wspolne fragmenty: head, naglowek, stopka, powloka aplikacji
 ├── src/
 │   ├── controllers/           # kontrolery aplikacji
-│   ├── Repository/            # repozytoria: dane demonstracyjne, konta, stan uzytkownika (bez bazy danych)
+│   ├── Repository/            # repozytoria: Database (PDO), konta w PostgreSQL, dane demonstracyjne okazow, stan uzytkownika (JSON)
 │   ├── Service/               # serwisy: Session, Csrf, Flash, AuthService, MediaStorage, Collection/Schedule/Notification/Clinic/Studio…
 │   ├── Support/               # klasy pomocnicze bez zaleznosci (PolishDate)
 │   └── Routing.php            # rejestracja i obsluga tras
-├── storage/                   # dane uruchomieniowe poza `public/` (users.json, state/, uploads/ — w .gitignore)
+├── storage/                   # dane uruchomieniowe poza `public/` (state/, uploads/ — w .gitignore)
 ├── DESIGN.md                  # kierunek wizualny i powody decyzji projektowych
 ├── composer.json              # konfiguracja autoloadingu
-└── docker-compose.yaml        # uslugi `server` i `php`
+├── docker/db/01-schema.sql    # schemat bazy (tabele `users`, `user_species`), wykonywany przy pierwszym starcie bazy
+└── docker-compose.yaml        # uslugi `server`, `php`, `db` (PostgreSQL z wolumenem `pg-data`)
 ```
 
 Nie umieszczaj logiki aplikacji ani danych wrazliwych w `public/`. Ten katalog jest document rootem Nginx i sluzy tylko jako punkt wejscia oraz miejsce na widoki i zasoby publiczne.
@@ -99,7 +100,7 @@ Kontroler powinien byc cienki. Nie umieszczaj w nim rozbudowanych zapytan do baz
 
 ### Model
 
-Pelna warstwa Model/baza danych nie jest jeszcze zaimplementowana. Dane okazow (`App\Repository\TreeRepository`) sa demonstracyjne i zapisane w kodzie, a konta uzytkownikow (`App\Repository\UserRepository`) leza w pliku `storage/users.json`. Nie udawaj, ze dane widoczne w widokach pochodza z bazy danych. Gdy funkcja wymaga trwalego przechowywania danych, wydziel klasy modelu/repozytorium zamiast dodawac zapytania SQL do kontrolera.
+Konta uzytkownikow sa w bazie PostgreSQL (usluga `db`): `App\Repository\Database` otwiera polaczenie PDO z danymi z `.env` (zmienne `POSTGRES_*`, `DB_HOST`, `DB_PORT` przekazane do kontenera `php`), a `App\Repository\UserRepository` wykonuje zapytania przygotowane (`prepare` + parametry, nigdy sklejanie SQL z danymi). Schemat lezy w `docker/db/01-schema.sql`; obraz postgres wykonuje go przy pierwszym starcie pustego wolumenu `pg-data`, a na istniejacej bazie mozna go uruchomic recznie (polecenia sa idempotentne). Dane okazow (`TreeRepository`) sa nadal demonstracyjne w kodzie, a stan uzytkownika (`UserStateRepository`) w plikach JSON. Nie udawaj, ze te dane pochodza z bazy. Zapytania SQL trzymaj w repozytoriach, nigdy w kontrolerze. Brak polaczenia z baza (`PDOException`) `public/index.php` zamienia na strone 503 (`AppController::databaseUnavailable()`) albo JSON 503 dla `fetch`.
 
 Dla nowych klas zgodnych z mapowaniem `App\` w Composerze preferuj katalogi i nazwy klas o zgodnej wielkosci liter, np.:
 
@@ -127,8 +128,9 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 - Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\Session` (uzywana przez `AuthService`, `Csrf`, `Flash`); kontrolery i widoki korzystaja z tych serwisow.
 - `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `email`, `role`, `initials`, `label` — bez hasha hasla).
 - Strony aplikacji (`/collection`, `/collection/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
-- Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia zyje w kontrolerze, hasla zapisujemy tylko przez `password_hash()`.
-- Konta obsluguje `App\Repository\UserRepository`: konto demonstracyjne `admin` / `admin` jest w kodzie, a konta z rejestracji laduja w `storage/users.json` (poza `public/`, w `.gitignore`). To rozwiazanie tymczasowe — po dodaniu bazy danych podmien implementacje repozytorium na PDO bez zmiany kontrolerow. Konto demonstracyjne usun przed wdrozeniem produkcyjnym.
+- Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia (imie, e-mail, haslo 8–128 znakow, powtorzenie hasla, zgoda) zyje w kontrolerze; zapis i logowanie robi `AuthService` (`register()`, `attempt()`, `emailTaken()`).
+- Hasla hashuje wylacznie `AuthService` przez `password_hash(..., PASSWORD_ARGON2ID)`; w bazie jest tylko hash. Przy logowaniu `password_needs_rehash()` przelicza starsze hashe (np. bcrypt konta demonstracyjnego) i zapisuje `last_login_at`. Dla nieistniejacego konta `password_verify` liczy sie na atrapie, zeby czas odpowiedzi nie zdradzal, czy e-mail istnieje. Unikalnosc loginu i e-maila (bez wielkosci liter) pilnuje indeks w bazie, takze przy rownoczesnych rejestracjach.
+- Konto demonstracyjne `admin` / `admin` (id 1) wstawia schemat SQL. Usun je przed wdrozeniem produkcyjnym.
 - Menu konta (`partials/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.
 
 ## Zabezpieczenia formularzy i stan uzytkownika

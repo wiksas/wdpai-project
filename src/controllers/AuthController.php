@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Repository\UserRepository;
-
 class AuthController extends AppController
 {
     private const LEVELS = ['beginner', 'enthusiast', 'master'];
@@ -68,6 +66,7 @@ class AuthController extends AppController
         $name = trim((string) ($_POST['name'] ?? ''));
         $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
+        $passwordRepeat = (string) ($_POST['password_repeat'] ?? '');
         $level = (string) ($_POST['experience'] ?? '');
         $species = array_values(array_intersect(self::SPECIES, (array) ($_POST['species'] ?? [])));
         $termsAccepted = ($_POST['terms'] ?? '') === '1';
@@ -82,8 +81,10 @@ class AuthController extends AppController
             $errors['email'] = 'Podaj poprawny adres e-mail.';
         }
 
-        if (mb_strlen($password) < 8) {
-            $errors['password'] = 'Hasło musi mieć co najmniej 8 znaków.';
+        if (mb_strlen($password) < 8 || mb_strlen($password) > 128) {
+            $errors['password'] = 'Hasło musi mieć od 8 do 128 znaków.';
+        } elseif (!hash_equals($password, $passwordRepeat)) {
+            $errors['password_repeat'] = 'Hasła nie są takie same.';
         }
 
         if (!in_array($level, self::LEVELS, true)) {
@@ -94,9 +95,13 @@ class AuthController extends AppController
             $errors['terms'] = 'Zaznacz to pole, aby założyć konto.';
         }
 
-        $users = new UserRepository();
-        if (!isset($errors['email']) && $users->findByLogin($email) !== null) {
-            $errors['email'] = 'Konto z tym adresem e-mail już istnieje.';
+        if (!isset($errors['email']) && $this->auth()->emailTaken($email)) {
+            $errors['email'] = 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
+        }
+
+        // Unikalny indeks w bazie łapie też wyścig dwóch rejestracji tym samym adresem.
+        if ($errors === [] && !$this->auth()->register($name, $email, $password, $level, $species)) {
+            $errors['email'] = 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
         }
 
         if ($errors !== []) {
@@ -109,9 +114,7 @@ class AuthController extends AppController
             return;
         }
 
-        $user = $users->create($name, $email, password_hash($password, PASSWORD_DEFAULT), $level, $species);
-        $this->auth()->signIn($user['id']);
-
+        $this->flash('success', 'Witaj, ' . $name . '! Konto zostało założone.');
         $this->redirect('/collection');
     }
 

@@ -4,34 +4,23 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use PDO;
+use PDOException;
+
 /**
- * Tymczasowe źródło kont użytkowników — do czasu dodania warstwy bazy danych.
- *
- * Konto demonstracyjne `admin` / `admin` jest zapisane w kodzie, a konta założone
- * przez formularz rejestracji trafiają do pliku `storage/users.json` (poza `public/`).
- * Docelowo wystarczy podmienić implementację tej klasy na zapytania PDO.
+ * Konta użytkowników w bazie PostgreSQL (tabele `users` i `user_species`, schemat: docker/db/01-schema.sql).
+ * Hash hasła nigdy nie opuszcza warstwy repozytorium/AuthService (widoki dostają AuthService::present()).
  *
  * @phpstan-type User array{id: int, login: string, email: string, name: string, passwordHash: string, role: string, level: string, species: list<string>}
  */
 final class UserRepository
 {
-    // Hash hasła „admin” (konto demonstracyjne — usuń przed wdrożeniem produkcyjnym).
-    private const DEMO_ADMIN = [
-        'id' => 1,
-        'login' => 'admin',
-        'email' => 'admin@komorebi.pl',
-        'name' => 'Admin',
-        'passwordHash' => '$2y$10$8rB9Lmk.ToPG4r9BnTeNbuKapxIFsJ65RV.jcjg/mmKUutm39HYe2',
-        'role' => 'admin',
-        'level' => 'master',
-        'species' => [],
-    ];
+    private const UNIQUE_VIOLATION = '23505';
 
-    private readonly string $file;
+    private const COLUMNS = 'id, login, email, name, password_hash, role, level';
 
-    public function __construct(?string $file = null)
+    public function __construct(private readonly PDO $db)
     {
-        $this->file = $file ?? dirname(__DIR__, 2) . '/storage/users.json';
     }
 
     /**
@@ -39,13 +28,10 @@ final class UserRepository
      */
     public function findById(int $id): ?array
     {
-        foreach ($this->all() as $user) {
-            if ($user['id'] === $id) {
-                return $user;
-            }
-        }
+        $statement = $this->db->prepare('SELECT ' . self::COLUMNS . ' FROM users WHERE id = :id');
+        $statement->execute(['id' => $id]);
 
-        return null;
+        return $this->hydrate($statement->fetch());
     }
 
     /**
@@ -56,78 +42,97 @@ final class UserRepository
     public function findByLogin(string $login): ?array
     {
         $needle = mb_strtolower(trim($login));
-
-        foreach ($this->all() as $user) {
-            if ($needle !== '' && ($needle === mb_strtolower($user['login']) || $needle === mb_strtolower($user['email']))) {
-                return $user;
-            }
+        if ($needle === '') {
+            return null;
         }
 
-        return null;
+        $statement = $this->db->prepare('SELECT ' . self::COLUMNS . ' FROM users WHERE lower(login) = :login OR lower(email) = :email LIMIT 1');
+        $statement->execute(['login' => $needle, 'email' => $needle]);
+
+        return $this->hydrate($statement->fetch());
+    }
+
+    public function emailExists(string $email): bool
+    {
+        $needle = mb_strtolower(trim($email));
+        $statement = $this->db->prepare('SELECT 1 FROM users WHERE lower(email) = :email OR lower(login) = :login');
+        $statement->execute(['email' => $needle, 'login' => $needle]);
+
+        return $statement->fetchColumn() !== false;
     }
 
     /**
+     * Zakłada konto (login = e-mail) razem z wybranymi gatunkami w jednej transakcji.
+     * Zwraca null, gdy adres zajęło w międzyczasie inne konto (unikalny indeks w bazie).
+     *
      * @param list<string> $species
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    public function create(string $name, string $email, string $passwordHash, string $level, array $species): array
+    public function create(string $name, string $email, string $passwordHash, string $level, array $species): ?array
     {
-        $users = $this->stored();
-        $nextId = max([self::DEMO_ADMIN['id'], ...array_map(static fn (array $user): int => $user['id'], $users)]) + 1;
+        $this->db->beginTransaction();
 
-        $user = [
-            'id' => $nextId,
-            'login' => $email,
-            'email' => $email,
-            'name' => $name,
-            'passwordHash' => $passwordHash,
-            'role' => 'user',
-            'level' => $level,
-            'species' => $species,
+        try {
+            $statement = $this->db->prepare(
+                'INSERT INTO users (login, email, name, password_hash, level) VALUES (:login, :email, :name, :hash, :level) RETURNING id',
+            );
+            $statement->execute(['login' => $email, 'email' => $email, 'name' => $name, 'hash' => $passwordHash, 'level' => $level]);
+            $id = (int) $statement->fetchColumn();
+
+            $insertSpecies = $this->db->prepare('INSERT INTO user_species (user_id, species) VALUES (:id, :species)');
+            foreach (array_unique($species) as $item) {
+                $insertSpecies->execute(['id' => $id, 'species' => $item]);
+            }
+
+            $this->db->commit();
+        } catch (PDOException $exception) {
+            $this->db->rollBack();
+            if ($exception->getCode() === self::UNIQUE_VIOLATION) {
+                return null;
+            }
+
+            throw $exception;
+        }
+
+        return $this->findById($id);
+    }
+
+    /** Po udanym logowaniu: czas logowania i (opcjonalnie) hash przeliczony silniejszym algorytmem. */
+    public function recordLogin(int $id, ?string $newPasswordHash = null): void
+    {
+        if ($newPasswordHash !== null) {
+            $statement = $this->db->prepare('UPDATE users SET last_login_at = now(), password_hash = :hash WHERE id = :id');
+            $statement->execute(['id' => $id, 'hash' => $newPasswordHash]);
+
+            return;
+        }
+
+        $statement = $this->db->prepare('UPDATE users SET last_login_at = now() WHERE id = :id');
+        $statement->execute(['id' => $id]);
+    }
+
+    /**
+     * @param array<string, mixed>|false $row
+     * @return array<string, mixed>|null
+     */
+    private function hydrate(array|false $row): ?array
+    {
+        if ($row === false) {
+            return null;
+        }
+
+        $statement = $this->db->prepare('SELECT species FROM user_species WHERE user_id = :id ORDER BY species');
+        $statement->execute(['id' => $row['id']]);
+
+        return [
+            'id' => (int) $row['id'],
+            'login' => (string) $row['login'],
+            'email' => (string) $row['email'],
+            'name' => (string) $row['name'],
+            'passwordHash' => (string) $row['password_hash'],
+            'role' => (string) $row['role'],
+            'level' => (string) $row['level'],
+            'species' => $statement->fetchAll(PDO::FETCH_COLUMN),
         ];
-
-        $users[] = $user;
-        $this->write($users);
-
-        return $user;
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function all(): array
-    {
-        return [self::DEMO_ADMIN, ...$this->stored()];
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function stored(): array
-    {
-        if (!is_file($this->file)) {
-            return [];
-        }
-
-        $decoded = json_decode((string) file_get_contents($this->file), true);
-
-        return is_array($decoded) ? array_values($decoded) : [];
-    }
-
-    /**
-     * @param list<array<string, mixed>> $users
-     */
-    private function write(array $users): void
-    {
-        $directory = dirname($this->file);
-        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
-            throw new \RuntimeException('Nie można utworzyć katalogu danych: ' . $directory);
-        }
-
-        $json = json_encode($users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-
-        if (file_put_contents($this->file, $json, LOCK_EX) === false) {
-            throw new \RuntimeException('Nie można zapisać pliku użytkowników: ' . $this->file);
-        }
     }
 }
