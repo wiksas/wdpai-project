@@ -1,6 +1,6 @@
 # KOMOREBI: cyfrowy dziennik opiekuna bonsai
 
-Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bonsai monitorować kondycję drzewek, planować zabiegi formowania i reagować na objawy chorób. Kierunek wizualny i powody decyzji projektowych opisuje `DESIGN.md`.
+Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bonsai monitorować kondycję drzewek, planować zabiegi formowania i reagować na objawy chorób. Kierunek wizualny i powody decyzji projektowych opisuje `DESIGN.md`. Historyjki użytkownika, specyfikacja i przypadki użycia są w katalogu [`docs/`](docs/README.md).
 
 ## Funkcje
 
