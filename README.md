@@ -16,7 +16,7 @@ Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bons
 | Klinika | `/clinic` | zalogowany | Wgrywanie zdjęcia z animacją skanowania i analizą barwy w przeglądarce, historia skanów, konsultant odpowiadający z bazy wiedzy (dopasowanie słów kluczowych, nie model językowy), protokół ratunkowy → harmonogram, filtr archiwum |
 | Harmonogram | `/schedule` | zalogowany | Tydzień ze strzałkami (animowane przesuwanie, gest przeciągnięcia, „Dziś”), zadania dnia z odhaczaniem, własne zabiegi, okna sezonowe (sekki) |
 | Powiadomienia | dzwonek w pasku górnym | zalogowany | Panel powiadomień liczonych z danych (podlewanie, zadania, okna sezonowe), oznaczanie jako przeczytane |
-| Motyw jasny/ciemny | przycisk w nagłówku i pasku górnym | wszyscy | Domyślnie motyw systemu; wybór zapisywany w ciasteczku `theme` (`POST /theme`), zmiana bez przeładowania z JS i formularzem bez JS |
+| Motyw jasny/ciemny | przycisk w nagłówku i pasku górnym | wszyscy | Domyślnie zgodny z motywem ustawionym w systemie (zmienia się razem z nim). Przycisk wymusza motyw inny niż systemowy i zapisuje go w ciasteczku `theme` (`POST /theme`); powrót do motywu systemowego usuwa ciasteczko. Zmiana bez przeładowania z JS, formularzem bez JS |
 
 Niezalogowany użytkownik wchodzący na stronę aplikacji jest przekierowywany na `/login`.
 

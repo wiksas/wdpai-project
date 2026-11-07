@@ -6,23 +6,31 @@ namespace App\Controllers;
 
 class ThemeController extends AppController
 {
-    // Obsługa trasy: POST /theme — zapisuje wybrany motyw (pole `theme`: light|dark) w ciasteczku na rok
+    // Obsługa trasy: POST /theme — pole `theme`: light|dark zapisuje wybór w ciasteczku na rok,
+    // `system` usuwa ciasteczko i strona znów podąża za motywem ustawionym w systemie (prefers-color-scheme).
     public function update(): void
     {
         $this->requireCsrf();
 
         $theme = $_POST['theme'] ?? '';
-        if (!is_string($theme) || !in_array($theme, self::THEMES, true)) {
+        $followSystem = $theme === 'system';
+        if (!is_string($theme) || (!$followSystem && !in_array($theme, self::THEMES, true))) {
             $this->respond('Nieznany motyw.', '/', [], false, 422);
         }
 
-        setcookie(self::THEME_COOKIE, $theme, [
-            'expires' => time() + 365 * 24 * 3600,
+        setcookie(self::THEME_COOKIE, $followSystem ? '' : $theme, [
+            'expires' => $followSystem ? time() - 3600 : time() + 365 * 24 * 3600,
             'path' => '/',
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
 
-        $this->respond($theme === 'dark' ? 'Włączono ciemny motyw.' : 'Włączono jasny motyw.', '/', ['theme' => $theme]);
+        $message = match ($theme) {
+            'system' => 'Motyw zgodny z ustawieniami systemu.',
+            'dark' => 'Włączono ciemny motyw.',
+            default => 'Włączono jasny motyw.',
+        };
+
+        $this->respond($message, '/', ['theme' => $theme]);
     }
 }

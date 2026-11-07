@@ -310,6 +310,7 @@
     }
 
     syncThemeToggles();
+    // Bez wymuszonego wyboru strona zmienia motyw razem z systemem (CSS robi to sam przez color-scheme).
     systemDark.addEventListener('change', syncThemeToggles);
 
     doc.addEventListener('submit', async (event) => {
@@ -321,15 +322,17 @@
         event.preventDefault();
         const previous = root.dataset.theme;
         const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+        // Wybór zgodny z systemem nie jest zapisywany: strona wraca do śledzenia ustawień komputera.
+        const choice = next === (systemDark.matches ? 'dark' : 'light') ? 'system' : next;
 
         // Płynne przenikanie motywów tam, gdzie przeglądarka ma View Transitions, a ruch nie jest ograniczony.
         if (doc.startViewTransition && !reduceMotion) {
-            doc.startViewTransition(() => applyTheme(next));
+            doc.startViewTransition(() => applyTheme(choice));
         } else {
-            applyTheme(next);
+            applyTheme(choice);
         }
 
-        const result = await post(form, { theme: next });
+        const result = await post(form, { theme: choice });
         if (!result.ok) {
             applyTheme(previous);
             toast(result.data.message ?? 'Nie udało się zapisać motywu.', 'error');

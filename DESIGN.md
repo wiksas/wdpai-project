@@ -53,5 +53,5 @@ Termin japonski obok polskiego: romaji kursywa szeryfowa + kanji w Mincho (`.ter
 
 ## Motyw jasny i ciemny
 
-- Domyslnie motyw systemu (`prefers-color-scheme`). Przelacznik (`partials/theme-toggle.html.php`) zapisuje wybor w ciasteczku `theme` przez `POST /theme`; dziala bez JS, a `app.js` zmienia motyw bez przeladowania.
+- Domyslnie motyw systemu (`prefers-color-scheme`), zmieniany na zywo razem z ustawieniem komputera. Przelacznik (`partials/theme-toggle.html.php`) wymusza motyw inny niz systemowy i zapisuje go w ciasteczku `theme` przez `POST /theme`; wybranie z powrotem motywu systemowego usuwa ciasteczko. Dziala bez JS, a `app.js` zmienia motyw bez przeladowania.
 - Kazdy nowy styl sprawdz w obu motywach (kontrast WCAG AA: 4.5:1 tekst, 3:1 duzy tekst i ikony).
