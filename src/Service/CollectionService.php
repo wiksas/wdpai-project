@@ -98,6 +98,21 @@ final class CollectionService
     }
 
     /**
+     * Drzewka z zabiegiem do wykonania, od najpilniejszego (krytyczne, wymagające uwagi, formowanie).
+     *
+     * @param list<array<string, mixed>> $trees
+     * @return list<array<string, mixed>>
+     */
+    public function needingCare(array $trees): array
+    {
+        $rank = ['critical' => 0, 'attention' => 1];
+        $due = array_values(array_filter($trees, static fn (array $t): bool => $t['action'] !== null));
+        usort($due, static fn (array $a, array $b): int => ($rank[$a['status']] ?? 2) <=> ($rank[$b['status']] ?? 2));
+
+        return $due;
+    }
+
+    /**
      * Podsumowanie do panelu bocznego i statystyk.
      *
      * @return array{total: int, thirsty: int, wired: int, health: int, healthLabel: string, capacity: int}
@@ -176,7 +191,7 @@ final class CollectionService
             $tree['vitality'] = [
                 'label' => $tree['vitality']['label'],
                 'value' => 'Prawidłowy',
-                'description' => 'Podłoże nawodnione — turgor wraca do normy w ciągu kilku godzin.',
+                'description' => 'Podłoże nawodnione, turgor wraca do normy w ciągu kilku godzin.',
             ];
 
             // Drzewko, dla którego podlanie było „akcją”, wraca do pełni zdrowia i traci alert.

@@ -6,7 +6,7 @@ namespace App\Repository;
 
 /**
  * Demonstracyjna kolekcja drzewek wyświetlana w panelu i na kartach okazów.
- * Dane są zapisane w kodzie — aplikacja nie ma jeszcze warstwy bazy danych.
+ * Dane są zapisane w kodzie, bo aplikacja nie ma jeszcze warstwy bazy danych.
  */
 final class TreeRepository
 {
@@ -107,7 +107,7 @@ final class TreeRepository
             ],
             'care' => null,
             'reminder' => 'Nawożenie Biogold: za 4 dni • Przygotuj koszyczki nawozowe',
-            'action' => 'Zarejestruj kąpiel',
+            'action' => 'Zapisz podlanie',
             'actionType' => 'water',
             'phenology' => [
                 'phase' => 'Wiosna – rozwijanie pierwszych liści',
@@ -170,7 +170,7 @@ final class TreeRepository
                 'text' => '14. tydzień po założeniu. Sprawdź, czy drut nie wrasta w kambium na dolnym załamaniu shari.',
             ],
             'reminder' => null,
-            'action' => 'Odnotuj korektę',
+            'action' => 'Zapisz korektę drutu',
             'actionType' => 'adjust',
             'phenology' => [
                 'phase' => 'Wiosna – wybijanie nowych łusek',
@@ -232,7 +232,7 @@ final class TreeRepository
             ],
             'care' => null,
             'reminder' => null,
-            'action' => 'Wykonano nawadnianie',
+            'action' => 'Zapisz kąpiel korzeni',
             'actionType' => 'water',
             'phenology' => [
                 'phase' => 'Wiosna – pękanie pąków liściowych',

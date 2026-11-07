@@ -1,5 +1,5 @@
 <?php
-// Opcjonalnie: $topbarBack = ['href' => '/collection', 'title' => 'Karta Okazu Bonsai'] — na mobile zastępuje logo przyciskiem powrotu.
+// Opcjonalnie: $topbarBack = ['href' => '/collection', 'title' => 'Karta okazu']; na mobile zastępuje logo przyciskiem powrotu.
 $topbarBack = $topbarBack ?? null;
 ?>
 <header class="app-topbar<?= $topbarBack !== null ? ' app-topbar--back' : '' ?>">
@@ -10,7 +10,7 @@ $topbarBack = $topbarBack ?? null;
         <p class="app-topbar__title"><?= htmlspecialchars($topbarBack['title'], ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
 
-    <a href="/" class="brand app-topbar__brand" aria-label="KOMOREBI — strona główna">
+    <a href="/" class="brand app-topbar__brand" aria-label="KOMOREBI, strona główna">
         <span class="brand__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
         <span class="brand__text">
             <span class="brand__name">KOMOREBI</span>
@@ -25,16 +25,8 @@ $topbarBack = $topbarBack ?? null;
     </form>
 
     <div class="app-topbar__actions">
-        <span class="pill pill--neutral app-topbar__status">
-            <span class="ms" aria-hidden="true">shield</span>
-            Prewencja Usychania: Aktywna
-        </span>
+        <?php include __DIR__ . '/theme-toggle.html.php'; ?>
         <?php include __DIR__ . '/notifications.html.php'; ?>
-        <?php if ($topbarBack !== null): ?>
-            <button type="button" class="icon-button app-topbar__more" aria-label="Więcej opcji">
-                <span class="ms" aria-hidden="true">more_vert</span>
-            </button>
-        <?php endif; ?>
         <span class="app-topbar__divider" aria-hidden="true"></span>
         <?php $userMenuTrigger = 'avatar'; ?>
         <?php include __DIR__ . '/user-menu.html.php'; ?>

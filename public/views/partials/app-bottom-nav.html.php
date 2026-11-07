@@ -1,11 +1,11 @@
 <?php
 $activeNav = $activeNav ?? '';
 $bottomLinks = [
-    'collection' => ['href' => '/collection', 'icon' => 'eco', 'label' => 'Kolekcja'],
-    'clinic' => ['href' => '/clinic', 'icon' => 'document_scanner', 'label' => 'Diagnoza'],
+    'collection' => ['href' => '/collection', 'icon' => 'potted_plant', 'label' => 'Kolekcja'],
+    'clinic' => ['href' => '/clinic', 'icon' => 'vital_signs', 'label' => 'Klinika'],
     'studio' => ['href' => '/studio', 'icon' => 'content_cut', 'label' => 'Studio'],
-    'knowledge' => ['href' => '/', 'icon' => 'menu_book', 'label' => 'Wiedza'],
-    'profile' => ['href' => '/login', 'icon' => 'self_improvement', 'label' => 'Profil'],
+    'schedule' => ['href' => '/schedule', 'icon' => 'calendar_month', 'label' => 'Harmonogram'],
+    'home' => ['href' => '/', 'icon' => 'home', 'label' => 'Start'],
 ];
 ?>
 <nav class="bottom-nav" aria-label="Nawigacja mobilna">

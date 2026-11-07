@@ -1,22 +1,44 @@
 <?php
 /**
- * Lista ostatnich skanów użytkownika (desktop i mobile). Wymaga: $scans (najnowsze pierwsze).
+ * Lista ostatnich skanów użytkownika. Wymaga: $scans (najnowsze pierwsze).
+ * Odświeżana przez clinic.js po zapisie skanu (podmiana [data-scans-list]).
  */
 use App\Support\PolishDate;
 
 $scanEscape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-$scanLevels = ['good' => 'Dobra kondycja', 'watch' => 'Do obserwacji', 'warning' => 'Ostrzeżenie', 'critical' => 'Krytyczny'];
+$scanLevels = ['good' => 'dobra kondycja', 'watch' => 'do obserwacji', 'warning' => 'ostrzeżenie', 'critical' => 'stan krytyczny'];
+$scanParts = ['leaves' => 'Liście i igły', 'bark' => 'Kora i pień', 'roots' => 'Podłoże i korzenie', 'wiring' => 'Drutowanie'];
 ?>
 <div class="clinic-scans" data-scans-list>
-    <?php foreach ($scans as $scan): ?>
-        <a href="/media/<?= $scanEscape($scan['file']) ?>" target="_blank" rel="noopener" class="clinic-previous__item clinic-scans__item">
-            <img src="/media/<?= $scanEscape($scan['file']) ?>" alt="" width="40" height="40" loading="lazy">
-            <span class="clinic-previous__text">
-                <span class="clinic-previous__meta"><?= $scanEscape(PolishDate::ago((int) $scan['at'])) ?> • <?= (int) $scan['vitality'] ?> pkt witalności</span>
-                <span class="clinic-previous__note"><?= $scanEscape($scan['title']) ?> (<?= $scanEscape($scanLevels[$scan['level']] ?? '') ?>)</span>
-            </span>
-            <span class="ms" aria-hidden="true">open_in_new</span>
-        </a>
-    <?php endforeach; ?>
-    <p class="clinic-scans__empty" data-scans-empty<?= $scans === [] ? '' : ' hidden' ?>>Brak zapisanych skanów. Wgraj zdjęcie, a analiza pojawi się tutaj.</p>
+    <?php if ($scans !== []): ?>
+        <ul class="clinic-scans__list">
+            <?php foreach ($scans as $scan): ?>
+                <?php $scanLevel = (string) ($scan['level'] ?? 'watch'); ?>
+                <li>
+                    <a href="/media/<?= $scanEscape($scan['file']) ?>" target="_blank" rel="noopener" class="clinic-scans__item">
+                        <img class="clinic-scans__thumb" src="/media/<?= $scanEscape($scan['file']) ?>" alt="" width="56" height="56" loading="lazy">
+                        <span class="clinic-scans__text">
+                            <span class="clinic-scans__title"><?= $scanEscape($scan['title']) ?></span>
+                            <span class="clinic-scans__meta">
+                                <?= $scanEscape($scanParts[$scan['part'] ?? ''] ?? 'Zdjęcie') ?>, <?= $scanEscape(PolishDate::ago((int) $scan['at'])) ?>
+                            </span>
+                            <?php if ((int) $scan['vitality'] > 0): ?>
+                                <span class="clinic-scans__score clinic-scans__score--<?= $scanEscape($scanLevel) ?>">Indeks barwy <?= (int) $scan['vitality'] ?>/100, <?= $scanEscape($scanLevels[$scanLevel] ?? '') ?></span>
+                            <?php endif; ?>
+                        </span>
+                        <span class="visually-hidden">(otwiera zdjęcie w nowej karcie)</span>
+                        <span class="ms clinic-scans__open" aria-hidden="true">open_in_new</span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <div class="clinic-scans__empty" data-scans-empty>
+            <p>Nie masz jeszcze zapisanych skanów. Wybierz zdjęcie w skanerze i kliknij „Zapisz skan”, a wynik pojawi się tutaj.</p>
+            <label class="btn btn--tonal btn--sm clinic-scans__empty-action" for="clinic-photo">
+                <span class="ms" aria-hidden="true">add_photo_alternate</span>
+                Wybierz zdjęcie
+            </label>
+        </div>
+    <?php endif; ?>
 </div>

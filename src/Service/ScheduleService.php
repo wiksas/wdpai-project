@@ -55,7 +55,7 @@ final class ScheduleService
     ];
 
     private const SEASON_BLURBS = [
-        'spring' => 'Soki ruszają, a pąki pękają — czas przesadzania, drutowania i pierwszych nawozów.',
+        'spring' => 'Soki ruszają, a pąki pękają: czas przesadzania, drutowania i pierwszych nawozów.',
         'summer' => 'Pierwsze żary i żywy wzrost pędów: pilnuj podlewania, osłony przed południowym słońcem i pinczowania.',
         'autumn' => 'Drzewa gromadzą zapasy: ogranicz azot, przygotuj stanowisko do zimowania i kontroluj druty.',
         'winter' => 'Okres spoczynku: rzadkie podlewanie, ochrona korzeni przed mrozem i planowanie cięcia strukturalnego.',
@@ -63,29 +63,29 @@ final class ScheduleService
 
     /** Okna zabiegowe: [początek m-d, koniec m-d, tytuł, gatunek, opis]. Okno może przechodzić przez Nowy Rok. */
     private const WINDOWS = [
-        ['03-01', '04-10', 'Przesadzanie klonów i wiązów', 'Acer palmatum • Ulmus parvifolia', 'zanim pąki zaczną się rozwijać.'],
-        ['04-11', '05-09', 'Drutowanie młodych pędów', 'Juniperus chinensis (Jałowiec Shimpaku)', 'zanim pędy zdrewnieją.'],
-        ['05-10', '06-05', 'Optymalne okno na Mekiri (sosna)', 'Pinus thunbergii (Sosna Czarna)', 'dla tegorocznych świec.'],
-        ['06-06', '08-19', 'Letnie pinczowanie i osłona od słońca', 'Acer palmatum • Zelkova serrata', 'czas intensywnego wzrostu.'],
-        ['08-20', '10-24', 'Drutowanie jesienne iglastych', 'Pinus thunbergii • Juniperus chinensis', 'przed spoczynkiem zimowym.'],
-        ['10-25', '11-30', 'Przygotowanie do zimowania', 'Cała kolekcja', 'przed pierwszymi przymrozkami.'],
-        ['12-01', '02-28', 'Cięcie strukturalne w spoczynku', 'Okazy liściaste', 'dopóki drzewa śpią.'],
+        ['03-01', '04-10', 'Przesadzanie klonów i wiązów', 'Acer palmatum, Ulmus parvifolia', 'Przesadzaj, zanim pąki zaczną się rozwijać.'],
+        ['04-11', '05-09', 'Drutowanie młodych pędów', 'Juniperus chinensis (jałowiec Shimpaku)', 'Zakładaj drut, zanim pędy zdrewnieją.'],
+        ['05-10', '06-05', 'Mekiri: wycinanie świec sosny', 'Pinus thunbergii (sosna czarna)', 'Skracanie tegorocznych świec wyrównuje wigor korony.'],
+        ['06-06', '08-19', 'Letnie pinczowanie i osłona od słońca', 'Acer palmatum, Zelkova serrata', 'Czas intensywnego wzrostu: skracaj pędy i osłaniaj liście przed południowym słońcem.'],
+        ['08-20', '10-24', 'Drutowanie jesienne iglastych', 'Pinus thunbergii, Juniperus chinensis', 'Drutuj iglaste przed spoczynkiem zimowym.'],
+        ['10-25', '11-30', 'Przygotowanie do zimowania', 'cała kolekcja', 'Zabezpiecz donice i stanowisko przed pierwszymi przymrozkami.'],
+        ['12-01', '02-28', 'Cięcie strukturalne w spoczynku', 'drzewa liściaste', 'Tnij gałęzie strukturalne, dopóki drzewa są w spoczynku.'],
     ];
 
     /** Zasada miesiąca: [tytuł (miejscownik w UI), treść]. */
     private const TIPS = [
-        1 => 'Nie podlewaj mrożonej bryły — czekaj, aż podłoże odmarznie, i chroń korzenie przed przemarznięciem w donicach.',
+        1 => 'Nie podlewaj zamarzniętej bryły: poczekaj, aż podłoże odmarznie, i chroń korzenie w donicach przed przemarznięciem.',
         2 => 'Nie przesadzaj przed ruszeniem pąków; cięcie strukturalne wykonuj tylko w suche, bezmroźne dni.',
-        3 => 'Nie nawoź drzew przed rozwinięciem pierwszych liści — zimne korzenie nie pobiorą składników.',
+        3 => 'Nie nawoź drzew przed rozwinięciem pierwszych liści: zimne korzenie nie pobiorą składników.',
         4 => 'Nie wystawiaj świeżo przesadzonych drzew na pełne słońce i wiatr; chroń młode liście klonów.',
-        5 => 'Nigdy nie przycinaj pędów klonów w pełnym słońcu — ryzyko wycieku soków i zaschnięcia kambium. Cięcia wykonuj wczesnym rankiem lub po zmierzchu.',
-        6 => 'Nie podlewaj w upalne południe zimną wodą — rób to rano lub wieczorem, najlepiej odstaną deszczówką.',
+        5 => 'Nie przycinaj pędów klonów w pełnym słońcu: grozi to wyciekiem soków i zaschnięciem kambium. Tnij wczesnym rankiem lub po zmierzchu.',
+        6 => 'Nie podlewaj w upalne południe zimną wodą. Rób to rano lub wieczorem, najlepiej odstaną deszczówką.',
         7 => 'Nie dopuszczaj do przesuszenia bryły w upały; na parapecie południowym sprawdzaj wilgotność dwa razy dziennie.',
-        8 => 'Nie stosuj nawozów z dużą ilością azotu — pędy nie zdążą zdrewnieć przed jesienią.',
+        8 => 'Nie stosuj nawozów z dużą ilością azotu: pędy nie zdążą zdrewnieć przed jesienią.',
         9 => 'Nie wykonuj mocnych cięć na drzewach iglastych; ogranicz nawożenie i kontroluj wrastanie drutu.',
-        10 => 'Nie zwlekaj z przygotowaniem stanowiska zimowego — drzewa liściaste potrzebują chłodu, ale nie przymrozków poniżej -8°C.',
-        11 => 'Nie trzymaj drzew liściastych w ciepłym mieszkaniu — spoczynek zimowy jest niezbędny do wiosennego wzrostu.',
-        12 => 'Nie nawoź w okresie spoczynku i nie podlewaj „na kalendarz” — sprawdzaj wilgotność przed każdym podlaniem.',
+        10 => 'Nie zwlekaj z przygotowaniem stanowiska zimowego: drzewa liściaste potrzebują chłodu, ale nie mrozu poniżej -8°C.',
+        11 => 'Nie trzymaj drzew liściastych w ciepłym mieszkaniu: spoczynek zimowy jest niezbędny do wiosennego wzrostu.',
+        12 => 'Nie nawoź w okresie spoczynku i nie podlewaj „na kalendarz”. Sprawdzaj wilgotność przed każdym podlaniem.',
     ];
 
     public function __construct(private readonly CollectionService $collection)
@@ -292,7 +292,7 @@ final class ScheduleService
                         'days' => $days,
                         'title' => $title,
                         'species' => $species,
-                        'text' => 'Pozostało ' . $days . ' ' . PolishDate::plural($days, 'dzień', 'dni', 'dni') . ' okna zabiegowego — ' . $text,
+                        'text' => 'Okno trwa do ' . PolishDate::dayMonth($end) . '. ' . $text,
                     ];
                 }
 
@@ -309,7 +309,7 @@ final class ScheduleService
             'days' => $days,
             'title' => $best['title'],
             'species' => $best['species'],
-            'text' => 'Okno otwiera się za ' . $days . ' ' . PolishDate::plural($days, 'dzień', 'dni', 'dni') . ' — ' . $best['text'],
+            'text' => 'Okno otwiera się ' . PolishDate::dayMonth($best['start']) . '. ' . $best['text'],
         ];
     }
 
@@ -321,7 +321,7 @@ final class ScheduleService
         return [
             'title' => 'Czego unikać w ' . mb_strtolower(PolishDate::monthLocative($date)) . '?',
             'text' => self::TIPS[(int) $date->format('n')],
-            'eyebrow' => 'ZASADA MIESIĄCA • MISTRZOWSKA UWAGA',
+            'eyebrow' => 'Zasada miesiąca',
         ];
     }
 
@@ -350,13 +350,13 @@ final class ScheduleService
                     'time' => $isToday && $thirsty ? 'Przed 11:30' : ((int) $tree['id'] % 2 === 0 ? 'Popołudnie' : 'Wieczorem'),
                     'title' => 'Podlanie: ' . $tree['name'] . ' (' . $tree['commonName'] . ')',
                     'text' => match ($tree['status']) {
-                        'critical' => 'Podłoże przeschnięte w rdzeniu — kąpiel zanurzeniowa około 12 minut.',
-                        'attention' => 'Wilgotność krytyczna — kąpiel podsiąkowa w odstanej deszczówce (15 min).',
+                        'critical' => 'Podłoże przeschnięte w rdzeniu: kąpiel zanurzeniowa przez około 12 minut.',
+                        'attention' => 'Niska wilgotność: kąpiel podsiąkowa w odstanej deszczówce przez 15 minut.',
                         default => 'Sprawdź wilgotność patyczkiem i podlej, gdy górny centymetr podłoża przeschnie.',
                     },
                     'treeId' => $tree['id'],
                     'meta' => $tree['species'] . ' #' . sprintf('%02d', $tree['id']) . ' • ' . $tree['ageLabel'],
-                    'note' => $thirsty ? 'Wilgotność ' . $tree['moisture'] . '%' : 'Wilgotność ' . $tree['moisture'] . '%',
+                    'note' => 'Wilgotność ' . $tree['moisture'] . '%',
                     'sort' => $thirsty ? 5 : 20 + (int) $tree['id'],
                 ];
             }
@@ -370,8 +370,8 @@ final class ScheduleService
                     'title' => 'Kontrola wcinania drutu: ' . $tree['name'],
                     'text' => 'Gałąź boczna poddana silnym naprężeniom; sprawdź przyrost kalusa i w razie potrzeby zdejmij drut.',
                     'treeId' => $tree['id'],
-                    'meta' => $tree['species'] . ' • Drut Al 2.5 mm',
-                    'note' => 'Inspekcja lupy 10x',
+                    'meta' => $tree['species'] . ' • Kontrola drutu',
+                    'note' => '',
                     'sort' => 15,
                 ];
             }
@@ -413,7 +413,7 @@ final class ScheduleService
                     'urgent' => false,
                     'time' => 'Rano',
                     'title' => 'Zraszanie korony: ' . $tree['name'],
-                    'text' => 'Delikatne zraszanie igieł miękką wodą — poprawia turgor i zmywa kurz.',
+                    'text' => 'Delikatne zraszanie igieł miękką wodą poprawia turgor i zmywa kurz.',
                     'treeId' => $tree['id'],
                     'meta' => $tree['species'] . ' • Zraszanie',
                     'note' => 'Bez zwilżania pnia',
@@ -428,11 +428,11 @@ final class ScheduleService
                 'type' => self::TYPE_CARE,
                 'urgent' => false,
                 'time' => 'Przedpołudnie',
-                'title' => 'Aplikacja nawozu Biogold',
+                'title' => 'Nawożenie organiczne',
                 'text' => 'Rozmieść koszyczki z granulatem wokół krawędzi donic u wszystkich dojrzałych okazów.',
                 'treeId' => null,
                 'meta' => 'Wszystkie dojrzałe okazy liściaste i iglaste',
-                'note' => 'Nawóz organiczny',
+                'note' => '',
                 'sort' => 18,
             ];
         }

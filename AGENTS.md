@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Ten plik jest przewodnikiem dla agentow AI pracujacych w tym repozytorium. Przed wprowadzeniem zmian przeczytaj go razem z `README.md` i sprawdz aktualny stan kodu. Nie zakladaj, ze opisana funkcja istnieje, dopoki nie potwierdzisz tego w plikach projektu.
+Ten plik jest przewodnikiem dla agentow AI pracujacych w tym repozytorium. Przed wprowadzeniem zmian przeczytaj go razem z `README.md` i sprawdz aktualny stan kodu. Przy pracy nad wygladem przeczytaj tez `DESIGN.md` (kierunek wizualny, paleta, typografia, powody decyzji), a potem zasady antislop jako filtr. Nie zakladaj, ze opisana funkcja istnieje, dopoki nie potwierdzisz tego w plikach projektu.
 
 ## Cel projektu
 
@@ -10,7 +10,8 @@ Aktualnie aplikacja obsluguje:
 
 - strone glowna pod `/` (publiczna),
 - logowanie, rejestracje i wylogowanie pod `/login`, `/register` i `/logout` (konto demonstracyjne `admin` / `admin`),
-- po zalogowaniu: panel kolekcji pod `/collection`, karte okazu pod `/collection/{id}` (dane z `App\Repository\TreeRepository`), studio formowania pod `/studio`, klinike AI pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
+- po zalogowaniu: panel kolekcji pod `/collection`, karte okazu pod `/collection/{id}` (dane z `App\Repository\TreeRepository`), studio formowania pod `/studio`, klinike pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
+- motyw jasny/ciemny (przelacznik w naglowku i pasku gornym, `POST /theme`),
 - odpowiedz 404 dla nieznanych tras i nieistniejacych okazow.
 
 ## Stack technologiczny
@@ -44,6 +45,7 @@ Aktualnie aplikacja obsluguje:
 │   ├── Support/               # klasy pomocnicze bez zaleznosci (PolishDate)
 │   └── Routing.php            # rejestracja i obsluga tras
 ├── storage/                   # dane uruchomieniowe poza `public/` (users.json, state/, uploads/ — w .gitignore)
+├── DESIGN.md                  # kierunek wizualny i powody decyzji projektowych
 ├── composer.json              # konfiguracja autoloadingu
 └── docker-compose.yaml        # uslugi `server` i `php`
 ```
@@ -134,7 +136,7 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 - **CSRF:** kazdy `POST` (w tym `fetch`) wymaga tokenu. Formularze HTML wstawiaja `<?php include __DIR__ . '/partials/csrf.html.php'; ?>` (pole `_csrf`), a `fetch` wysyla naglowek `X-CSRF-Token` (token jest w `<meta name="csrf-token">` z `partials/head.html.php`). Kontroler na poczatku akcji `POST` wywoluje `$this->requireCsrf()` (brak/zly token = 419). Nowa akcja `POST` bez tego wywolania jest bledem.
 - **Sesja:** do `$_SESSION` siega wylacznie `App\Service\Session` (oraz przez nia `AuthService`, `Csrf`, `Flash`). Komunikaty jednorazowe: `Flash` (`$this->flash()`), wyswietlane jako toasty (`partials/foot.html.php`).
 - **Odpowiedzi dla JS i bez JS:** akcje zapisujace koncza sie `$this->respond($message, $redirect, $extra, $ok, $status)` — dla zadan `fetch` (`X-Requested-With: fetch`) zwraca JSON `{ok, message, …}`, w pozostalych przypadkach ustawia flash i przekierowuje (z ochrona przed open redirect). Dzieki temu kazda funkcja dziala takze bez JavaScriptu.
-- **Stan uzytkownika** (odczytane powiadomienia, odhaczone zadania, wlasne zabiegi, podlewanie, dziennik, zdjecia, skany, zamglawianie) zapisuje `App\Repository\UserStateRepository` w `storage/state/user-{id}.json` (blokada `flock`). Nowe pole dodaj do `UserStateRepository::DEFAULTS`.
+- **Stan uzytkownika** (odczytane powiadomienia, odhaczone zadania, wlasne zabiegi, podlewanie, dziennik, zdjecia, skany) zapisuje `App\Repository\UserStateRepository` w `storage/state/user-{id}.json` (blokada `flock`). Nowe pole dodaj do `UserStateRepository::DEFAULTS`.
 - **Zdjecia:** wgrywa je `App\Service\MediaStorage` (kontrola MIME przez `finfo`, limit 2 MB i 6000 px, losowe nazwy) do `storage/uploads/{userId}/`. Pliki sa serwowane tylko wlascicielowi przez `GET /media/{name}` (`MediaController`); `storage/` nie jest publiczne.
 - **Serwisy domenowe:** `CollectionService` (stan drzewek po zabiegach), `ScheduleService` (zadania generowane regulami + wlasne), `NotificationService` (powiadomienia liczone z danych, ID zawieraja date/status), `ClinicKnowledge` (baza wiedzy konsultanta — dopasowanie slow kluczowych, nie model jezykowy), `StudioCatalog` (style i kalendarze gatunkow), `Support\PolishDate` (polskie daty).
 
@@ -169,7 +171,7 @@ Typowy porzadek prac:
 2. Dodaj albo rozszerz kontroler w `src/controllers/`.
 3. Dodaj model, repozytorium lub serwis, jesli funkcja zawiera logike biznesowa albo dostep do danych.
 4. Dodaj widok w `public/views/` i przekaz do niego tylko potrzebne dane.
-5. Dodaj lub zmien style: wspolne komponenty i tokeny w `public/css/style.css`, style konkretnej strony w `public/css/pages/<strona>.css` (linkowane w widoku po `partials/head.html.php`).
+5. Dodaj lub zmien style: wspolne komponenty i tokeny w `public/css/style.css`, style konkretnej strony w `public/css/pages/<strona>.css` (linkowane w widoku po `partials/head.html.php`). Kolory tylko przez tokeny (patrz „Motyw jasny i ciemny”) i sprawdz wynik w obu motywach.
 6. Sprawdz poprawna trase, dane wejsciowe, HTML oraz zachowanie dla bledow i 404.
 
 ### Animacje sterowane przewijaniem
@@ -193,6 +195,13 @@ Zawsze zachowuj obie ochrony (`prefers-reduced-motion` i `@supports`), zeby tres
 Odslanianie (`--sd-range`) trwa na odcinku ok. 40% wysokosci okna i konczy sie, gdy gorna krawedz elementu dojedzie do ~60% od gory (`cover 0% cover 40vh`) — dzieki temu ruch jest widoczny, a nie ukryty tuz przy dolnej krawedzi. Elementy na samym koncu strony nie maja jak wjechac tak wysoko, wiec: tresc aplikacji ma zapas przewijania (`.app-content` `padding-bottom` w sekcji 17), stopka uzywa bezpiecznego zakresu `entry 0% entry 100%`, a po zmianie ukladu sprawdz w przegladarce (przewin na sam dol), czy zaden element nie zostal polprzezroczysty lub z niedopelnionym paskiem, oraz czy `animation.timeline.source` kazdej animacji to okno (`document.scrollingElement`) — `overflow: hidden/auto` na przodku przejmuje os czasu.
 
 Przejscia miedzy stronami to View Transitions API w trybie MPA (sekcja 20 `style.css`: `@view-transition { navigation: auto; }`). Stale elementy ukladu (`.app-sidebar`, `.app-topbar`, `.bottom-nav`, `.site-header`) maja `view-transition-name` i zostaja w miejscu, a tresc plynnie zanika i wjezdza. Nowy staly element ukladu dostaje wlasna nazwe; przegladarki bez wsparcia po prostu pomijaja blok.
+
+### Motyw jasny i ciemny
+
+- Tokeny kolorow w sekcji 1 `public/css/style.css` maja postac `light-dark(jasny, ciemny)`. `:root` ma `color-scheme: light dark`, wiec bez wyboru obowiazuje motyw systemu; `<html data-theme="light|dark">` wymusza motyw. Nie wpisuj literalow kolorow w CSS stron (wyjatek: bialy tekst i przyciemnienie na zdjeciu); nowy kolor dodaj jako token z obiema wartosciami.
+- `--c-primary` w ciemnym motywie staje sie jasna szalwia (z `--c-on-primary` ciemnym), wiec ciemna sekcja, ktora ma zostac ciemna w obu motywach, uzywa `--c-band`, `--c-band-raised`, `--c-on-band`, `--c-on-band-variant`. Tekst na terakocie: `--c-on-tertiary`.
+- Wybor zapisuje `ThemeController::update()` (`POST /theme`, pole `theme`: `light`/`dark`, CSRF) w ciasteczku `theme` na rok. `AppController::render()` przekazuje do widokow `$theme` (`light`/`dark`/`system`) i `$currentPath`; kazdy widok ustawia `<html lang="pl" data-theme="...">`, a `partials/head.html.php` meta `color-scheme`.
+- Przelacznik to `partials/theme-toggle.html.php` (formularz z `_back`, dziala bez JS). `app.js` przechwytuje go, liczy motyw widoczny teraz (takze systemowy), zmienia `data-theme` bez przeladowania (przenikanie View Transitions poza `prefers-reduced-motion`) i zapisuje wybor w tle. Nowa strona z wlasnym ukladem (jak logowanie) musi zawierac ten partial.
 
 ## Uruchamianie projektu
 

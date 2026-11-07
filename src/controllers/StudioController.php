@@ -9,7 +9,7 @@ use App\Support\PolishDate;
 
 class StudioController extends AppController
 {
-    // Obsługa trasy: /studio?style=moyogi&species=pine — Studio Formowania, Cięcia i Drutowania
+    // Obsługa trasy: /studio?style=moyogi&species=pine (style, kalendarz zabiegów, drutowanie, próbne cięcie)
     public function index(): void
     {
         $this->requireLogin();
@@ -20,7 +20,7 @@ class StudioController extends AppController
         $today = PolishDate::today();
 
         $this->render('studio', [
-            'pageTitle' => 'Studio Formowania — KOMOREBI',
+            'pageTitle' => 'Studio formowania | KOMOREBI',
             'activeNav' => 'studio',
             'styles' => $catalog->styles($styleId),
             'style' => $catalog->style($styleId),

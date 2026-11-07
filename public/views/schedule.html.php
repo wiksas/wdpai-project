@@ -5,25 +5,25 @@
  * @var bool $isToday
  * @var array<string, mixed> $week
  * @var list<array<string, mixed>> $tasks
- * @var int $openCount
  * @var int $urgentCount
+ * @var string $summary
  * @var array<string, mixed> $sekki
  * @var array<string, mixed> $window
  * @var list<array<string, mixed>> $upcoming
  * @var array<string, string> $tip
  * @var array<string, string> $legend
- * @var array<string, string> $tones
  */
 use App\Support\PolishDate;
 
 $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $typeIcons = ['water' => 'water_drop', 'shape' => 'content_cut', 'care' => 'eco'];
 $selectedIso = $selected->format('Y-m-d');
-$total = count($tasks);
+$todayIso = $today->format('Y-m-d');
 $self = '/schedule?date=' . $selectedIso;
+$todayInWeek = $week['days'][0]['date'] <= $todayIso && $todayIso <= $week['days'][6]['date'];
 ?>
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" data-theme="<?= htmlspecialchars((string) ($theme ?? 'system'), ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <?php include __DIR__ . '/partials/head.html.php'; ?>
     <link rel="stylesheet" href="<?= $asset('/css/pages/schedule.css') ?>">
@@ -36,29 +36,23 @@ $self = '/schedule?date=' . $selectedIso;
             <?php include __DIR__ . '/partials/app-topbar.html.php'; ?>
 
             <main class="app-content schedule">
-                <h1 class="visually-hidden">Kalendarz Zabiegów i Zadań</h1>
-
                 <div class="schedule-layout">
                     <div class="schedule-main">
-                        <section class="schedule-season" aria-labelledby="schedule-season-title">
-                            <div class="schedule-season__info">
-                                <span class="schedule-season__tag">
-                                    <span class="dot dot--terra" aria-hidden="true"></span>
-                                    <?= (int) $sekki['number'] ?>. SEKKI (<span lang="ja"><?= $e($sekki['kanji']) ?></span>)
-                                </span>
-                                <h2 class="schedule-season__title" id="schedule-season-title"><?= $e($sekki['romaji']) ?> • <span lang="ja"><?= $e($sekki['kanji']) ?></span></h2>
-                                <p class="schedule-season__text"><?= $e($sekki['name']) ?> • <?= $e($sekki['blurb']) ?></p>
+                        <header class="schedule-head">
+                            <h1 class="schedule-head__title">Harmonogram</h1>
+                            <div class="schedule-season">
+                                <p class="schedule-season__name">
+                                    <span class="term schedule-season__term"><?= $e($sekki['romaji']) ?> <span lang="ja"><?= $e($sekki['kanji']) ?></span></span>
+                                    <span class="schedule-season__pl"><?= $e($sekki['name']) ?></span>
+                                </p>
+                                <p class="schedule-season__meta">Pora <?= (int) $sekki['number'] ?> z 24 sekki, dzień <?= (int) $sekki['dayNumber'] ?> z <?= (int) $sekki['length'] ?>. Następna: <?= $e($sekki['next']) ?>.</p>
+                                <p class="schedule-season__text"><?= $e($sekki['blurb']) ?></p>
                             </div>
-                            <div class="schedule-season__date">
-                                <span class="schedule-season__month"><?= $e($sekki['month']) ?></span>
-                                <span class="schedule-season__ko">Dzień <?= (int) $sekki['dayNumber'] ?> z <?= (int) $sekki['length'] ?> • dalej: <?= $e($sekki['next']) ?></span>
-                            </div>
-                        </section>
+                        </header>
 
                         <section class="schedule-week" aria-labelledby="schedule-week-title" data-week>
                             <header class="schedule-week__head">
                                 <h2 class="schedule-week__title" id="schedule-week-title">
-                                    <span class="ms" aria-hidden="true">calendar_month</span>
                                     Tydzień <?= (int) $week['number'] ?>
                                     <span class="schedule-week__range"><?= $e($week['range']) ?></span>
                                 </h2>
@@ -66,7 +60,7 @@ $self = '/schedule?date=' . $selectedIso;
                                     <a class="schedule-week__arrow" href="/schedule?date=<?= $e($week['prev']) ?>" data-week-nav="prev" aria-label="Poprzedni tydzień" rel="prev">
                                         <span class="ms" aria-hidden="true">chevron_left</span>
                                     </a>
-                                    <?php if (!$isToday || $week['days'][0]['date'] > $today->format('Y-m-d') || $week['days'][6]['date'] < $today->format('Y-m-d')): ?>
+                                    <?php if (!$isToday || !$todayInWeek): ?>
                                         <a class="schedule-week__today" href="/schedule" data-week-nav="today">Dziś</a>
                                     <?php endif; ?>
                                     <a class="schedule-week__arrow" href="/schedule?date=<?= $e($week['next']) ?>" data-week-nav="next" aria-label="Następny tydzień" rel="next">
@@ -77,66 +71,60 @@ $self = '/schedule?date=' . $selectedIso;
 
                             <ol class="schedule-days" data-week-days>
                                 <?php foreach ($week['days'] as $day): ?>
+                                    <?php
+                                    $dayTotal = (int) $day['total'];
+                                    $dayOpen = (int) $day['open'];
+                                    $dayLabel = $day['name'] . ', ' . (int) $day['day'] . ($day['isToday'] ? ' (dziś)' : '') . ': '
+                                        . ($dayTotal === 0 ? 'brak zabiegów' : $dayTotal . ' ' . PolishDate::plural($dayTotal, 'zabieg', 'zabiegi', 'zabiegów') . ', do zrobienia ' . $dayOpen);
+                                    ?>
                                     <li>
-                                        <a class="schedule-day<?= $day['isSelected'] ? ' is-active' : '' ?><?= $day['isToday'] ? ' is-today' : '' ?>" href="/schedule?date=<?= $e($day['date']) ?>" data-day="<?= $e($day['date']) ?>"<?= $day['isSelected'] ? ' aria-current="date"' : '' ?> aria-label="<?= $e($day['name']) ?>, <?= (int) $day['day'] ?>: <?= (int) $day['total'] ?> <?= $e(PolishDate::plural((int) $day['total'], 'zabieg', 'zabiegi', 'zabiegów')) ?>">
-                                            <span class="schedule-day__label" aria-hidden="true"><?= $e($day['label']) ?></span>
-                                            <span class="schedule-day__date"><?= (int) $day['day'] ?></span>
-                                            <span class="schedule-day__dots" aria-hidden="true">
-                                                <?php foreach ($day['tones'] as $tone): ?>
-                                                    <span class="schedule-dot schedule-dot--<?= $e($tone) ?>"></span>
-                                                <?php endforeach; ?>
-                                            </span>
+                                        <a class="schedule-day<?= $day['isSelected'] ? ' is-active' : '' ?><?= $day['isToday'] ? ' is-today' : '' ?>" href="/schedule?date=<?= $e($day['date']) ?>" data-day="<?= $e($day['date']) ?>"<?= $day['isSelected'] ? ' aria-current="date"' : '' ?> aria-label="<?= $e($dayLabel) ?>">
+                                            <span class="schedule-day__label" aria-hidden="true"><?= $e(mb_convert_case((string) $day['label'], MB_CASE_TITLE, 'UTF-8')) ?></span>
+                                            <span class="schedule-day__date" aria-hidden="true"><?= (int) $day['day'] ?></span>
+                                            <span class="schedule-day__count" aria-hidden="true" data-day-count><?php if ($dayTotal > 0 && $dayOpen === 0): ?><span class="ms">done_all</span><?php elseif ($dayOpen > 0): ?><?= $dayOpen ?><?php endif; ?></span>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
                             </ol>
-
-                            <ul class="schedule-legend" aria-label="Legenda zabiegów">
-                                <?php foreach ($legend as $type => $label): ?>
-                                    <li class="schedule-legend__item">
-                                        <span class="schedule-dot schedule-dot--<?= $e($tones[$type]) ?>" aria-hidden="true"></span>
-                                        <?= $e($label) ?>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
+                            <p class="schedule-week__hint">Liczba pod datą to zabiegi do zrobienia tego dnia.</p>
                         </section>
 
                         <section class="schedule-today" aria-labelledby="schedule-today-title" data-day-panel>
                             <header class="schedule-section-head">
                                 <div>
-                                    <h2 class="schedule-section-head__title" id="schedule-today-title"><?= $isToday ? 'Zadania na Dziś' : 'Zadania: ' . $e(PolishDate::dayName($selected)) ?></h2>
-                                    <p class="schedule-today__date" data-day-summary><?= $e(PolishDate::full($selected)) ?> • <?= $total ?> <?= $e(PolishDate::plural($total, 'zaplanowany zabieg', 'zaplanowane zabiegi', 'zaplanowanych zabiegów')) ?><?= $openCount < $total ? ' • wykonano ' . ($total - $openCount) : '' ?></p>
+                                    <h2 class="schedule-section-head__title" id="schedule-today-title"><?= $isToday ? 'Zadania na dziś' : 'Zadania: ' . $e(mb_strtolower(PolishDate::dayName($selected))) ?></h2>
+                                    <p class="schedule-today__date" data-day-summary><?= $e($summary) ?></p>
                                 </div>
-                                <?php if ($urgentCount > 0): ?>
-                                    <span class="schedule-pill schedule-pill--urgent" data-urgent><?= $urgentCount ?> Pilne</span>
-                                <?php endif; ?>
+                                <p class="schedule-today__urgent" data-urgent<?= $urgentCount > 0 ? '' : ' hidden' ?>>Pilne: <?= $urgentCount ?></p>
                             </header>
 
                             <?php if ($tasks === []): ?>
-                                <p class="schedule-empty">Brak zaplanowanych zabiegów na ten dzień. Możesz dodać własny poniżej.</p>
+                                <div class="schedule-empty">
+                                    <p>Na ten dzień reguły pielęgnacji nie wyznaczyły podlewania ani formowania i nie dodano własnych zabiegów.</p>
+                                    <a class="schedule-empty__action" href="#add-title" data-open-add>Dodaj własny zabieg</a>
+                                </div>
                             <?php endif; ?>
 
                             <ul class="schedule-tasks" data-tasks>
                                 <?php foreach ($tasks as $task): ?>
-                                    <li class="schedule-task<?= $task['done'] ? ' is-done' : '' ?>" data-task>
+                                    <li class="schedule-task<?= $task['done'] ? ' is-done' : '' ?><?= !empty($task['custom']) ? ' is-custom' : '' ?>" data-task>
                                         <form class="schedule-task__form" action="/schedule/tasks/done" method="POST" data-task-form>
                                             <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                             <input type="hidden" name="id" value="<?= $e($task['id']) ?>">
                                             <input type="hidden" name="date" value="<?= $e($task['date']) ?>">
                                             <input type="hidden" name="_back" value="<?= $e($self) ?>">
                                             <input type="hidden" name="done" value="0">
-                                            <input class="schedule-task__check" type="checkbox" name="done" value="1" aria-label="Oznacz jako wykonane: <?= $e($task['title']) ?>"<?= $task['done'] ? ' checked' : '' ?>>
+                                            <label class="schedule-task__hit">
+                                                <input class="schedule-task__check" type="checkbox" name="done" value="1" aria-label="Oznacz jako wykonane: <?= $e($task['title']) ?>"<?= $task['done'] ? ' checked' : '' ?>>
+                                            </label>
                                             <div class="schedule-task__body">
-                                                <div class="schedule-task__top">
-                                                    <?php if (!empty($task['custom'])): ?>
-                                                        <span class="schedule-pill schedule-pill--routine">Własny</span>
-                                                    <?php elseif ($task['urgent']): ?>
-                                                        <span class="schedule-pill schedule-pill--urgent">Pilne</span>
-                                                    <?php else: ?>
-                                                        <span class="schedule-pill schedule-pill--routine">Rutynowe</span>
+                                                <p class="schedule-task__when">
+                                                    <span class="ms schedule-task__icon" aria-hidden="true"><?= $e($typeIcons[$task['type']]) ?></span>
+                                                    <span><?= $e($legend[$task['type']]) ?>, <?= $e($task['time']) ?></span>
+                                                    <?php if ($task['urgent']): ?>
+                                                        <strong class="schedule-task__urgent">Pilne</strong>
                                                     <?php endif; ?>
-                                                    <span class="schedule-task__time"><?= $e($task['time']) ?></span>
-                                                </div>
+                                                </p>
                                                 <h3 class="schedule-task__title">
                                                     <?php if ($task['treeId'] !== null): ?>
                                                         <a href="/collection/<?= (int) $task['treeId'] ?>"><?= $e($task['title']) ?></a>
@@ -147,15 +135,12 @@ $self = '/schedule?date=' . $selectedIso;
                                                 <?php if ($task['text'] !== ''): ?>
                                                     <p class="schedule-task__text"><?= $e($task['text']) ?></p>
                                                 <?php endif; ?>
-                                                <div class="schedule-task__meta">
-                                                    <span class="schedule-task__specimen">
-                                                        <span class="ms schedule-task__icon<?= $task['type'] === 'shape' ? ' schedule-task__icon--terra' : '' ?>" aria-hidden="true"><?= $e($typeIcons[$task['type']]) ?></span>
-                                                        <?= $e($task['meta']) ?>
-                                                    </span>
+                                                <p class="schedule-task__meta">
+                                                    <span><?= $e($task['meta']) ?></span>
                                                     <?php if ($task['note'] !== ''): ?>
-                                                        <span class="schedule-task__note<?= $task['urgent'] ? ' schedule-task__note--terra' : '' ?>"><?= $e($task['note']) ?></span>
+                                                        <span class="schedule-task__note"><?= $e($task['note']) ?></span>
                                                     <?php endif; ?>
-                                                </div>
+                                                </p>
                                             </div>
                                             <button type="submit" class="schedule-task__save">Zapisz</button>
                                         </form>
@@ -165,8 +150,8 @@ $self = '/schedule?date=' . $selectedIso;
                                                 <input type="hidden" name="task" value="<?= $e(substr((string) $task['key'], 7)) ?>">
                                                 <input type="hidden" name="date" value="<?= $e($task['date']) ?>">
                                                 <input type="hidden" name="_back" value="<?= $e($self) ?>">
-                                                <button type="submit" class="schedule-task__delete" aria-label="Usuń zabieg: <?= $e($task['title']) ?>">
-                                                    <span class="ms" aria-hidden="true">close</span>
+                                                <button type="submit" class="schedule-task__delete" aria-label="Usuń zabieg: <?= $e($task['title']) ?>" title="Usuń zabieg">
+                                                    <span class="ms" aria-hidden="true">delete</span>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -174,83 +159,17 @@ $self = '/schedule?date=' . $selectedIso;
                                 <?php endforeach; ?>
                             </ul>
                         </section>
-                    </div>
-
-                    <div class="schedule-side">
-                        <section class="schedule-window" aria-labelledby="schedule-window-title">
-                            <div class="schedule-window__head">
-                                <div>
-                                    <span class="schedule-window__eyebrow">
-                                        <span class="ms ms--fill" aria-hidden="true">hourglass_bottom</span>
-                                        <?= $window['state'] === 'open' ? 'OKNO SEZONOWE' : 'NADCHODZĄCE OKNO' ?>
-                                    </span>
-                                    <h2 class="schedule-window__title" id="schedule-window-title"><?= $e($window['title']) ?></h2>
-                                </div>
-                                <p class="schedule-window__counter">
-                                    <span class="schedule-window__count"><?= (int) $window['days'] ?></span>
-                                    <span class="schedule-window__unit"><?= $e(PolishDate::plural((int) $window['days'], 'dzień', 'dni', 'dni')) ?></span>
-                                </p>
-                            </div>
-                            <p class="schedule-window__text"><?= $e($window['text']) ?></p>
-                            <div class="schedule-window__foot">
-                                <span class="schedule-window__species"><?= $e($window['species']) ?></span>
-                                <a class="schedule-window__link" href="/studio">Wytyczne techniki →</a>
-                            </div>
-                        </section>
-
-                        <section class="schedule-upcoming" aria-labelledby="schedule-upcoming-title">
-                            <header class="schedule-section-head schedule-section-head--center">
-                                <h2 class="schedule-section-head__title" id="schedule-upcoming-title">Nadchodzące 14 dni</h2>
-                                <span class="schedule-upcoming__sekki">Sekki: <?= $e($sekki['romaji']) ?> / <?= $e($sekki['next']) ?></span>
-                            </header>
-
-                            <?php if ($upcoming === []): ?>
-                                <p class="schedule-empty">W najbliższych dwóch tygodniach nie zaplanowano zabiegów formowania.</p>
-                            <?php endif; ?>
-
-                            <ol class="schedule-timeline">
-                                <?php foreach ($upcoming as $event): ?>
-                                    <li class="schedule-event">
-                                        <span class="schedule-event__dot schedule-dot--<?= $e($event['tone']) ?>" aria-hidden="true"></span>
-                                        <a class="schedule-event__card" href="/schedule?date=<?= $e($event['iso']) ?>" data-jump-date="<?= $e($event['iso']) ?>">
-                                            <div class="schedule-event__body">
-                                                <h3 class="schedule-event__title"><?= $e($event['title']) ?></h3>
-                                                <p class="schedule-event__text"><?= $e($event['text']) ?></p>
-                                            </div>
-                                            <div class="schedule-event__when">
-                                                <span class="schedule-event__in"><?= $e($event['in']) ?></span>
-                                                <span class="schedule-event__date"><?= $e($event['date']) ?></span>
-                                            </div>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ol>
-                        </section>
-
-                        <aside class="schedule-rule" aria-labelledby="schedule-rule-title">
-                            <span class="schedule-rule__icon" aria-hidden="true">
-                                <span class="ms">warning</span>
-                            </span>
-                            <div class="schedule-rule__body">
-                                <p class="schedule-rule__eyebrow">
-                                    <?= $e($tip['eyebrow']) ?>
-                                    <span class="ms schedule-rule__leaf" aria-hidden="true">eco</span>
-                                </p>
-                                <h2 class="schedule-rule__title" id="schedule-rule-title"><?= $e($tip['title']) ?></h2>
-                                <p class="schedule-rule__text"><?= $e($tip['text']) ?></p>
-                            </div>
-                        </aside>
 
                         <details class="schedule-add" data-add>
-                            <summary class="schedule-cta">
-                                <span class="ms" aria-hidden="true">add_circle</span>
-                                Zaplanuj zabieg / przypomnienie
+                            <summary class="schedule-add__toggle">
+                                <span class="ms" aria-hidden="true">add</span>
+                                Dodaj własny zabieg
                             </summary>
                             <form class="schedule-add__form" action="/schedule/tasks" method="POST" data-add-form>
                                 <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                 <input type="hidden" name="date" value="<?= $e($selectedIso) ?>">
                                 <input type="hidden" name="_back" value="<?= $e($self) ?>">
-                                <p class="schedule-add__hint">Dodajesz do dnia: <strong><?= $e(PolishDate::full($selected)) ?></strong></p>
+                                <p class="schedule-add__hint">Dzień: <strong><?= $e(PolishDate::full($selected)) ?></strong></p>
                                 <div class="field">
                                     <label class="field__label" for="add-title">Nazwa zabiegu</label>
                                     <input class="input" id="add-title" name="title" type="text" maxlength="80" minlength="3" placeholder="np. Przesadzenie wiązu" required>
@@ -265,20 +184,66 @@ $self = '/schedule?date=' . $selectedIso;
                                         </select>
                                     </div>
                                     <div class="field">
-                                        <label class="field__label" for="add-time">Godzina</label>
+                                        <label class="field__label" for="add-time">Godzina (opcjonalnie)</label>
                                         <input class="input" id="add-time" name="time" type="time">
                                     </div>
                                 </div>
                                 <div class="field">
                                     <label class="field__label" for="add-note">Notatka (opcjonalnie)</label>
-                                    <textarea class="textarea" id="add-note" name="note" rows="2" maxlength="240" placeholder="Co przygotować, na co uważać…"></textarea>
+                                    <textarea class="textarea" id="add-note" name="note" rows="2" maxlength="240" placeholder="Co przygotować, na co uważać"></textarea>
                                 </div>
-                                <button type="submit" class="btn btn--primary btn--block">
-                                    <span class="ms" aria-hidden="true">event_available</span>
-                                    Dodaj do harmonogramu
-                                </button>
+                                <button type="submit" class="btn btn--primary btn--block">Dodaj do harmonogramu</button>
                             </form>
                         </details>
+                    </div>
+
+                    <div class="schedule-side">
+                        <section class="schedule-window" aria-labelledby="schedule-window-title">
+                            <p class="schedule-window__kicker"><?= $window['state'] === 'open' ? 'Trwa okno sezonowe' : 'Najbliższe okno sezonowe' ?></p>
+                            <h2 class="schedule-window__title" id="schedule-window-title"><?= $e($window['title']) ?></h2>
+                            <p class="schedule-window__days">
+                                <span class="schedule-window__count"><?= (int) $window['days'] ?></span>
+                                <?= $e(PolishDate::plural((int) $window['days'], 'dzień', 'dni', 'dni')) ?> <?= $window['state'] === 'open' ? 'do końca' : 'do otwarcia' ?>
+                            </p>
+                            <p class="schedule-window__text"><?= $e($window['text']) ?></p>
+                            <p class="schedule-window__species">Dotyczy: <?= $e($window['species']) ?></p>
+                            <a class="schedule-window__link" href="/studio">Kalendarz zabiegów w Studio</a>
+                        </section>
+
+                        <section class="schedule-upcoming" aria-labelledby="schedule-upcoming-title">
+                            <h2 class="schedule-section-head__title" id="schedule-upcoming-title">Najbliższe zabiegi</h2>
+                            <p class="schedule-upcoming__scope">Kolejne 14 dni, bez podlewania</p>
+
+                            <?php if ($upcoming === []): ?>
+                                <div class="schedule-empty schedule-empty--compact">
+                                    <p>W najbliższych dwóch tygodniach nie ma formowania, nawożenia ani własnych zabiegów.</p>
+                                    <a class="schedule-empty__action" href="#add-title" data-open-add>Zaplanuj własny zabieg</a>
+                                </div>
+                            <?php endif; ?>
+
+                            <ol class="schedule-upcoming__list">
+                                <?php foreach ($upcoming as $event): ?>
+                                    <li>
+                                        <a class="schedule-event" href="/schedule?date=<?= $e($event['iso']) ?>" data-jump-date="<?= $e($event['iso']) ?>">
+                                            <span class="schedule-event__when">
+                                                <span class="schedule-event__date"><?= $e($event['date']) ?></span>
+                                                <span class="schedule-event__in"><?= $e($event['in']) ?></span>
+                                            </span>
+                                            <span class="schedule-event__body">
+                                                <span class="schedule-event__title"><?= $e($event['title']) ?></span>
+                                                <span class="schedule-event__text"><?= $e($event['text']) ?></span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ol>
+                        </section>
+
+                        <aside class="schedule-rule" aria-labelledby="schedule-rule-title">
+                            <p class="schedule-rule__kicker"><?= $e($tip['eyebrow']) ?></p>
+                            <h2 class="schedule-rule__title" id="schedule-rule-title"><?= $e($tip['title']) ?></h2>
+                            <p class="schedule-rule__text"><?= $e($tip['text']) ?></p>
+                        </aside>
                     </div>
                 </div>
             </main>

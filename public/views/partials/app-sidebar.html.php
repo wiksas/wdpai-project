@@ -1,15 +1,15 @@
 <?php
 $activeNav = $activeNav ?? '';
 $sidebarLinks = [
-    'collection' => ['href' => '/collection', 'icon' => 'potted_plant', 'label' => 'Moja Kolekcja'],
-    'clinic' => ['href' => '/clinic', 'icon' => 'vital_signs', 'label' => 'Klinika AI'],
-    'studio' => ['href' => '/studio', 'icon' => 'menu_book', 'label' => 'Studio Formowania'],
+    'collection' => ['href' => '/collection', 'icon' => 'potted_plant', 'label' => 'Moja kolekcja'],
+    'clinic' => ['href' => '/clinic', 'icon' => 'vital_signs', 'label' => 'Klinika'],
+    'studio' => ['href' => '/studio', 'icon' => 'menu_book', 'label' => 'Studio formowania'],
     'schedule' => ['href' => '/schedule', 'icon' => 'calendar_month', 'label' => 'Harmonogram'],
-    'discover' => ['href' => '/', 'icon' => 'explore', 'label' => 'Odkryj & Sklep'],
+    'home' => ['href' => '/', 'icon' => 'home', 'label' => 'Strona główna'],
 ];
 ?>
 <aside class="app-sidebar" aria-label="Panel boczny">
-    <a href="/" class="brand" aria-label="KOMOREBI — strona główna">
+    <a href="/" class="brand" aria-label="KOMOREBI, strona główna">
         <span class="brand__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
         <span class="brand__text">
             <span class="brand__name">KOMOREBI</span>
@@ -24,14 +24,14 @@ $sidebarLinks = [
     ?>
     <section class="status-card" aria-label="Status kolekcji">
         <div class="status-card__row">
-            <span>Status Kolekcji</span>
-            <span class="status-card__value" data-sidebar-health><?= $sbHealth ?>% Zdrowia</span>
+            <span>Stan kolekcji</span>
+            <span class="status-card__value" data-sidebar-health><?= $sbHealth ?>% zdrowia</span>
         </div>
-        <div class="progress progress--thin" role="presentation">
+        <div class="progress progress--thin" aria-hidden="true">
             <span class="progress__bar" style="--value: <?= $sbHealth ?>%"></span>
         </div>
         <div class="status-card__row status-card__row--meta">
-            <span class="status-card__alert" data-sidebar-thirsty><span class="ms" aria-hidden="true">water_drop</span><?= $sbThirsty === 0 ? 'Wszystko nawodnione' : $sbThirsty . ' ' . ($sbThirsty === 1 ? 'wymaga podlania' : 'wymagają podlania') ?></span>
+            <span class="status-card__alert<?= $sbThirsty > 0 ? ' is-urgent' : '' ?>" data-sidebar-thirsty><span class="ms" aria-hidden="true">water_drop</span><?= $sbThirsty === 0 ? 'Wszystko nawodnione' : $sbThirsty . ' ' . ($sbThirsty === 1 ? 'wymaga podlania' : 'wymagają podlania') ?></span>
             <span><?= $sbTotal ?> <?= \App\Support\PolishDate::plural($sbTotal, 'okaz', 'okazy', 'okazów') ?></span>
         </div>
     </section>
@@ -46,11 +46,6 @@ $sidebarLinks = [
     </nav>
 
     <div class="app-sidebar__footer">
-        <section class="weather-card" aria-label="Stacja pogodowa">
-            <h2 class="weather-card__title">Stacja Pogodowa &amp; Wilgoć</h2>
-            <p>Warszawa: 19°C, Wilgotność 64%. Idealna pora na zraszanie igieł.</p>
-        </section>
-
         <div class="app-user">
             <span class="avatar" aria-hidden="true"><?= htmlspecialchars((string) $currentUser['initials'], ENT_QUOTES, 'UTF-8') ?></span>
             <span>

@@ -1,7 +1,7 @@
 /**
  * Klinika: podgląd zdjęcia z animacją skanowania i analizą barwy (w przeglądarce), zapis skanu,
- * czat z bazą wiedzy, protokół do harmonogramu, filtr archiwum, siatka kadrowania, druk/udostępnianie.
- * Wymaga app.js (`window.Komorebi`). Bez JS wszystkie formularze działają przez zwykły POST.
+ * czat z bazą wiedzy (dopasowanie słów kluczowych po stronie serwera), protokół do harmonogramu, filtr gatunków.
+ * Wymaga app.js (`window.Komorebi`). Bez JS wszystkie formularze i filtr działają przez zwykły POST/GET.
  */
 (() => {
     'use strict';
@@ -13,10 +13,10 @@
 
     const doc = document;
     const LEVELS = {
-        good: { label: 'Dobra kondycja', title: 'Zdrowa, intensywna zieleń' },
-        watch: { label: 'Do obserwacji', title: 'Lekkie odbarwienia — obserwuj' },
-        warning: { label: 'Ostrzeżenie', title: 'Widoczne żółknięcie lub zasychanie' },
-        critical: { label: 'Krytyczny', title: 'Dominują tkanki suche lub chlorotyczne' },
+        good: { label: 'dobra kondycja', title: 'Przeważa zdrowa, intensywna zieleń' },
+        watch: { label: 'do obserwacji', title: 'Lekkie odbarwienia, warto obserwować' },
+        warning: { label: 'ostrzeżenie', title: 'Widoczne żółknięcie lub zasychanie' },
+        critical: { label: 'stan krytyczny', title: 'Przeważają tkanki suche lub żółte' },
     };
 
     /** Klasyfikuje piksele zdjęcia (zieleń / żółć / brąz-susz) na pomniejszonej kopii. To analiza barwy, nie diagnoza. */
@@ -73,116 +73,94 @@
     }
 
     // --- Wybór zdjęcia: podgląd + skanowanie + analiza ------------------------------------------------
+    const form = doc.querySelector('[data-scan-form]');
+    const fileInput = doc.querySelector('[data-scan-input]');
+    // JS sprawdza wybór zdjęcia sam (także upuszczonego), więc natywne `required` blokowałoby wysyłkę.
+    if (fileInput) {
+        fileInput.required = false;
+    }
     let current = null; // { blob, analysis }
 
-    async function handleFile(file, { autoSave = false } = {}) {
-        if (!file) {
+    async function handleFile(file) {
+        if (!file || !form) {
             return;
         }
-        const form = doc.querySelector('[data-scan-form]');
-        const preview = doc.querySelector('[data-scan-preview]');
-        const summary = doc.querySelector('[data-scan-summary]');
+        if (!file.type.startsWith('image/')) {
+            K.toast('Wybierz zdjęcie w formacie JPG, PNG lub WebP.', 'error');
+            return;
+        }
+        const preview = form.querySelector('[data-scan-preview]');
+        const summary = form.querySelector('[data-scan-summary]');
+        const button = form.querySelector('.clinic-upload__save');
 
-        const blob = await K.resizeImage(file);
         let loaded;
         try {
+            const blob = await K.resizeImage(file);
             loaded = await loadImage(blob);
+            loaded.blob = blob;
         } catch {
             K.toast('Nie udało się odczytać tego pliku jako zdjęcia.', 'error');
             return;
         }
 
         const analysis = analyze(loaded.img);
-        current = { blob, analysis };
-
-        if (preview && form) {
-            const img = preview.querySelector('[data-scan-preview-img]');
-            if (img.dataset.url) {
-                URL.revokeObjectURL(img.dataset.url);
-            }
-            img.src = loaded.url;
-            img.dataset.url = loaded.url;
-            preview.hidden = false;
-            preview.classList.remove('is-scanned');
-            preview.classList.add('is-scanning');
-            summary.textContent = 'Skanowanie próbki…';
-
-            await K.sleep(K.reduceMotion ? 200 : 1700);
-
-            preview.classList.remove('is-scanning');
-            preview.classList.add('is-scanned');
-            preview.dataset.level = analysis.level;
-            summary.textContent = analysis.noPlant
-                ? `${analysis.title}. Zrób zbliżenie na igły lub liście.`
-                : `Orientacyjny indeks barwy: ${analysis.vitality}/100 • ${LEVELS[analysis.level].label}. ${analysis.title}.`;
-
-            form.querySelector('[data-scan-level]').value = analysis.level;
-            form.querySelector('[data-scan-vitality]').value = String(analysis.vitality);
-            form.querySelector('[data-scan-title]').value = analysis.title;
-            form.querySelector('.clinic-upload__save')?.classList.add('is-ready');
-        }
-
-        if (autoSave) {
-            await save(blob, analysis, doc.querySelector('[data-scan-form]'));
-        }
-    }
-
-    async function save(blob, analysis, form) {
-        const body = new FormData(form ?? undefined);
-        body.set('photo', blob, 'scan.jpg');
-        body.set('level', analysis.level);
-        body.set('vitality', String(analysis.vitality));
-        body.set('title', analysis.title);
-        if (!form) {
-            body.set('_csrf', doc.querySelector('input[name="_csrf"]')?.value ?? '');
-            body.set('part', 'leaves');
-        }
-
-        const result = await K.request('/clinic/scans', { method: 'POST', body });
-        if (!result.ok) {
-            K.toast(result.data.message ?? 'Nie udało się zapisać skanu.', 'error');
-            return;
-        }
-        K.toast(result.data.message, 'success');
         current = null;
-        await refreshScans();
+        button.disabled = true;
+
+        const img = preview.querySelector('[data-scan-preview-img]');
+        if (img.dataset.url) {
+            URL.revokeObjectURL(img.dataset.url);
+        }
+        img.src = loaded.url;
+        img.dataset.url = loaded.url;
+        preview.hidden = false;
+        delete preview.dataset.level;
+        preview.classList.add('is-scanning');
+        summary.textContent = 'Liczę barwy na zdjęciu…';
+
+        await K.sleep(K.reduceMotion ? 150 : 1400);
+
+        preview.classList.remove('is-scanning');
+        preview.dataset.level = analysis.noPlant ? 'none' : analysis.level;
+        summary.textContent = analysis.noPlant
+            ? `${analysis.title}. Zrób zbliżenie na igły lub liście, żeby wypełniały większość kadru.`
+            : `Indeks barwy ${analysis.vitality}/100, ${LEVELS[analysis.level].label}. ${analysis.title}.`;
+
+        form.querySelector('[data-scan-level]').value = analysis.level;
+        form.querySelector('[data-scan-vitality]').value = String(analysis.vitality);
+        form.querySelector('[data-scan-title]').value = analysis.title;
+        current = { blob: loaded.blob, analysis };
+        button.disabled = false;
     }
 
     async function refreshScans() {
         try {
             const next = await K.fetchDocument('/clinic');
-            doc.querySelectorAll('[data-scans-list]').forEach((list, index) => {
-                const fresh = next.querySelectorAll('[data-scans-list]')[index];
-                if (fresh) {
-                    list.replaceWith(fresh);
-                    K.play(fresh, 'fx-in');
-                }
-            });
-            const tag = next.querySelector('.clinic-previous__tag');
-            const own = doc.querySelector('.clinic-previous__tag');
-            if (tag && own) {
-                own.textContent = tag.textContent;
+            const fresh = next.querySelector('[data-scans-list]');
+            const list = doc.querySelector('[data-scans-list]');
+            if (fresh && list) {
+                list.replaceWith(fresh);
+                K.play(fresh, 'fx-in');
+            }
+            const count = next.querySelector('[data-scans-count]');
+            const own = doc.querySelector('[data-scans-count]');
+            if (count && own) {
+                own.textContent = count.textContent;
             }
         } catch {
-            /* odświeżenie historii jest opcjonalne */
+            K.toast('Skan zapisany. Odśwież stronę, żeby zobaczyć go w historii.', 'info');
         }
     }
 
     doc.addEventListener('change', (event) => {
-        const input = event.target.closest('[data-scan-input], [data-scan-input-mobile]');
-        if (!input) {
-            return;
-        }
-        const file = input.files?.[0];
-        handleFile(file, { autoSave: input.hasAttribute('data-scan-input-mobile') });
-        if (input.hasAttribute('data-scan-input-mobile')) {
-            input.value = '';
+        if (event.target === fileInput) {
+            handleFile(fileInput.files?.[0]);
         }
     });
 
-    // Przeciąganie pliku na strefę uploadu
+    // Upuszczanie pliku na strefę uploadu
     doc.addEventListener('dragover', (event) => {
-        const zone = event.target.closest('[data-dropzone]');
+        const zone = event.target.closest?.('[data-dropzone]');
         if (zone) {
             event.preventDefault();
             zone.classList.add('is-drag');
@@ -190,89 +168,100 @@
     });
     doc.addEventListener('dragleave', (event) => event.target.closest?.('[data-dropzone]')?.classList.remove('is-drag'));
     doc.addEventListener('drop', (event) => {
-        const zone = event.target.closest('[data-dropzone]');
+        const zone = event.target.closest?.('[data-dropzone]');
         if (!zone) {
             return;
         }
         event.preventDefault();
         zone.classList.remove('is-drag');
-        const file = event.dataTransfer?.files?.[0];
-        if (file) {
-            handleFile(file);
-        }
+        handleFile(event.dataTransfer?.files?.[0]);
     });
 
     doc.addEventListener('submit', async (event) => {
-        const form = event.target.closest('[data-scan-form]');
-        if (!form) {
+        if (event.target !== form) {
             return;
         }
         event.preventDefault();
 
         if (!current) {
-            K.toast('Najpierw wybierz zdjęcie do skanowania.', 'error');
+            K.toast('Najpierw wybierz zdjęcie i poczekaj na wynik analizy.', 'error');
             return;
         }
         const button = form.querySelector('.clinic-upload__save');
+        const body = new FormData(form);
+        body.set('photo', current.blob, 'scan.jpg');
+
         button.disabled = true;
-        await save(current.blob, current.analysis, form);
+        const result = await K.request('/clinic/scans', { method: 'POST', body });
         button.disabled = false;
+
+        if (!result.ok) {
+            K.toast(result.data.message ?? 'Nie udało się zapisać skanu. Spróbuj ponownie.', 'error');
+            return;
+        }
+        K.toast(result.data.message, 'success');
+        current = null;
+        fileInput.value = '';
+        await refreshScans();
     });
 
     // --- Czat z bazą wiedzy ---------------------------------------------------------------------------
-    function addMessage(thread, { text, meta, user = false }) {
-        const wrap = doc.createElement('div');
-        wrap.className = 'clinic-chat__row fx-in' + (user ? ' clinic-chat__row--user' : '');
-        const icon = user ? '' : '<span class="clinic-chat__bot" aria-hidden="true"><span class="ms ms--fill">eco</span></span>';
-        wrap.innerHTML = `${icon}<div class="clinic-chat__message"><p class="clinic-chat__meta"></p><p class="clinic-chat__bubble"></p></div>`;
-        wrap.querySelector('.clinic-chat__meta').textContent = meta;
-        wrap.querySelector('.clinic-chat__bubble').textContent = text;
-        thread.append(wrap);
-        wrap.scrollIntoView({ block: 'nearest', behavior: K.reduceMotion ? 'auto' : 'smooth' });
+    const thread = doc.querySelector('[data-chat-thread]');
 
-        return wrap;
+    function addMessage({ text, meta, user = false }) {
+        const row = doc.createElement('div');
+        row.className = 'clinic-chat__row fx-in' + (user ? ' clinic-chat__row--user' : '');
+        row.innerHTML = '<div class="clinic-chat__message"><p class="clinic-chat__meta"></p><p class="clinic-chat__bubble"></p></div>';
+        row.querySelector('.clinic-chat__meta').textContent = meta;
+        row.querySelector('.clinic-chat__bubble').textContent = text;
+        thread.append(row);
+        thread.scrollTo({ top: thread.scrollHeight, behavior: K.reduceMotion ? 'auto' : 'smooth' });
+
+        return row;
     }
 
     doc.addEventListener('submit', async (event) => {
-        const form = event.target.closest('[data-chat-form]');
-        if (!form) {
+        const chatForm = event.target.closest('[data-chat-form]');
+        if (!chatForm || !thread) {
             return;
         }
         event.preventDefault();
 
-        const thread = doc.querySelector('[data-chat-thread]');
-        const input = form.querySelector('input[name="q"]');
+        const input = chatForm.querySelector('input[name="q"]');
         const submitter = event.submitter;
         const faq = submitter?.name === 'faq' ? submitter.value : '';
         const question = (faq || input.value).trim();
         if (question.length < 3) {
-            K.toast('Zadaj pytanie (min. 3 znaki).', 'error');
+            K.toast('Wpisz pytanie (co najmniej 3 znaki).', 'error');
+            input.focus();
             return;
         }
 
         const time = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-        addMessage(thread, { text: question, meta: `Ty • ${time}`, user: true });
-        input.value = '';
+        addMessage({ text: question, meta: `Ty, ${time}`, user: true });
+        if (!faq) {
+            input.value = '';
+        }
 
-        const typing = addMessage(thread, { text: '', meta: 'Komorebi • pisze…' });
-        typing.querySelector('.clinic-chat__bubble').innerHTML = '<span class="clinic-typing" aria-label="Asystent pisze"><i></i><i></i><i></i></span>';
+        const pending = addMessage({ text: 'Szukam w bazie porad…', meta: 'Konsultant' });
+        pending.classList.add('is-pending');
 
         const body = new FormData();
-        body.set('_csrf', form.querySelector('input[name="_csrf"]').value);
+        body.set('_csrf', chatForm.querySelector('input[name="_csrf"]').value);
         body.set(faq ? 'faq' : 'q', question);
 
-        const [result] = await Promise.all([K.request('/clinic/ask', { method: 'POST', body }), K.sleep(K.reduceMotion ? 0 : 900)]);
-        typing.remove();
+        const result = await K.request('/clinic/ask', { method: 'POST', body });
+        pending.remove();
 
         if (!result.ok) {
-            K.toast(result.data.message ?? 'Nie udało się uzyskać odpowiedzi.', 'error');
+            K.toast(result.data.message ?? 'Nie udało się pobrać odpowiedzi. Spróbuj ponownie.', 'error');
             return;
         }
 
-        const reply = addMessage(thread, { text: result.data.answer, meta: `Komorebi • ${result.data.time}` });
+        const reply = addMessage({ text: result.data.answer, meta: `Konsultant, ${result.data.time}` });
         if (!result.data.matched && result.data.topics?.length) {
-            const chips = doc.createElement('div');
-            chips.className = 'clinic-chat__topics';
+            const topics = doc.createElement('div');
+            topics.className = 'clinic-chat__topics';
             result.data.topics.forEach((topic) => {
                 const chip = doc.createElement('button');
                 chip.type = 'button';
@@ -280,37 +269,43 @@
                 chip.textContent = topic;
                 chip.addEventListener('click', () => {
                     input.value = topic;
-                    form.requestSubmit();
+                    chatForm.requestSubmit();
                 });
-                chips.append(chip);
+                topics.append(chip);
             });
-            reply.querySelector('.clinic-chat__message').append(chips);
+            reply.querySelector('.clinic-chat__message').append(topics);
         }
     });
 
     // --- Protokół ratunkowy → harmonogram -------------------------------------------------------------
     doc.addEventListener('submit', async (event) => {
-        const form = event.target.closest('[data-protocol-form]');
-        if (!form) {
+        const protocolForm = event.target.closest('[data-protocol-form]');
+        if (!protocolForm) {
             return;
         }
         event.preventDefault();
 
-        const button = form.querySelector('button[type="submit"]');
+        const button = protocolForm.querySelector('button[type="submit"]');
         button.disabled = true;
-        const result = await K.post(form);
-        button.disabled = false;
+        const result = await K.post(protocolForm);
 
         if (!result.ok) {
-            K.toast(result.data.message ?? 'Nie udało się dodać kroków.', 'error');
+            button.disabled = false;
+            K.toast(result.data.message ?? 'Nie udało się dodać kroków. Spróbuj ponownie.', 'error');
             return;
         }
         K.toast(result.data.message, 'success');
-        button.classList.add('is-done');
-        button.querySelector('.ms').textContent = 'check';
+        // Kroki są już w harmonogramie; przycisk zamienia się w link, żeby nie dodać ich drugi raz.
+        const link = doc.createElement('a');
+        link.className = 'btn clinic-protocol__button is-done';
+        link.href = result.data.href ?? '/schedule';
+        link.innerHTML = '<span class="ms" aria-hidden="true">check</span><span></span>';
+        link.lastChild.textContent = 'Dodano. Otwórz harmonogram';
+        button.replaceWith(link);
+        link.focus();
     });
 
-    // --- Filtr archiwum (bez przeładowania) -----------------------------------------------------------
+    // --- Filtr gatunków (bez przeładowania) -----------------------------------------------------------
     doc.addEventListener('click', (event) => {
         const filter = event.target.closest('[data-archive-filter]');
         if (!filter) {
@@ -324,60 +319,14 @@
             item.classList.toggle('is-active', on);
             on ? item.setAttribute('aria-current', 'true') : item.removeAttribute('aria-current');
         });
-        let visible = 0;
         doc.querySelectorAll('.clinic-case').forEach((card) => {
             const show = value === 'all' || card.dataset.category === value;
+            const reveal = show && card.hidden;
             card.hidden = !show;
-            if (show) {
+            if (reveal) {
                 K.play(card, 'fx-in');
-                visible++;
             }
         });
         history.replaceState(null, '', value === 'all' ? '/clinic' : `/clinic?species=${value}`);
-    });
-
-    // Filtr po stronie klienta musi odpowiadać serwerowemu stanowi początkowemu.
-    const initial = doc.querySelector('[data-archive-filter].is-active');
-    if (initial && initial.dataset.archiveFilter !== 'all') {
-        doc.querySelectorAll('.clinic-case').forEach((card) => {
-            card.hidden = card.dataset.category !== initial.dataset.archiveFilter;
-        });
-    }
-
-    // --- Chipsy kategorii (mobile) i siatka kadrowania ------------------------------------------------
-    doc.addEventListener('click', (event) => {
-        const chip = event.target.closest('.clinic-chips__item');
-        if (chip) {
-            event.preventDefault();
-            doc.querySelectorAll('.clinic-chips__item').forEach((item) => {
-                item.classList.toggle('is-active', item === chip);
-                item === chip ? item.setAttribute('aria-current', 'true') : item.removeAttribute('aria-current');
-            });
-            return;
-        }
-
-        const grid = event.target.closest('[data-grid-toggle]');
-        if (grid) {
-            const on = grid.getAttribute('aria-pressed') !== 'true';
-            grid.setAttribute('aria-pressed', String(on));
-            doc.querySelector('.clinic-viewer')?.classList.toggle('has-grid', on);
-            return;
-        }
-
-        if (event.target.closest('[data-print]')) {
-            window.print();
-            return;
-        }
-
-        const share = event.target.closest('[data-share]');
-        if (share) {
-            const data = { title: share.dataset.shareTitle ?? doc.title, url: location.href };
-            const run = navigator.share ? navigator.share(data) : navigator.clipboard.writeText(data.url).then(() => K.toast('Skopiowano link do Kliniki.', 'info'));
-            run.catch((error) => {
-                if (error?.name !== 'AbortError') {
-                    K.toast('Nie udało się udostępnić linku.', 'error');
-                }
-            });
-        }
     });
 })();

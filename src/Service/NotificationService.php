@@ -35,13 +35,13 @@ final class NotificationService
 
         foreach ($this->collection->all($userId) as $tree) {
             if ($tree['status'] === 'critical') {
-                $items[] = $this->item("critical-{$tree['id']}-{$todayKey}", 'critical', 'water_drop', 'Krytyczna wilgotność: ' . $tree['name'], $tree['moisture'] . '% — ' . mb_strtolower((string) $tree['alert']['title']) . '. Wykonaj kąpiel zanurzeniową.', 'pilne', '/collection/' . $tree['id'], $read, 1);
+                $items[] = $this->item("critical-{$tree['id']}-{$todayKey}", 'critical', 'water_drop', 'Krytyczna wilgotność: ' . $tree['name'], $tree['moisture'] . '%: ' . mb_strtolower((string) $tree['alert']['title']) . '. Wykonaj kąpiel zanurzeniową.', 'pilne', '/collection/' . $tree['id'], $read, 1);
             } elseif ($tree['status'] === 'attention') {
                 $items[] = $this->item("attention-{$tree['id']}-{$todayKey}", 'warning', 'humidity_low', $tree['name'] . ' wymaga działania', (string) $tree['alert']['title'] . ' (wilgotność ' . $tree['moisture'] . '%).', 'dziś', '/collection/' . $tree['id'], $read, 2);
             }
 
             if ($tree['care'] !== null) {
-                $items[] = $this->item("wire-{$tree['id']}-{$todayKey}", 'info', 'cable', 'Kontrola drutu: ' . $tree['name'], (string) $tree['care']['title'] . ' — sprawdź, czy drut nie wrasta w kambium.', 'ten tydzień', '/collection/' . $tree['id'], $read, 4);
+                $items[] = $this->item("wire-{$tree['id']}-{$todayKey}", 'info', 'cable', 'Kontrola drutu: ' . $tree['name'], (string) $tree['care']['title'] . '. Sprawdź, czy drut nie wrasta w kambium.', 'ten tydzień', '/collection/' . $tree['id'], $read, 4);
             }
         }
 
@@ -51,7 +51,7 @@ final class NotificationService
             $count = count($open);
             $items[] = $this->item("tasks-{$todayKey}-{$count}", 'task', 'event_available', 'Dziś: ' . $count . ' ' . PolishDate::plural($count, 'zabieg', 'zabiegi', 'zabiegów') . ' do wykonania', 'Najpilniejszy: ' . $open[0]['title'] . '.', 'dziś', '/schedule', $read, 3);
         } elseif ($tasks !== []) {
-            $items[] = $this->item("tasks-done-{$todayKey}", 'success', 'task_alt', 'Wszystkie zadania na dziś wykonane', 'Świetna robota — Twoje drzewka są zaopiekowane.', 'dziś', '/schedule', $read, 6);
+            $items[] = $this->item("tasks-done-{$todayKey}", 'success', 'task_alt', 'Wszystkie zadania na dziś wykonane', 'Na dziś nie zostało nic do zrobienia.', 'dziś', '/schedule', $read, 6);
         }
 
         $window = $this->schedule->window($today);
@@ -59,7 +59,7 @@ final class NotificationService
         $items[] = $this->item("window-{$windowKey}-{$window['state']}", 'info', 'hourglass_bottom', $window['title'], $window['text'], $window['days'] <= 7 ? 'wkrótce' : 'sezon', '/studio', $read, 5);
 
         $sekki = $this->schedule->sekki($today);
-        $items[] = $this->item('sekki-' . $sekki['number'] . '-' . $today->format('Y'), 'info', 'wb_twilight', 'Nowy sekki: ' . $sekki['romaji'] . ' (' . $sekki['kanji'] . ')', $sekki['name'] . ' — ' . $sekki['blurb'], 'sezon', '/schedule', $read, 7);
+        $items[] = $this->item('sekki-' . $sekki['number'] . '-' . $today->format('Y'), 'info', 'wb_twilight', 'Nowy sekki: ' . $sekki['romaji'] . ' (' . $sekki['kanji'] . ')', $sekki['name'] . ': ' . $sekki['blurb'], 'sezon', '/schedule', $read, 7);
 
         usort($items, static fn (array $a, array $b): int => [$a['read'], $a['order']] <=> [$b['read'], $b['order']]);
 

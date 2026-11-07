@@ -15,24 +15,25 @@ class ClinicController extends AppController
     private const PARTS = ['leaves', 'bark', 'roots', 'wiring'];
     private const LEVELS = ['good', 'watch', 'warning', 'critical'];
 
-    // Obsługa trasy: GET /clinic?species=conifer|deciduous — Klinika AI i diagnostyka zdrowia drzewek
+    // Obsługa trasy: GET /clinic?species=conifer|deciduous: skaner zdjęć, historia skanów, konsultant i notatki o gatunkach
     public function index(): void
     {
         $user = $this->requireLogin();
         $species = $_GET['species'] ?? '';
         $species = is_string($species) && in_array($species, ['conifer', 'deciduous'], true) ? $species : 'all';
 
-        $scans = array_slice(array_reverse($this->states()->get($user['id'])['scans']), 0, 5);
+        $allScans = $this->states()->get($user['id'])['scans'];
 
         $this->render('clinic', [
-            'pageTitle' => 'Klinika AI — KOMOREBI',
+            'pageTitle' => 'Klinika | KOMOREBI',
             'activeNav' => 'clinic',
-            'scans' => $scans,
+            'scans' => array_slice(array_reverse($allScans), 0, 5),
+            'scanCount' => count($allScans),
             'archiveFilter' => $species,
         ]);
     }
 
-    // Obsługa trasy: POST /clinic/scans — zapisz skan (zdjęcie + wynik analizy barwy policzony w przeglądarce)
+    // Obsługa trasy: POST /clinic/scans: zapisz skan (zdjęcie + wynik analizy barwy policzony w przeglądarce)
     public function scan(): void
     {
         $user = $this->requireLogin();
@@ -47,13 +48,14 @@ class ClinicController extends AppController
 
         $part = (string) ($_POST['part'] ?? 'leaves');
         $level = (string) ($_POST['level'] ?? 'watch');
+        $title = mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 90);
         $scan = [
             'id' => bin2hex(random_bytes(6)),
             'file' => $file,
             'part' => in_array($part, self::PARTS, true) ? $part : 'leaves',
             'level' => in_array($level, self::LEVELS, true) ? $level : 'watch',
             'vitality' => max(0, min(100, (int) ($_POST['vitality'] ?? 0))),
-            'title' => mb_substr(trim((string) ($_POST['title'] ?? 'Skan bez analizy')), 0, 90),
+            'title' => $title !== '' ? $title : 'Zdjęcie bez analizy barwy',
             'at' => PolishDate::now()->getTimestamp(),
         ];
 
@@ -74,7 +76,7 @@ class ClinicController extends AppController
         $this->respond('Zapisano skan w historii.', '/clinic', ['scan' => ['id' => $scan['id'], 'url' => '/media/' . $file]]);
     }
 
-    // Obsługa trasy: POST /clinic/ask — odpowiedź z bazy wiedzy na pytanie (pole `q` lub `faq`)
+    // Obsługa trasy: POST /clinic/ask: odpowiedź z bazy wiedzy na pytanie (pole `q` lub `faq`)
     public function ask(): void
     {
         $this->requireLogin();
@@ -95,7 +97,7 @@ class ClinicController extends AppController
         $this->redirect('/clinic#clinic-consultant');
     }
 
-    // Obsługa trasy: POST /clinic/protocol — dodaj kroki protokołu ratunkowego do harmonogramu (dziś)
+    // Obsługa trasy: POST /clinic/protocol: dodaj kroki protokołu ratunkowego do harmonogramu (dziś)
     public function protocol(): void
     {
         $user = $this->requireLogin();

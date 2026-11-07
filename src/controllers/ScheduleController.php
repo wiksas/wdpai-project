@@ -23,21 +23,20 @@ class ScheduleController extends AppController
         $open = count(array_filter($tasks, static fn (array $t): bool => !$t['done']));
 
         $this->render('schedule', [
-            'pageTitle' => 'Harmonogram zabiegów — KOMOREBI',
+            'pageTitle' => 'Harmonogram | KOMOREBI',
             'activeNav' => 'schedule',
             'today' => $today,
             'selected' => $selected,
             'isToday' => $selected->format('Y-m-d') === $today->format('Y-m-d'),
             'week' => $this->schedule()->week($user['id'], $selected, $state),
             'tasks' => $tasks,
-            'openCount' => $open,
+            'summary' => $this->summary($selected, $open, count($tasks)),
             'urgentCount' => count(array_filter($tasks, static fn (array $t): bool => $t['urgent'] && !$t['done'])),
             'sekki' => $this->schedule()->sekki($selected),
             'window' => $this->schedule()->window($today),
             'upcoming' => $this->schedule()->upcoming($user['id'], $state),
             'tip' => $this->schedule()->tip($selected),
             'legend' => ScheduleService::TYPE_LABELS,
-            'tones' => ScheduleService::TYPE_TONES,
         ]);
     }
 
@@ -150,9 +149,9 @@ class ScheduleController extends AppController
 
     private function summary(\DateTimeImmutable $date, int $open, int $total): string
     {
-        $isToday = $date->format('Y-m-d') === PolishDate::today()->format('Y-m-d');
+        $done = $total - $open;
 
-        return PolishDate::full($date) . ' • ' . $total . ' ' . PolishDate::plural($total, 'zaplanowany zabieg', 'zaplanowane zabiegi', 'zaplanowanych zabiegów')
-            . ($isToday || $date > PolishDate::today() ? ' • do zrobienia: ' . $open : '');
+        return PolishDate::full($date) . ', ' . $total . ' ' . PolishDate::plural($total, 'zabieg', 'zabiegi', 'zabiegów')
+            . ($done > 0 ? ', wykonano ' . $done : '');
     }
 }

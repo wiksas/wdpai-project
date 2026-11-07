@@ -17,6 +17,40 @@
     const dateOf = (url) => new URL(url, location.href).searchParams.get('date');
     const currentDate = () => doc.querySelector('[data-add-form] input[name="date"]')?.value ?? '';
 
+    const plural = (n, one, few, many) => {
+        if (n === 1) {
+            return one;
+        }
+        const tens = n % 100;
+        return n % 10 >= 2 && n % 10 <= 4 && (tens < 12 || tens > 14) ? few : many;
+    };
+
+    /** Odświeża liczniki „do zrobienia” w pasku tygodnia na podstawie odpowiedzi serwera. */
+    function updateWeek(days) {
+        (days ?? []).forEach((day) => {
+            const link = doc.querySelector(`[data-day="${CSS.escape(day.date)}"]`);
+            const count = link?.querySelector('[data-day-count]');
+            if (!count) {
+                return;
+            }
+
+            count.replaceChildren();
+            if (day.total > 0 && day.open === 0) {
+                const icon = doc.createElement('span');
+                icon.className = 'ms';
+                icon.textContent = 'done_all';
+                count.append(icon);
+            } else if (day.open > 0) {
+                count.textContent = String(day.open);
+            }
+
+            const tasks = day.total === 0
+                ? 'brak zabiegów'
+                : `${day.total} ${plural(day.total, 'zabieg', 'zabiegi', 'zabiegów')}, do zrobienia ${day.open}`;
+            link.setAttribute('aria-label', `${day.name}, ${day.day}${day.isToday ? ' (dziś)' : ''}: ${tasks}`);
+        });
+    }
+
     /**
      * Przechodzi na wskazany adres harmonogramu, podmieniając fragmenty strony.
      * `direction`: 'next' | 'prev' (zmiana tygodnia), 'fade' (ten sam tydzień lub odświeżenie).
@@ -36,7 +70,7 @@
             });
         }
 
-        const leaving = dir === 'fade' ? [] : [doc.querySelector('[data-week-days]'), doc.querySelector('[data-tasks], .schedule-empty')];
+        const leaving = dir === 'fade' ? [] : [doc.querySelector('[data-week-days]'), doc.querySelector('[data-day-panel]')];
         const outAnimation = Promise.all(leaving.map((element) => K.play(element, `is-out-${dir}`)));
 
         let next;
@@ -52,7 +86,7 @@
 
         K.swap(next, ['[data-week]', '[data-day-panel]', '.schedule-season', '.schedule-rule', '.schedule-upcoming']);
 
-        // Formularz dodawania zostaje (nie tracimy wpisanego tekstu) — aktualizujemy tylko datę.
+        // Formularz dodawania zostaje (nie tracimy wpisanego tekstu), aktualizujemy tylko datę.
         const newForm = next.querySelector('[data-add-form]');
         const form = doc.querySelector('[data-add-form]');
         if (form && newForm) {
@@ -62,8 +96,8 @@
         }
 
         const entering = dir === 'fade' ? 'is-in-fade' : `is-in-${dir}`;
-        K.play(doc.querySelector('[data-week-days]'), dir === 'fade' ? 'is-in-fade' : entering);
-        K.play(doc.querySelector('[data-tasks], .schedule-empty'), entering);
+        K.play(doc.querySelector('[data-week-days]'), entering);
+        K.play(doc.querySelector('[data-day-panel]'), entering);
 
         if (push) {
             history.pushState({}, '', url);
@@ -73,6 +107,18 @@
 
     // --- Nawigacja: strzałki, „Dziś”, dni, kafelki nadchodzących zabiegów ---------------
     doc.addEventListener('click', (event) => {
+        const opener = event.target.closest('[data-open-add]');
+        if (opener) {
+            event.preventDefault();
+            const details = doc.querySelector('[data-add]');
+            if (details) {
+                details.open = true;
+                details.scrollIntoView({ block: 'nearest', behavior: K.reduceMotion ? 'auto' : 'smooth' });
+                doc.getElementById('add-title')?.focus({ preventScroll: true });
+            }
+            return;
+        }
+
         const link = event.target.closest('[data-week-nav], [data-day], [data-jump-date]');
         if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
             return;
@@ -145,17 +191,19 @@
 
         const summary = doc.querySelector('[data-day-summary]');
         if (summary && result.data.summary) {
-            summary.textContent = result.data.summary + (result.data.open < result.data.total ? ` • wykonano ${result.data.total - result.data.open}` : '');
+            summary.textContent = result.data.summary;
         }
 
         const urgent = doc.querySelector('[data-urgent]');
         if (urgent) {
-            urgent.textContent = `${result.data.urgent} Pilne`;
+            urgent.textContent = `Pilne: ${result.data.urgent}`;
             urgent.hidden = result.data.urgent === 0;
         }
 
+        updateWeek(result.data.week);
+
         if (result.data.open === 0 && result.data.total > 0) {
-            K.toast('Wszystkie zadania na ten dzień wykonane. Świetna robota!', 'success');
+            K.toast('Wszystkie zadania na ten dzień wykonane.', 'success');
         }
 
         K.applyUnread(result.data.unread ?? 0);

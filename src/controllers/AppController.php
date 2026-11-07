@@ -15,6 +15,10 @@ use App\Service\Session;
 
 class AppController
 {
+    /** Motywy wymuszane ciasteczkiem; bez ciasteczka obowiązuje motyw systemu (prefers-color-scheme). */
+    protected const THEMES = ['light', 'dark'];
+    protected const THEME_COOKIE = 'theme';
+
     private ?Session $session = null;
     private ?AuthService $auth = null;
     private ?UserStateRepository $states = null;
@@ -54,6 +58,16 @@ class AppController
     protected function notifications(): NotificationService
     {
         return new NotificationService($this->collection(), $this->schedule(), $this->states());
+    }
+
+    /**
+     * Motyw z ciasteczka (`light`/`dark`) albo `system`, gdy użytkownik go nie wybrał.
+     */
+    protected function theme(): string
+    {
+        $theme = $_COOKIE[self::THEME_COOKIE] ?? null;
+
+        return is_string($theme) && in_array($theme, self::THEMES, true) ? $theme : 'system';
     }
 
     protected function flash(string $type, string $message): void
@@ -155,7 +169,7 @@ class AppController
 
         http_response_code($status);
         $this->render('not-found', [
-            'pageTitle' => 'Błąd ' . $status . ' — KOMOREBI',
+            'pageTitle' => 'Błąd ' . $status . ' | KOMOREBI',
             'errorCode' => $status,
             'errorTitle' => 'Coś poszło nie tak',
             'errorMessage' => $message,
@@ -190,6 +204,8 @@ class AppController
             'flashes' => (new Flash($this->session()))->pull(),
             'notifications' => $user !== null ? $this->notifications()->forUser($user['id']) : ['items' => [], 'unread' => 0],
             'sidebarSummary' => $user !== null ? $this->collection()->summary($user['id']) : null,
+            'theme' => $this->theme(),
+            'currentPath' => (string) ($_SERVER['REQUEST_URI'] ?? '/'),
         ];
 
         if (file_exists($templatePath)) {

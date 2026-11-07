@@ -17,7 +17,7 @@ class AuthController extends AppController
         $this->redirectIfLoggedIn();
 
         $this->render('login', [
-            'pageTitle' => 'Logowanie — KOMOREBI',
+            'pageTitle' => 'Logowanie | KOMOREBI',
             'errors' => [],
             'old' => ['login' => ''],
         ]);
@@ -52,7 +52,7 @@ class AuthController extends AppController
         $this->redirectIfLoggedIn();
 
         $this->render('register', [
-            'pageTitle' => 'Nowe konto hodowcy — KOMOREBI',
+            'pageTitle' => 'Nowe konto | KOMOREBI',
             'errors' => [],
             'old' => $this->registerDefaults(),
         ]);
@@ -75,7 +75,7 @@ class AuthController extends AppController
         $errors = [];
 
         if (mb_strlen($name) < 2 || mb_strlen($name) > 60) {
-            $errors['name'] = 'Podaj imię hodowcy (2–60 znaków).';
+            $errors['name'] = 'Podaj imię (od 2 do 60 znaków).';
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 120) {
@@ -91,7 +91,7 @@ class AuthController extends AppController
         }
 
         if (!$termsAccepted) {
-            $errors['terms'] = 'Zaakceptuj regulamin, aby założyć konto.';
+            $errors['terms'] = 'Zaznacz to pole, aby założyć konto.';
         }
 
         $users = new UserRepository();
@@ -102,7 +102,7 @@ class AuthController extends AppController
         if ($errors !== []) {
             http_response_code(422);
             $this->render('register', [
-                'pageTitle' => 'Nowe konto hodowcy — KOMOREBI',
+                'pageTitle' => 'Nowe konto | KOMOREBI',
                 'errors' => $errors,
                 'old' => ['name' => $name, 'email' => $email, 'experience' => $level, 'species' => $species, 'terms' => $termsAccepted],
             ]);
@@ -135,7 +135,7 @@ class AuthController extends AppController
     {
         http_response_code(401);
         $this->render('login', [
-            'pageTitle' => 'Logowanie — KOMOREBI',
+            'pageTitle' => 'Logowanie | KOMOREBI',
             'errors' => ['form' => $message],
             'old' => ['login' => $login],
         ]);

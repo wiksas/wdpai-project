@@ -1,6 +1,6 @@
 <header class="site-header">
     <div class="site-header__inner">
-        <a href="/" class="brand" aria-label="KOMOREBI — strona główna">
+        <a href="/" class="brand" aria-label="KOMOREBI, strona główna">
             <span class="brand__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
             <span class="brand__text">
                 <span class="brand__name">KOMOREBI</span>
@@ -15,20 +15,24 @@
         </form>
 
         <nav class="site-nav" aria-label="Główna nawigacja">
-            <a href="/collection" class="site-nav__link">Moja Kolekcja</a>
-            <a href="/clinic" class="site-nav__link">Klinika AI</a>
-            <a href="/studio" class="site-nav__link">Studio Formowania</a>
-            <a href="/#mistrzowie" class="site-nav__link">Mistrzowie Bonsai</a>
+            <a href="/collection" class="site-nav__link">Moja kolekcja</a>
+            <a href="/clinic" class="site-nav__link">Klinika</a>
+            <a href="/studio" class="site-nav__link">Studio formowania</a>
+            <a href="/schedule" class="site-nav__link">Harmonogram</a>
         </nav>
 
-        <?php if (($currentUser ?? null) !== null): ?>
-            <?php $userMenuTrigger = 'chip'; ?>
-            <?php include __DIR__ . '/user-menu.html.php'; ?>
-        <?php else: ?>
-            <div class="site-header__auth">
-                <a href="/login" class="btn btn--ghost">Zaloguj się</a>
-                <a href="/register" class="btn btn--primary">Zarejestruj się</a>
-            </div>
-        <?php endif; ?>
+        <div class="site-header__tools">
+            <?php include __DIR__ . '/theme-toggle.html.php'; ?>
+
+            <?php if (($currentUser ?? null) !== null): ?>
+                <?php $userMenuTrigger = 'chip'; ?>
+                <?php include __DIR__ . '/user-menu.html.php'; ?>
+            <?php else: ?>
+                <div class="site-header__auth">
+                    <a href="/login" class="btn btn--ghost">Zaloguj się</a>
+                    <a href="/register" class="btn btn--primary">Zarejestruj się</a>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </header>

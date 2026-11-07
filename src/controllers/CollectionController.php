@@ -10,7 +10,7 @@ class CollectionController extends AppController
     private const MAX_JOURNAL_ENTRIES = 200;
     private const MAX_PHOTOS = 60;
 
-    // Obsługa trasy zwykłej: GET /collection?category=&status=&q= — panel „Moja Kolekcja”
+    // Obsługa trasy zwykłej: GET /collection?category=&status=&q=, panel kolekcji
     public function index(): void
     {
         $user = $this->requireLogin();
@@ -25,18 +25,17 @@ class CollectionController extends AppController
         $trees = $this->collection()->filter($all, $criteria);
 
         $this->render('collection', [
-            'pageTitle' => 'Moja Kolekcja — KOMOREBI',
+            'pageTitle' => 'Kolekcja | KOMOREBI',
             'activeNav' => 'collection',
             'trees' => $trees,
             'treeCount' => count($all),
             'counts' => $this->collection()->counts($all),
-            'rituals' => array_values(array_filter($all, static fn (array $t): bool => $t['action'] !== null)),
+            'dueTrees' => $this->collection()->needingCare($all),
+            'doneToday' => count(array_filter($all, static fn (array $t): bool => $t['done'] !== null)),
             'upcoming' => $this->schedule()->upcoming($user['id'], $state),
-            'sekkiLabel' => $this->schedule()->sekki(PolishDate::today())['romaji'],
-            'summary' => $this->collection()->summarize($all),
+            'sekki' => $this->schedule()->sekki(PolishDate::today()),
             'criteria' => $criteria,
             'journal' => array_slice(array_reverse($state['journal']), 0, 4),
-            'misting' => $state['misting'],
             'tasksToday' => count(array_filter(
                 $this->schedule()->tasksFor($user['id'], PolishDate::today(), $state),
                 static fn (array $t): bool => !$t['done'],
@@ -44,7 +43,7 @@ class CollectionController extends AppController
         ]);
     }
 
-    // Obsługa trasy z parametrem: GET /collection/{id} — karta okazu
+    // Obsługa trasy z parametrem: GET /collection/{id}, karta okazu
     public function show(string $id): void
     {
         $user = $this->requireLogin();
@@ -53,14 +52,14 @@ class CollectionController extends AppController
         if ($tree === null) {
             http_response_code(404);
             $this->render('not-found', [
-                'pageTitle' => 'Nie znaleziono okazu — KOMOREBI',
+                'pageTitle' => 'Nie znaleziono okazu | KOMOREBI',
                 'errorMessage' => 'Okaz o podanym identyfikatorze nie istnieje w kolekcji.',
             ]);
             return;
         }
 
         $this->render('specimen', [
-            'pageTitle' => $tree['name'] . ' — Karta okazu — KOMOREBI',
+            'pageTitle' => $tree['name'] . ': karta okazu | KOMOREBI',
             'activeNav' => 'collection',
             'tree' => $tree,
             'photos' => array_values(array_reverse(array_filter(
@@ -70,7 +69,7 @@ class CollectionController extends AppController
         ]);
     }
 
-    // Obsługa trasy: POST /collection/{id}/care — zarejestruj podlanie (water) lub korektę drutu (adjust)
+    // Obsługa trasy: POST /collection/{id}/care, zarejestruj podlanie (water) lub korektę drutu (adjust)
     public function care(string $id): void
     {
         $user = $this->requireLogin();
@@ -102,7 +101,7 @@ class CollectionController extends AppController
         ]);
     }
 
-    // Obsługa trasy: POST /journal — dodaj wpis do szybkiego dziennika obserwacji
+    // Obsługa trasy: POST /journal, dodaj wpis do szybkiego dziennika obserwacji
     public function journal(): void
     {
         $user = $this->requireLogin();
@@ -131,7 +130,7 @@ class CollectionController extends AppController
         ]);
     }
 
-    // Obsługa trasy: POST /collection/{id}/photos — dodaj zdjęcie okazu (multipart, pole `photo`)
+    // Obsługa trasy: POST /collection/{id}/photos, dodaj zdjęcie okazu (multipart, pole `photo`)
     public function addPhoto(string $id): void
     {
         $user = $this->requireLogin();
@@ -173,7 +172,7 @@ class CollectionController extends AppController
         $this->respond('Dodano zdjęcie do karty: ' . $tree['name'] . '.', $back, ['photo' => ['id' => $entry['id'], 'url' => '/media/' . $file]]);
     }
 
-    // Obsługa trasy: POST /collection/{id}/photos/delete — usuń własne zdjęcie okazu
+    // Obsługa trasy: POST /collection/{id}/photos/delete, usuń własne zdjęcie okazu
     public function deletePhoto(string $id): void
     {
         $user = $this->requireLogin();
@@ -203,22 +202,6 @@ class CollectionController extends AppController
 
         (new MediaStorage())->delete($user['id'], $file);
         $this->respond('Usunięto zdjęcie.', $back);
-    }
-
-    // Obsługa trasy: POST /misting — włącz / wyłącz automatyczne zamgławianie
-    public function misting(): void
-    {
-        $user = $this->requireLogin();
-        $this->requireCsrf();
-
-        $on = ($_POST['on'] ?? '') === '1';
-        $this->states()->update($user['id'], static function (array $state) use ($on): array {
-            $state['misting'] = $on;
-
-            return $state;
-        });
-
-        $this->respond($on ? 'Automatyczne zamgławianie włączone.' : 'Automatyczne zamgławianie wyłączone.', '/collection', ['on' => $on]);
     }
 
     /**

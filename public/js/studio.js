@@ -1,6 +1,6 @@
 /**
- * Studio Formowania: przełączanie stylów i gatunków bez przeładowania, kalkulator drutu,
- * wzorzec kąta owijania i symulator balansu korony. Wymaga app.js (`window.Komorebi`).
+ * Studio formowania: przełączanie stylów i gatunków bez przeładowania, kalkulator drutu,
+ * wzorzec kąta owijania i próbne cięcie. Wymaga app.js (`window.Komorebi`).
  * Bez JS linki stylów/gatunków działają jako zwykłe `?style=…&species=…`.
  */
 (() => {
@@ -82,8 +82,8 @@
 
     // --- Kalkulator grubości drutu ------------------------------------------------------------------
     const WIRE = {
-        aluminium: { label: 'Anodyzowane Aluminium', sizes: [1, 1.5, 2, 2.5, 3, 4, 5, 6], factor: 1 / 3 },
-        copper: { label: 'Miedź wyżarzana', sizes: [0.8, 1, 1.5, 2, 2.5, 3, 4, 5], factor: 1 / 4 },
+        aluminium: { label: 'aluminium', sizes: [1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6], factor: 1 / 3 },
+        copper: { label: 'miedź wyżarzana', sizes: [0.8, 1, 1.3, 1.6, 2, 2.5, 3, 3.5, 4, 5], factor: 1 / 4 },
     };
 
     function updateWire(form) {
@@ -93,8 +93,14 @@
         const ideal = diameter * alloy.factor;
         const size = alloy.sizes.reduce((best, item) => (Math.abs(item - ideal) < Math.abs(best - ideal) ? item : best), alloy.sizes[0]);
 
-        const time = diameter < 6 ? '2-4 miesiące' : diameter < 15 ? '6-9 miesięcy' : diameter < 25 ? '8-12 miesięcy' : '10-14 miesięcy';
-        const anchor = diameter < 6 ? 'Pojedyncza spirala' : diameter < 15 ? 'Podwójna spirala (Jin Anchor)' : diameter < 25 ? 'Podwójny drut + kotwa w donicy' : 'Dwa druty równolegle + rafia';
+        const time = diameter < 6 ? '2–4 miesiącach' : diameter < 15 ? '6–9 miesiącach' : diameter < 25 ? '8–12 miesiącach' : '10–14 miesiącach';
+        const anchor = diameter < 6
+            ? 'o sąsiednią gałąź (dwie gałęzie jednym drutem)'
+            : diameter < 15
+              ? 'o pień, min. półtora zwoju przed gałęzią'
+              : diameter < 25
+                ? 'dwa druty obok siebie, zakotwiczone o pień'
+                : 'odciąg zamiast drutu (linka do donicy lub pnia)';
 
         $('[data-wire-output]', form).textContent = `${diameter.toFixed(1)} mm`;
         input.style.setProperty('--value', pct(diameter, Number(input.min), Number(input.max)));
@@ -164,23 +170,23 @@
         label.setAttribute('x', (x1 + Math.min(dx, 90) / 2).toFixed(1));
         label.textContent = `${angle}°`;
 
-        $('[data-angle-output]').textContent = `${angle} stopni`;
+        $('[data-angle-output]').textContent = `${angle}°`;
         input.style.setProperty('--value', pct(angle, Number(input.min), Number(input.max)));
 
         const tight = angle < 30;
         const loose = angle > 55;
         const badge = $('[data-angle-badge]');
-        badge.textContent = tight ? `Kąt zbyt ostry (${angle}°)` : loose ? `Kąt zbyt łagodny (${angle}°)` : `Kąt optymalny (${angle}°)`;
+        badge.textContent = tight ? `Za ciasno (${angle}°)` : loose ? `Za luźno (${angle}°)` : `Dobry kąt (${angle}°)`;
         badge.classList.toggle('is-warn', tight || loose);
 
         const note = $('[data-angle-note]');
         note.classList.toggle('is-warn', tight || loose);
         $('.ms', note).textContent = tight || loose ? 'warning' : 'check_circle';
         $('span:last-child', note).innerHTML = tight
-            ? '<strong>Splot zbyt ciasny:</strong> zwoje duszą wiązki sitowe i szybko wrastają w korę. Zwiększ kąt do ok. 45°.'
+            ? '<strong>Za ciasno.</strong> Gęste zwoje uciskają korę i szybko w nią wrastają. Zwiększ kąt do około 45°.'
             : loose
-              ? '<strong>Splot zbyt luźny:</strong> drut nie ma siły trzymania i gałąź wróci na miejsce. Zmniejsz kąt do ok. 45°.'
-              : '<strong>Kąt prawidłowy:</strong> Zapewnia optymalne przełożenie wektora gięcia bez punktowego nacisku na wiązki sitowe.';
+              ? '<strong>Za luźno.</strong> Rzadkie zwoje nie utrzymają gałęzi i wróci ona na miejsce. Zmniejsz kąt do około 45°.'
+              : '<strong>Dobry kąt.</strong> Zwoje trzymają gałąź w nowym położeniu i nie uciskają kory w jednym miejscu.';
     }
 
     doc.addEventListener('input', (event) => {
@@ -190,68 +196,63 @@
         }
     });
 
-    // --- Symulator balansu korony ---------------------------------------------------------------------
-    const BASE = { density: 100, trunk: 42, balance: 74, light: 48, risk: 12, aesthetic: 68 };
-    const EFFECTS = {
-        1: { density: -24, trunk: 12, balance: -14, light: 10, risk: 14, aesthetic: -12 },
-        2: { density: -16, trunk: 10, balance: 10, light: 14, risk: 4, aesthetic: 14 },
-        3: { density: -14, trunk: 8, balance: -3, light: 10, risk: 5, aesthetic: 2 },
-        4: { density: -18, trunk: 9, balance: -6, light: 12, risk: 8, aesthetic: -5 },
-    };
-    const clamp = (value) => Math.max(0, Math.min(100, value));
-    let shown = { ...BASE };
+    // --- Próbne cięcie: liczy tylko geometrię rysunku (pole liści i ich położenie względem osi pnia) ----
+    const AXIS_X = 284;
+    const CROWN_HALF = 211;
+    const MAX_CUT = 1 / 3;
+    const leaves = () => $$('.studio-sim__tree .studio-sim__leaf').map((ellipse) => ({
+        branch: ellipse.closest('[data-branch]')?.dataset.branch ?? null,
+        area: Number(ellipse.getAttribute('rx')) * Number(ellipse.getAttribute('ry')),
+        x: Number(ellipse.getAttribute('cx')),
+        y: Number(ellipse.getAttribute('cy')),
+    }));
+    let shown = { foliage: 100, shift: 0 };
 
     function compute(cuts) {
-        const result = { ...BASE };
-        cuts.forEach((id) => Object.entries(EFFECTS[id]).forEach(([key, delta]) => (result[key] += delta)));
-        Object.keys(result).forEach((key) => (result[key] = clamp(result[key])));
+        const all = leaves();
+        const total = all.reduce((sum, leaf) => sum + leaf.area, 0);
+        const kept = all.filter((leaf) => !cuts.includes(leaf.branch));
+        const keptArea = kept.reduce((sum, leaf) => sum + leaf.area, 0);
+        const x = kept.reduce((sum, leaf) => sum + leaf.area * leaf.x, 0) / keptArea;
+        const y = kept.reduce((sum, leaf) => sum + leaf.area * leaf.y, 0) / keptArea;
 
-        return result;
+        return { foliage: Math.round((keptArea / total) * 100), shift: Math.round(((x - AXIS_X) / CROWN_HALF) * 100), x, y };
     }
 
-    const level = (value) => (value < 30 ? 'Niskie' : value < 55 ? 'Średnie' : 'Wysokie');
+    const shiftText = (shift) => (Math.abs(shift) < 5 ? 'na osi pnia' : `${Math.abs(shift)}% szerokości korony w ${shift < 0 ? 'lewo' : 'prawo'}`);
 
-    function setTone(element, tone) {
-        element.classList.remove('studio-metric__value--green', 'studio-metric__value--terra');
-        if (tone) {
-            element.classList.add(`studio-metric__value--${tone}`);
+    function advice(cuts, next) {
+        const removed = 100 - next.foliage;
+        if (cuts.length === 0) {
+            return 'Gałęzie 1 i 2 wyrastają naprzeciw siebie prawie na tej samej wysokości (kannuki-eda). Zwykle usuwa się jedną z nich.';
         }
+        if (removed > MAX_CUT * 100) {
+            return `Usuwasz ${removed}% ulistnienia. Za jednym razem zdejmuj najwyżej około 1/3, resztę cięć rozłóż na następny sezon.`;
+        }
+        const pair = cuts.filter((id) => id === '1' || id === '2');
+        const side = Math.abs(next.shift) >= 5 ? ` Środek masy korony przesuwa się w ${next.shift < 0 ? 'lewo' : 'prawo'}, więc wierzchołek warto lekko odchylić w przeciwną stronę.` : '';
+        if (pair.length === 2) {
+            return `Usunięcie obu gałęzi z pary zabiera całe dolne piętro korony. Zwykle wystarcza jedna z nich.${side}`;
+        }
+        if (pair.length === 1) {
+            return `Usunięcie gałęzi ${pair[0]} likwiduje kannuki-eda.${side}`;
+        }
+
+        return `Gałęzie 1 i 2 nadal tworzą parę kannuki-eda.${side}`;
     }
 
     function renderSim(cuts) {
         const next = compute(cuts);
-        const metric = (key) => $(`[data-sim-metric="${key}"]`);
-
-        tween(metric('density'), shown.density, next.density, (n) => `${n}%`);
-        tween(metric('trunk'), shown.trunk, next.trunk, (n) => `${level(n)} (${n}%)`);
-        tween(metric('aesthetic'), shown.aesthetic, next.aesthetic, (n) => `${n} / 100`);
-        setTone(metric('aesthetic'), next.aesthetic >= 70 ? 'green' : 'terra');
-
-        const sap = next.risk > 35 ? 'Zaburzony' : next.risk > 20 ? 'Umiarkowany' : 'Zbalansowany';
-        metric('sap').textContent = sap;
-        setTone(metric('sap'), next.risk > 20 ? 'terra' : 'green');
-
-        const indicator = (key, text) => {
-            const label = $(`[data-sim-indicator="${key}"]`);
-            label.textContent = text;
-            $(`[data-sim-bar="${key}"]`).style.setProperty('--value', `${next[key]}%`);
-        };
-        indicator('balance', `${next.balance}%`);
-        indicator('light', `${next.light}%`);
-        indicator('risk', `${next.risk < 20 ? 'Niskie' : next.risk < 35 ? 'Umiarkowane' : 'Wysokie'} (${next.risk}%)`);
-
-        const advice = $('[data-sim-advice]');
-        if (next.density < 55) {
-            advice.textContent = `Uwaga: usunięto ponad 45% masy liści (zostało ${next.density}%). Jednorazowo zalecane jest maks. 1/3 — rozłóż zabieg na dwa sezony, aby nie osłabić drzewka.`;
-        } else if (cuts.includes('2') && next.aesthetic >= 70) {
-            advice.textContent = 'Dobra decyzja: usunięcie gałęzi #2 eliminuje błąd Kannonuki i otwiera przestrzeń negatywną (Ma). Balans optyczny wyraźnie się poprawił.';
-        } else if (cuts.length > 0 && !cuts.includes('2')) {
-            advice.textContent = 'Gałąź #2 nadal tworzy błąd Kannonuki (przeciwległa na wysokości gałęzi głównej #1). Rozważ jej usunięcie lub przekształcenie w suchy sęk Jin.';
-        } else if (cuts.length > 0) {
-            advice.textContent = `Usunięte gałęzie: ${cuts.map((id) => `#${id}`).join(', ')}. Sprawdź wskaźniki — estetyka ${next.aesthetic}/100, ryzyko odumierania ${next.risk}%.`;
-        } else {
-            advice.textContent = 'Gałąź #2 tworzy klasyczny błąd Kannonuki (gałąź przeciwległa na tej samej wysokości co gałąź główna #1). Rekomendowane jej całkowite usunięcie lub przekształcenie w suchy sęk Jin.';
-        }
+        tween($('[data-sim-metric="foliage"]'), shown.foliage, next.foliage, (n) => `${n}%`);
+        $('[data-sim-metric="shift"]').textContent = shiftText(next.shift);
+        $('[data-sim-bar]').style.setProperty('--value', `${next.foliage}%`);
+        const center = $('[data-sim-center]');
+        center.setAttribute('cx', next.x.toFixed(1));
+        center.setAttribute('cy', next.y.toFixed(1));
+        center.classList.toggle('is-off', Math.abs(next.shift) >= 5);
+        const tip = $('[data-sim-advice]');
+        tip.textContent = advice(cuts, next);
+        tip.classList.toggle('is-warn', 100 - next.foliage > MAX_CUT * 100);
 
         $('[data-sim-save]').disabled = cuts.length === 0;
         $('[data-sim-jin]').disabled = cuts.length === 0;
@@ -265,11 +266,10 @@
         const cut = !marker.classList.contains('is-cut');
         marker.classList.toggle('is-cut', cut);
         marker.setAttribute('aria-pressed', String(cut));
-        marker.setAttribute('aria-label', `Gałąź ${id}: ${cut ? 'przywróć' : 'symuluj usunięcie'}`);
-        $(`.studio-sim__branch[data-branch="${id}"]`).classList.toggle('is-cut', cut);
-        if (!cut) {
-            $(`.studio-sim__branch[data-branch="${id}"]`).classList.remove('is-jin');
-        }
+        marker.setAttribute('aria-label', `Gałąź ${id}: ${cut ? 'przywróć' : 'zaznacz do usunięcia'}`);
+        const branch = $(`.studio-sim__branch[data-branch="${id}"]`);
+        branch.classList.toggle('is-cut', cut);
+        branch.classList.toggle('is-jin', cut && $('[data-sim-jin]').getAttribute('aria-pressed') === 'true');
         renderSim(cutIds());
     }
 
@@ -277,10 +277,14 @@
         $$('.studio-sim__marker').forEach((marker) => {
             marker.classList.remove('is-cut');
             marker.setAttribute('aria-pressed', 'false');
+            marker.setAttribute('aria-label', `Gałąź ${marker.dataset.branchToggle}: zaznacz do usunięcia`);
         });
         $$('.studio-sim__branch').forEach((branch) => branch.classList.remove('is-cut', 'is-jin'));
-        const jin = $('[data-sim-jin]');
-        jin.setAttribute('aria-pressed', 'false');
+        $('[data-sim-jin]').setAttribute('aria-pressed', 'false');
+        renderSim([]);
+    }
+
+    if ($('.studio-sim')) {
         renderSim([]);
     }
 
@@ -301,7 +305,6 @@
             const on = jin.getAttribute('aria-pressed') !== 'true';
             jin.setAttribute('aria-pressed', String(on));
             $$('.studio-sim__branch.is-cut').forEach((branch) => branch.classList.toggle('is-jin', on));
-            K.toast(on ? 'Usunięte gałęzie zamieniono na martwe drewno (Jin).' : 'Przywrócono zwykłe cięcie.', 'info');
             return;
         }
 
@@ -309,26 +312,15 @@
         if (save && !save.disabled) {
             const cuts = cutIds();
             const body = new FormData();
-            body.set('title', `Plan cięcia: gałęzie ${cuts.map((id) => `#${id}`).join(', ')}`);
-            body.set('note', `Symulacja w Studio: ${$('[data-sim-model]').textContent.replace('Model: ', '')}. Estetyka ${shown.aesthetic}/100, gęstość liści ${shown.density}%.`);
+            body.set('title', `Plan cięcia: gałęzie ${cuts.join(', ')}`);
+            body.set('note', `Próbne cięcie w Studio: zostaje ${shown.foliage}% ulistnienia, środek masy korony ${shiftText(shown.shift)}.`);
             body.set('type', 'shape');
             body.set('time', 'Cały dzień');
             body.set('date', new Date().toLocaleDateString('sv-SE'));
             save.disabled = true;
             const result = await K.request('/schedule/tasks', { method: 'POST', body });
             save.disabled = cutIds().length === 0;
-            K.toast(result.ok ? 'Zapisano plan cięcia w harmonogramie na dziś.' : (result.data.message ?? 'Nie udało się zapisać planu.'), result.ok ? 'success' : 'error');
-            return;
-        }
-
-        const load = event.target.closest('[data-style-load]');
-        if (load) {
-            $('[data-sim-model]').textContent = `Model: ${load.dataset.styleLoad}`;
-            resetSim();
-            const target = $('#studio-simulator-title');
-            target?.scrollIntoView({ behavior: K.reduceMotion ? 'auto' : 'smooth', block: 'center' });
-            K.play($('.studio-sim'), 'fx-in');
-            K.toast(`Wczytano model do symulatora: ${load.dataset.styleLoad}.`, 'success');
+            K.toast(result.ok ? 'Dodano plan cięcia do harmonogramu na dziś.' : (result.data.message ?? 'Nie udało się zapisać planu.'), result.ok ? 'success' : 'error');
         }
     });
 

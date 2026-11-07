@@ -1,18 +1,23 @@
 /* ==========================================================================
-   STRONA GŁÓWNA (/) — ramka Figma „home”
+   STRONA GŁÓWNA (/)
+   Kierunek: DESIGN.md. Dial ENERGY 2 / RHYTHM 2 / MOTION 3 (parallax warstw tła).
+   Kolejność sekcji idzie za historią produktu: co robi aplikacja, jak ocenić
+   ryzyko, skąd biorą się szkody, co zrobić od razu, jak formować.
    ========================================================================== */
 
 .home {
-    padding-top: 32px;
+    padding-top: 48px;
 }
 
 .home + .site-footer {
-    margin-top: 32px;
+    margin-top: 96px;
 }
 
-/* --- Wspólne nagłówki sekcji ------------------------------------------- */
+/* --- Wspólne nagłówki sekcji ---------------------------------------------- */
+/* Odstępy między sekcjami różnią się celowo: kalkulator stoi blisko hero (to jego dalszy ciąg),
+   sekcje wiedzy mają więcej powietrza. */
 .home-section {
-    margin-top: 80px;
+    margin-top: 120px;
 }
 
 .home-section__head {
@@ -24,7 +29,6 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 48px;
-    margin-bottom: 32px;
 }
 
 .home-section__head .eyebrow {
@@ -34,16 +38,15 @@
 
 .home-section__title {
     font-size: 40px;
-    line-height: 1.2;
+    line-height: 1.15;
     letter-spacing: -0.02em;
+    text-wrap: balance;
 }
 
 .home-section__aside {
-    flex: 0 0 auto;
-    max-width: 440px;
-    padding-bottom: 6px;
+    flex: 0 1 440px;
     font-size: 15px;
-    line-height: 1.58;
+    line-height: 1.6;
     color: var(--c-on-surface-variant);
 }
 
@@ -51,219 +54,132 @@
     max-width: 620px;
     margin-top: 12px;
     font-size: 17px;
-    line-height: 1.63;
+    line-height: 1.65;
     color: var(--c-on-surface-variant);
 }
 
-/* --- 1. Hero -------------------------------------------------------------- */
+/* --- 1. Hero ---------------------------------------------------------------- */
+/* Jeden punkt skupienia: nagłówek. Rysunek tuszem na papierze powtarza kierunek „washi i tusz”. */
 .home-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 422px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     align-items: center;
-    gap: 48px;
-    padding: 56px;
-    border-radius: var(--radius-lg);
-    background:
-        radial-gradient(ellipse 34% 48% at 46% 100%, rgba(255, 219, 206, 0.42), transparent 70%),
-        radial-gradient(ellipse 40% 60% at 100% 0%, rgba(202, 234, 212, 0.38), transparent 70%),
-        var(--c-surface-low);
-}
-
-.home-hero__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 17px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--c-primary);
-    background-color: var(--c-surface-container);
-    border-radius: var(--radius-full);
+    gap: 64px;
+    padding-block: 24px 8px;
 }
 
 .home-hero__title {
-    margin-top: 28px;
-    font-size: 40px;
-    line-height: 1.27;
-    letter-spacing: -0.02em;
+    max-width: 15ch;
+    font-size: clamp(38px, 4.6vw, 62px);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
 }
 
 .home-hero__title em {
     font-style: italic;
-    color: var(--c-tertiary);
+    color: var(--c-secondary);
 }
 
 .home-hero__lead {
+    max-width: 56ch;
     margin-top: 24px;
-    font-size: 17px;
-    line-height: 1.63;
+    font-size: 18px;
+    line-height: 1.65;
     color: var(--c-on-surface-variant);
 }
 
 .home-hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    margin-top: 36px;
+    gap: 12px;
+    margin-top: 32px;
 }
 
-.home-hero__actions .btn,
-.home-cta__actions .btn {
-    min-height: 52px;
-    padding-inline: 24px;
-    font-size: 16px;
-}
-
-.home-hero__sos {
-    color: var(--c-tertiary);
-}
-
-.home-hero__stats {
-    display: grid;
-    grid-template-columns: repeat(3, 160px);
-    column-gap: 18px;
-    margin-top: 52px;
-}
-
-.home-hero__stat {
-    display: flex;
-    flex-direction: column-reverse;
-    justify-content: flex-end;
-    gap: 4px;
-}
-
-.home-hero__stat-value {
-    font-family: var(--font-serif);
-    font-size: 28px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--c-primary);
-}
-
-.home-hero__stat-label {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--c-on-surface-variant);
-}
-
-/* Karta „Okaz miesiąca” */
-.home-specimen {
-    padding: 16px;
-    background-color: var(--c-surface);
+.home-hero__media {
+    overflow: clip;
+    aspect-ratio: 1;
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 24px rgba(27, 28, 25, 0.07);
+    background-color: var(--c-surface-container);
 }
 
-.home-specimen__media {
-    position: relative;
-    height: 420px;
-    overflow: hidden;
-    border-radius: var(--radius-sm);
-}
-
-.home-specimen__media img {
+.home-hero__media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 46% center;
 }
 
-.home-specimen__caption {
-    position: absolute;
-    inset: auto 0 0;
+/* Spis narzędzi zamiast liczb: pokazuje, co naprawdę jest za logowaniem. */
+.home-tools {
+    margin-top: 48px;
+}
+
+.home-tools__title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--c-secondary);
+}
+
+.home-tools__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 20px;
+    margin-top: 8px;
+}
+
+.home-tools__link {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 64px 24px 24px;
-    color: var(--c-on-primary);
-    background: linear-gradient(180deg, transparent, rgba(7, 36, 23, 0.55) 45%, rgba(7, 36, 23, 0.72));
+    min-height: 44px;
+    padding-top: 12px;
+    border-top: 1px solid var(--c-outline-variant);
+    cursor: pointer;
 }
 
-.home-specimen__eyebrow {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.home-specimen__name {
+.home-tools__link strong {
     font-family: var(--font-serif);
-    font-size: 19px;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-}
-
-.home-specimen__meta {
-    font-size: 13px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.78);
-}
-
-.home-specimen__sensor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 16px;
-    padding: 11px 12px 11px 16px;
-    background-color: var(--c-surface-low);
-    border-radius: var(--radius-sm);
-}
-
-.home-specimen__sensor-icon {
-    font-size: 22px;
+    font-size: 18px;
+    font-weight: 500;
     color: var(--c-primary);
 }
 
-.home-specimen__sensor-text {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
+.home-tools__link span {
     font-size: 13px;
     line-height: 1.45;
     color: var(--c-on-surface-variant);
 }
 
-.home-specimen__sensor-text strong {
-    font-weight: 600;
-    color: var(--c-on-surface);
+.home-tools__link:hover {
+    border-top-color: var(--c-primary);
 }
 
-.home-specimen__status {
-    flex-shrink: 0;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--c-primary);
-    background-color: #dcdfd9;
-    border-radius: var(--radius-xs);
+.home-tools__link:hover strong {
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
-/* --- 2. Szybka ocena ryzyka ---------------------------------------------- */
+/* --- 2. Ocena ryzyka ------------------------------------------------------------ */
 .home-risk {
-    margin-top: 70px;
+    margin-top: 96px;
+    scroll-margin-top: 96px;
 }
 
 .home-risk__panel {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 440px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
     align-items: start;
     gap: 32px;
-    padding: 40px;
-    background-color: var(--c-surface-container);
-    border-radius: var(--radius-lg);
 }
 
 .home-risk__form {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 32px;
+    padding: 32px;
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-lg);
 }
 
 .home-risk__group {
@@ -273,75 +189,94 @@
 
 .home-risk__label {
     display: block;
-    margin-bottom: 10px;
-    padding: 0;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.35;
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 500;
     color: var(--c-primary);
 }
 
 .home-risk__choices {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
 }
 
 .home-choice {
     position: relative;
-    display: flex;
-    max-width: 200px;
+    display: block;
     cursor: pointer;
 }
 
 .home-choice input {
     position: absolute;
+    inset: 0;
     opacity: 0;
-    pointer-events: none;
+    cursor: pointer;
 }
 
 .home-choice__body {
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    min-height: 91px;
-    padding: 12px 14px;
-    background-color: var(--c-surface-low);
+    gap: 4px;
+    height: 100%;
+    min-height: 72px;
+    padding: 14px 40px 14px 16px;
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-outline-variant);
     border-radius: var(--radius-xs);
-    transition: background-color var(--transition), box-shadow var(--transition);
+    transition: background-color var(--transition), border-color var(--transition), box-shadow var(--transition);
 }
 
-.home-choice__body .ms {
-    margin-bottom: 2px;
-    font-size: 20px;
-    color: var(--c-secondary);
+/* Kółko po prawej to stan zaznaczenia radia, nie ozdoba. */
+.home-choice__body::after {
+    content: "";
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--c-outline);
+    border-radius: 50%;
+    transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .home-choice__title {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--c-primary);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--c-on-surface);
 }
 
 .home-choice__hint {
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.4;
     color: var(--c-on-surface-variant);
 }
 
 .home-choice__hint--latin {
+    font-family: var(--font-serif);
     font-style: italic;
 }
 
 .home-choice:hover .home-choice__body {
-    background-color: var(--c-surface-bright);
+    border-color: var(--c-outline);
+    background-color: var(--c-surface-low);
 }
 
 .home-choice input:checked + .home-choice__body {
-    background-color: var(--c-surface);
-    box-shadow: 0 2px 8px rgba(27, 28, 25, 0.08);
+    border-color: var(--c-primary);
+    box-shadow: inset 0 0 0 1px var(--c-primary);
+    background-color: color-mix(in srgb, var(--c-secondary) 8%, var(--c-surface-lowest));
+}
+
+.home-choice input:checked + .home-choice__body::after {
+    border-color: var(--c-primary);
+    box-shadow: inset 0 0 0 3.5px var(--c-surface-lowest), inset 0 0 0 8px var(--c-primary);
+}
+
+.home-choice input:checked + .home-choice__body .home-choice__title {
+    color: var(--c-primary);
 }
 
 .home-choice input:focus-visible + .home-choice__body {
@@ -352,8 +287,7 @@
 .home-risk__selects {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    margin-top: 7px;
+    gap: 20px;
 }
 
 .home-risk__field {
@@ -362,1126 +296,169 @@
 
 .home-risk__select {
     width: 100%;
-    min-height: 45px;
-    padding: 10px 12px 10px 16px;
+    min-height: 48px;
+    padding: 0 12px;
     font-size: 15px;
     color: var(--c-on-surface);
     background-color: var(--c-surface-lowest);
-    border: 1px solid transparent;
+    border: 1px solid var(--c-outline);
     border-radius: var(--radius-xs);
-    box-shadow: 0 1px 3px rgba(27, 28, 25, 0.08);
-    appearance: none;
     cursor: pointer;
-    text-overflow: ellipsis;
 }
 
-.home-risk__select:focus {
-    outline: none;
-    border-color: var(--c-secondary);
-    box-shadow: 0 0 0 3px rgba(72, 101, 84, 0.15);
+.home-risk__select:hover {
+    border-color: var(--c-primary);
 }
 
-/* Panel wyniku */
+.home-risk__select:focus-visible {
+    outline: 2px solid var(--c-tertiary);
+    outline-offset: 2px;
+}
+
+/* Panel wyniku: zostaje w zasięgu wzroku, gdy formularz jest dłuższy od ekranu. */
 .home-result {
+    position: sticky;
+    top: 104px;
     display: flex;
     flex-direction: column;
-    padding: 32px;
+    padding: 28px;
     background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
 }
 
 .home-result__head {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
 }
 
-.home-result__kicker {
-    max-width: 150px;
-    padding-top: 6px;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.3;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--c-on-surface-variant);
+.home-result__title {
+    font-size: 20px;
 }
 
 .home-result__badge {
-    max-width: 156px;
     padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--c-on-tertiary-container);
-    background-color: var(--c-tertiary-container);
+    font-size: 13px;
+    font-weight: 500;
     border-radius: var(--radius-xs);
+    color: var(--c-on-surface);
+    background-color: var(--c-surface-container);
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 .home-result__score {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 30px;
-}
-
-.home-result__title {
-    font-family: var(--font-sans);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.35;
+    gap: 10px;
+    margin-top: 16px;
 }
 
 .home-result__value {
     font-family: var(--font-serif);
-    font-size: 28px;
+    font-size: 64px;
     line-height: 1;
-    letter-spacing: -0.01em;
-    color: var(--c-tertiary);
+    font-variant-numeric: tabular-nums;
+    color: var(--c-primary);
+    transition: color 0.4s ease;
+}
+
+.home-result__unit {
+    font-size: 14px;
+    color: var(--c-on-surface-variant);
 }
 
 .home-result__progress {
-    height: 10px;
-    margin-top: 12px;
-    background-color: var(--c-surface-container);
-}
-
-.home-result__text {
-    margin-top: 14px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--c-on-surface-variant);
-}
-
-.home-result__alert {
-    display: flex;
-    gap: 10px;
-    margin-top: 26px;
-    padding: 18px 16px;
-    background-color: var(--c-surface-low);
-    border-radius: var(--radius-xs);
-}
-
-.home-result__alert .ms {
-    margin-top: 1px;
-    color: var(--c-tertiary);
-}
-
-.home-result__alert strong {
-    display: block;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.35;
-    color: var(--c-primary);
-}
-
-.home-result__alert p {
-    margin-top: 2px;
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--c-on-surface-variant);
-}
-
-.home-result__cta {
-    min-height: 72px;
-    margin-top: 24px;
-    padding-inline: 16px;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-.home-risk .home-section__head {
-    margin-bottom: 28px;
-}
-
-.home-styles .home-section__head {
-    margin-bottom: 36px;
-}
-
-/* --- 3. Dlaczego drzewka umierają --------------------------------------- */
-.home-causes {
-    margin-top: 86px;
-}
-
-.home-causes__grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px;
-}
-
-.home-cause {
-    display: flex;
-    flex-direction: column;
-    padding: 24px;
-    background-color: var(--c-surface-low);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-}
-
-.home-cause__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-xs);
-}
-
-.home-cause__icon .ms {
-    font-size: 24px;
-}
-
-.home-cause__icon--peach {
-    background-color: #fae7de;
-    color: var(--c-tertiary);
-}
-
-.home-cause__icon--terra {
-    background-color: #f9d1bf;
-    color: var(--c-tertiary);
-}
-
-.home-cause__icon--neutral {
-    background-color: var(--c-surface-highest);
-    color: var(--c-primary);
-}
-
-.home-cause__icon--green {
-    background-color: var(--c-secondary-container);
-    color: var(--c-primary);
-}
-
-.home-cause__tag {
-    margin-top: 24px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.4;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--c-on-surface-variant);
-}
-
-.home-cause__tag--terra {
-    color: var(--c-tertiary);
-}
-
-.home-cause__tag--green {
-    color: var(--c-primary);
-}
-
-.home-cause__title {
-    margin-top: 8px;
-    font-size: 22px;
-    line-height: 1.36;
-}
-
-.home-cause__text {
-    margin-top: 12px;
-    font-size: 13px;
-    line-height: 1.64;
-    color: var(--c-on-surface-variant);
-}
-
-.home-cause__symptom {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 4px 12px;
-    margin-top: auto;
-    padding-top: 40px;
-    font-size: 13px;
-    line-height: 1.4;
-    letter-spacing: 0.02em;
-    color: var(--c-on-surface-variant);
-}
-
-.home-cause__symptom strong {
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0;
-    color: var(--c-primary);
-}
-
-.home-cause__symptom strong.home-cause__symptom-value--terra {
-    color: var(--c-tertiary);
-}
-
-/* --- 4. Pierwsza pomoc (ciemny baner) ----------------------------------- */
-.home-rescue {
-    margin-top: 98px;
-    padding: 56px;
-    color: var(--c-on-primary);
-    background-color: var(--c-primary);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-}
-
-.home-rescue__badge {
-    gap: 8px;
-    padding: 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: 0.05em;
-}
-
-.home-rescue__title {
-    max-width: 768px;
-    margin-top: 20px;
-    font-size: 40px;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    color: var(--c-on-primary);
-}
-
-.home-rescue__lead {
-    max-width: 760px;
-    margin-top: 12px;
-    font-size: 17px;
-    line-height: 1.63;
-    color: #c4d3c9;
-}
-
-.home-rescue__steps {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px;
-    margin-top: 52px;
-}
-
-.home-step {
-    display: flex;
-    flex-direction: column;
-    padding: 24px;
-    background-color: var(--c-primary-container);
-    border-radius: var(--radius-md);
-}
-
-.home-step__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--c-tertiary-on-dark);
-}
-
-.home-step__head .ms {
-    font-size: 26px;
-}
-
-.home-step__number {
-    font-family: var(--font-serif);
-    font-size: 28px;
-    line-height: 1.2;
-}
-
-.home-step__title {
     margin-top: 16px;
-    font-size: 22px;
-    line-height: 1.3;
-    color: var(--c-on-primary);
-}
-
-.home-step__text {
-    margin-bottom: 24px;
-}
-
-.home-step__note {
-    margin-top: auto;
-    padding: 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #dfe7e1;
-    background-color: #293828;
-    border-radius: var(--radius-xs);
-}
-
-.home-step__text {
-    margin-bottom: 24px;
-}
-
-.home-step__note strong {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--c-tertiary-container);
-}
-
-/* --- 5. Style formowania ------------------------------------------------- */
-.home-styles {
-    margin-top: 103px;
-}
-
-.home-styles__grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px;
-}
-
-.home-style {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background-color: var(--c-surface-lowest);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-}
-
-.home-style__media {
-    position: relative;
-    height: 255px;
-}
-
-.home-style__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.home-style__label {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    padding: 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--c-primary);
-    background-color: var(--c-surface-bright);
-    border-radius: var(--radius-xs);
-}
-
-.home-style__body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding: 24px 24px 24px;
-}
-
-.home-style__title {
-    font-size: 22px;
-    line-height: 1.3;
-}
-
-.home-style__text {
-    margin-top: 8px;
-    font-size: 13px;
-    line-height: 1.54;
-    color: var(--c-on-surface-variant);
-}
-
-.home-style__difficulty {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 16px;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--c-on-surface-variant);
-}
-
-.home-style__stars {
-    display: inline-flex;
-    color: var(--c-tertiary);
-}
-
-.home-style__stars .ms {
-    font-size: 21px;
-}
-
-/* --- 6. Świadectwa mistrzów --------------------------------------------- */
-.home-masters {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 296px) minmax(0, 296px);
-    align-items: center;
-    gap: 24px;
-    margin-top: 100px;
-    padding: 56px 48px;
-    background-color: var(--c-surface-container);
-    border-radius: var(--radius-lg);
-}
-
-.home-masters__main {
-    padding-right: 48px;
-}
-
-.home-masters__main .eyebrow {
-    font-family: var(--font-sans);
-}
-
-.home-masters__figure {
-    margin-top: 28px;
-}
-
-.home-masters__quote p {
-    font-family: var(--font-serif);
-    font-size: 40px;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
-    color: var(--c-primary);
-}
-
-.home-masters__author {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 32px;
-}
-
-.home-masters__author img {
-    width: 48px;
-    height: 48px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-}
-
-.home-masters__author > span {
-    display: flex;
-    flex-direction: column;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--c-on-surface-variant);
-}
-
-.home-masters__author strong {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--c-primary);
-}
-
-.home-review {
-    padding: 24px;
-    background-color: var(--c-surface-lowest);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-}
-
-.home-review__tag {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--c-secondary);
-}
-
-.home-review__tag .ms {
-    font-size: 20px;
-}
-
-.home-review__quote {
-    margin-top: 16px;
-    font-size: 15px;
-    line-height: 1.58;
-    color: var(--c-on-surface);
-}
-
-.home-review__author {
-    margin-top: 16px;
-    font-size: 12px;
-    line-height: 1.2;
-    letter-spacing: 0.04em;
-    color: var(--c-on-surface-variant);
-}
-
-/* --- 7. CTA rejestru ----------------------------------------------------- */
-.home-cta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 64px;
-    padding: 48px 48px 48px;
-    text-align: center;
-    background-color: var(--c-surface-low);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-}
-
-.home-cta__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    color: var(--c-on-primary);
-    background-color: var(--c-primary);
-    border-radius: var(--radius-md);
-}
-
-.home-cta__icon .ms {
-    font-size: 28px;
-}
-
-.home-cta__title {
-    max-width: 640px;
-    margin-top: 20px;
-    font-size: 40px;
-    line-height: 1.18;
-    letter-spacing: -0.02em;
-}
-
-.home-cta__lead {
-    max-width: 528px;
-    margin-top: 12px;
-    font-size: 17px;
-    line-height: 1.63;
-    color: var(--c-on-surface-variant);
-}
-
-.home-cta__actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 36px;
-}
-
-.home-cta__actions .btn {
-    padding-inline: 32px;
-}
-
-/* --- Responsywność ------------------------------------------------------- */
-@media (max-width: 1180px) {
-    .home-hero {
-        grid-template-columns: minmax(0, 1fr) 380px;
-        gap: 40px;
-        padding: 48px;
-    }
-
-    .home-risk__panel {
-        grid-template-columns: minmax(0, 1fr) 380px;
-    }
-
-    .home-masters {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .home-masters__main {
-        grid-column: 1 / -1;
-        padding-right: 0;
-    }
-}
-
-@media (max-width: 1024px) {
-    .home-section {
-        margin-top: 72px;
-    }
-
-    .home-section__title,
-    .home-hero__title,
-    .home-rescue__title,
-    .home-masters__quote p,
-    .home-cta__title {
-        font-size: 40px;
-    }
-
-    .home-hero {
-        grid-template-columns: 1fr;
-        padding: 40px;
-    }
-
-    .home-specimen {
-        width: 100%;
-        max-width: 560px;
-    }
-
-    .home-risk__panel {
-        grid-template-columns: 1fr;
-        padding: 32px;
-    }
-
-    .home-causes__grid,
-    .home-styles__grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .home-rescue {
-        padding: 40px;
-    }
-
-    .home-rescue__steps {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px;
-    }
-}
-
-@media (max-width: 768px) {
-    .home {
-        padding-top: 20px;
-    }
-
-    .home-section {
-        margin-top: 56px;
-    }
-
-    .home-section__head--split {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .home-section__title,
-    .home-hero__title,
-    .home-rescue__title,
-    .home-cta__title {
-        font-size: 32px;
-        line-height: 1.12;
-    }
-
-    .home-masters__quote p {
-        font-size: 30px;
-        line-height: 1.15;
-    }
-
-    .home-section__lead,
-    .home-hero__lead,
-    .home-rescue__lead,
-    .home-cta__lead {
-        font-size: 16px;
-    }
-
-    .home-hero {
-        gap: 32px;
-        padding: 24px 20px;
-    }
-
-    .home-hero__eyebrow {
-        font-size: 11px;
-        letter-spacing: 0.06em;
-    }
-
-    .home-hero__actions,
-    .home-cta__actions {
-        flex-direction: column;
-        align-self: stretch;
-    }
-
-    .home-hero__actions .btn,
-    .home-cta__actions .btn {
-        width: 100%;
-    }
-
-    .home-hero__stats {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        column-gap: 12px;
-        margin-top: 36px;
-    }
-
-    .home-hero__stat-value {
-        font-size: 26px;
-    }
-
-    .home-hero__stat-label {
-        font-size: 12px;
-        overflow-wrap: anywhere;
-        hyphens: auto;
-    }
-
-    .home-specimen__media {
-        height: 340px;
-    }
-
-    .home-specimen__sensor {
-        flex-wrap: wrap;
-    }
-
-    .home-risk__panel {
-        padding: 20px;
-    }
-
-    .home-risk__choices {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .home-choice {
-        max-width: none;
-    }
-
-    .home-choice__body {
-        width: 100%;
-        min-height: 0;
-    }
-
-    .home-risk__selects {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .home-result {
-        padding: 24px 20px;
-    }
-
-    .home-causes__grid,
-    .home-styles__grid,
-    .home-rescue__steps,
-    .home-masters {
-        grid-template-columns: 1fr;
-    }
-
-    .home-rescue,
-    .home-masters,
-    .home-cta {
-        padding: 32px 20px;
-    }
-
-    .home-step__title,
-    .home-cause__title,
-    .home-style__title {
-        font-size: 24px;
-    }
-}
-
-/* --- Scroll-driven animations -------------------------------------------- */
-@media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-        .home-section__head,
-        .home-risk__panel,
-        .home-rescue__title,
-        .home-rescue__lead,
-        .home-masters__main,
-        .home-cta__icon,
-        .home-cta__title,
-        .home-cta__lead,
-        .home-cta__actions,
-        .home-causes__grid > *,
-        .home-rescue__steps > *,
-        .home-styles__grid > *,
-        .home-review {
-            animation: var(--sd-reveal);
-            animation-timeline: view();
-            animation-range: var(--sd-range);
-        }
-
-        .home-causes__grid > :nth-child(2),
-        .home-rescue__steps > :nth-child(2),
-        .home-styles__grid > :nth-child(2),
-        .home-review:nth-of-type(2) {
-            animation-range: var(--sd-range-2);
-        }
-
-        .home-causes__grid > :nth-child(3),
-        .home-rescue__steps > :nth-child(3),
-        .home-styles__grid > :nth-child(3) {
-            animation-range: var(--sd-range-3);
-        }
-
-        .home-causes__grid > :nth-child(4) {
-            animation-range: var(--sd-range-4);
-        }
-    }
-}
-
-/* --- Scroll-driven animations: dodatkowe efekty --------------------------- */
-@media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-        /* Ikony błędów „wyskakują”. */
-        .home-cause__icon {
-            animation: var(--sd-pop);
-            animation-timeline: view();
-            animation-range: cover 0% cover 34vh;
-        }
-
-        /* Cytat mistrza wsuwa się z lewej, opinie z prawej (tylko szeroki układ). */
-        .home-masters__main {
-            animation: var(--sd-reveal-left);
-            animation-timeline: view();
-            animation-range: var(--sd-range);
-        }
-
-        @media (min-width: 1025px) {
-            .home-review {
-                animation: var(--sd-reveal-right);
-                animation-timeline: view();
-                animation-range: var(--sd-range);
-            }
-
-            .home-review:nth-of-type(2) {
-                animation-range: var(--sd-range-2);
-            }
-        }
-    }
-}
-
-/* --- Paralaksa: warstwy tła strony głównej -------------------------------- */
-/* Dekoracja (kanji i poświaty) jest widoczna zawsze; ruch dochodzi tylko tam, gdzie działa animation-timeline. */
-.home-hero,
-.home-rescue,
-.home-masters,
-.home-cta {
-    position: relative;
-    overflow: clip;
-}
-
-.home-hero > *,
-.home-rescue > *,
-.home-masters > *,
-.home-cta > * {
-    position: relative;
-    z-index: 1;
-}
-
-.home-hero::before,
-.home-hero::after,
-.home-rescue::before,
-.home-rescue::after,
-.home-masters::before,
-.home-cta::before {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    user-select: none;
-    will-change: transform;
-}
-
-/* Hero: gigantyczne kanji „komorebi” (światło przesączone przez liście) + terakotowa poświata. */
-.home-hero::before {
-    content: "木漏れ日";
-    content: "木漏れ日" / "";
-    top: -8px;
-    right: -28px;
-    font-family: var(--font-serif);
-    font-size: 280px;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    white-space: nowrap;
-    color: rgba(7, 36, 23, 0.04);
-}
-
-.home-hero::after {
-    left: 36%;
-    bottom: -190px;
-    width: 400px;
-    height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(254, 158, 119, 0.34), transparent 68%);
-}
-
-/* Ciemny baner: poświata u góry i kanji „ratunek” u dołu. */
-.home-rescue::before {
-    top: -170px;
-    right: -120px;
-    width: 480px;
-    height: 480px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(254, 158, 119, 0.24), transparent 66%);
-}
-
-.home-rescue::after {
-    content: "救";
-    content: "救" / "";
-    left: -24px;
-    bottom: -150px;
-    font-family: var(--font-serif);
-    font-size: 420px;
-    line-height: 1;
-    color: rgba(255, 255, 255, 0.05);
-}
-
-/* Cytaty mistrzów: kanji „mistrz”. */
-.home-masters::before {
-    content: "師";
-    content: "師" / "";
-    top: -50px;
-    right: 22%;
-    font-family: var(--font-serif);
-    font-size: 340px;
-    line-height: 1;
-    color: rgba(7, 36, 23, 0.05);
-}
-
-/* CTA: kanji „bonsai” za nagłówkiem, wyśrodkowane. */
-.home-cta::before {
-    content: "盆栽";
-    content: "盆栽" / "";
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-serif);
-    font-size: 300px;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-    color: rgba(7, 36, 23, 0.045);
-}
-
-.home-style__media,
-.home-specimen__media {
-    overflow: clip;
-}
-
-@media (max-width: 768px) {
-    .home-hero::before {
-        font-size: 150px;
-        right: -16px;
-    }
-
-    .home-hero::after {
-        left: 10%;
-        width: 280px;
-        height: 280px;
-    }
-
-    .home-rescue::before {
-        width: 300px;
-        height: 300px;
-    }
-
-    .home-rescue::after {
-        font-size: 240px;
-        bottom: -90px;
-    }
-
-    .home-masters::before {
-        font-size: 200px;
-        right: 4%;
-    }
-
-    .home-cta::before {
-        font-size: 150px;
-    }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-        /* Hero: 5 warstw o różnych prędkościach — kanji (najwolniej w dół), poświata (w górę i w bok),
-           treść (zostaje w tyle i blednie), karta okazu (wyraźnie wolniej), zdjęcie (przesuwa się w ramce). */
-        .home-hero::before {
-            --sd-y0: 0px;
-            --sd-y1: 210px;
-            animation: var(--sd-layer);
-            animation-timeline: scroll(root block);
-            animation-range: 0 900px;
-        }
-
-        .home-hero::after {
-            --sd-x0: 0px;
-            --sd-y0: 0px;
-            --sd-x1: 90px;
-            --sd-y1: -170px;
-            animation: var(--sd-layer);
-            animation-timeline: scroll(root block);
-            animation-range: 0 900px;
-        }
-
-        .home-hero__content {
-            animation: var(--sd-lag);
-            animation-timeline: scroll(root block);
-            animation-range: 120px 700px;
-        }
-
-        .home-specimen {
-            --sd-y0: 0px;
-            --sd-y1: 110px;
-            animation: var(--sd-layer);
-            animation-timeline: scroll(root block);
-            animation-range: 0 800px;
-        }
-
-        .home-specimen__media img {
-            animation: var(--sd-pan);
-            animation-timeline: scroll(root block);
-            animation-range: 0 700px;
-        }
-
-        /* Ciemny baner: poświata płynie w dół, kanji w górę — na osi czasu samej sekcji. */
-        .home-rescue {
-            view-timeline: --sd-rescue block;
-        }
-
-        .home-rescue::before {
-            --sd-y0: -170px;
-            --sd-y1: 170px;
-            animation: var(--sd-layer);
-            animation-timeline: --sd-rescue;
-            animation-range: cover 0% cover 100%;
-        }
-
-        .home-rescue::after {
-            --sd-y0: 140px;
-            --sd-y1: -140px;
-            animation: var(--sd-layer);
-            animation-timeline: --sd-rescue;
-            animation-range: cover 0% cover 100%;
-        }
-
-        .home-masters {
-            view-timeline: --sd-masters block;
-        }
-
-        .home-masters::before {
-            --sd-y0: -100px;
-            --sd-y1: 100px;
-            animation: var(--sd-layer);
-            animation-timeline: --sd-masters;
-            animation-range: cover 0% cover 100%;
-        }
-
-        .home-cta {
-            view-timeline: --sd-cta block;
-        }
-
-        .home-cta::before {
-            --sd-y0: -90px;
-            --sd-y1: 90px;
-            animation: var(--sd-layer);
-            animation-timeline: --sd-cta;
-            animation-range: cover 0% cover 100%;
-        }
-
-        /* Zdjęcia stylów: ramka odsłania się od góry, a obraz wewnątrz jedzie wolniej niż strona. */
-        .home-style__media {
-            animation: var(--sd-clip);
-            animation-timeline: view();
-            animation-range: cover 0% cover 42vh;
-        }
-
-        .home-style__media img {
-            animation: var(--sd-pan);
-            animation-timeline: view();
-            animation-range: cover 0% cover 100%;
-        }
-    }
-}
-
-/* `overflow: hidden` robi z karty kontener przewijania i przejmuje oś czasu animacji zdjęcia — używamy `clip`. */
-.home-style {
-    overflow: clip;
-}
-
-/* --- Kalkulator ryzyka: stany wyniku --------------------------------------- */
-.home-result__badge,
-.home-result__value {
-    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 .home-result .progress__bar {
     transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease;
 }
 
-.home-result[data-level='low'] .home-result__value { color: #2f6b45; }
-.home-result[data-level='low'] .home-result__badge { color: #1f5133; background-color: #cdebd5; }
-.home-result[data-level='low'] .progress__bar { background-color: #5f9a73; }
+.home-result__parts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+    margin-top: 20px;
+}
+
+.home-result__parts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--c-divider);
+    font-size: 14px;
+}
+
+.home-result__parts dt {
+    color: var(--c-on-surface-variant);
+}
+
+.home-result__parts dd {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-on-surface);
+}
+
+.home-result__text {
+    margin-top: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--c-on-surface-variant);
+}
+
+.home-result__alert {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background-color: var(--c-surface-container);
+    transition: background-color 0.4s ease;
+}
+
+.home-result__alert .ms {
+    font-size: 22px;
+    color: var(--c-secondary);
+}
+
+.home-result__alert strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--c-primary);
+}
+
+.home-result__alert p {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--c-on-surface-variant);
+}
+
+.home-result__note {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--c-on-surface-variant);
+}
+
+.home-result__cta {
+    margin-top: 20px;
+}
+
+/* Poziomy wyniku: mech = niskie, tusz = umiarkowane, terakota tylko dla wysokiego ryzyka (stan pilny). */
+.home-result[data-level='low'] .home-result__value { color: var(--c-secondary); }
+.home-result[data-level='low'] .home-result__badge { color: var(--c-on-secondary-container); background-color: var(--c-secondary-container); }
+.home-result[data-level='low'] .progress__bar { background-color: var(--c-secondary); }
+.home-result[data-level='high'] .home-result__value { color: var(--c-tertiary); }
+.home-result[data-level='high'] .home-result__badge { color: var(--c-on-tertiary-container); background-color: var(--c-tertiary-container); }
 .home-result[data-level='high'] .progress__bar { background-color: var(--c-tertiary); }
+.home-result[data-level='high'] .home-result__alert { background-color: var(--c-tertiary-soft); }
+.home-result[data-level='high'] .home-result__alert .ms { color: var(--c-tertiary); }
 
 .home-result.is-updated .home-result__text,
 .home-result.is-updated .home-result__alert {
@@ -1497,5 +474,717 @@
     .home-result.is-updated .home-result__text,
     .home-result.is-updated .home-result__alert {
         animation: none;
+    }
+}
+
+/* --- 3. Przyczyny ------------------------------------------------------------------ */
+/* Hierarchia: przelanie dostaje zdjęcie i pełną szerokość, pozostałe trzy to lista do przejrzenia. */
+.home-cause-lead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 56px;
+}
+
+.home-cause-lead__media {
+    overflow: clip;
+    aspect-ratio: 512 / 279;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-surface-container);
+}
+
+.home-cause-lead__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-cause-lead__kicker {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--c-secondary);
+}
+
+.home-cause-lead__title {
+    margin-top: 8px;
+    font-size: 32px;
+    line-height: 1.2;
+}
+
+.home-cause-lead__text {
+    margin-top: 16px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--c-on-surface-variant);
+}
+
+.home-cause-lead .home-cause__symptom {
+    margin-top: 20px;
+}
+
+.home-cause__symptom {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--c-on-surface);
+}
+
+.home-cause__symptom span {
+    font-weight: 700;
+    color: var(--c-secondary);
+}
+
+.home-causes__list {
+    margin-top: 56px;
+    border-top: 1px solid var(--c-outline-variant);
+}
+
+.home-cause {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 32px;
+    padding-block: 28px;
+    border-bottom: 1px solid var(--c-divider);
+}
+
+.home-cause__title {
+    font-size: 22px;
+    line-height: 1.3;
+}
+
+.home-cause__text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--c-on-surface-variant);
+}
+
+/* --- 4. Pierwsza pomoc (ciemny pas w obu motywach) -------------------------------- */
+.home-rescue {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 64px;
+    padding: 72px 64px;
+    color: var(--c-on-band);
+    background-color: var(--c-band);
+    border-radius: var(--radius-lg);
+    scroll-margin-top: 96px;
+}
+
+.home-rescue__eyebrow {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--c-on-band-variant);
+}
+
+.home-rescue__title {
+    margin-top: 8px;
+    font-size: 40px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--c-on-band);
+    text-wrap: balance;
+}
+
+.home-rescue__lead {
+    margin-top: 20px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--c-on-band-variant);
+}
+
+.home-rescue__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 20px;
+    font-weight: 500;
+    color: var(--c-on-band);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--c-on-band) 45%, transparent);
+    text-underline-offset: 5px;
+    cursor: pointer;
+}
+
+.home-rescue__link:hover {
+    text-decoration-color: currentColor;
+}
+
+.home-rescue__link:focus-visible {
+    outline-color: var(--c-tertiary-on-dark);
+}
+
+/* Prawdziwa sekwencja: numer i linia łącząca kroki zamiast okrągłych ikon. */
+.home-rescue__steps {
+    counter-reset: rescue;
+}
+
+.home-step {
+    position: relative;
+    padding: 0 0 40px 76px;
+    counter-increment: rescue;
+}
+
+.home-step:last-child {
+    padding-bottom: 0;
+}
+
+.home-step::before {
+    content: counter(rescue);
+    position: absolute;
+    top: -6px;
+    left: 0;
+    width: 44px;
+    font-family: var(--font-serif);
+    font-size: 44px;
+    line-height: 1;
+    text-align: center;
+    color: var(--c-on-band-variant);
+}
+
+.home-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 52px;
+    bottom: 12px;
+    left: 22px;
+    width: 1px;
+    background-color: color-mix(in srgb, var(--c-on-band) 28%, transparent);
+    transform-origin: 50% 0;
+}
+
+.home-step__title {
+    font-size: 24px;
+    line-height: 1.25;
+    color: var(--c-on-band);
+}
+
+.home-step__text {
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--c-on-band-variant);
+}
+
+.home-step__note {
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--c-on-band);
+}
+
+/* Jedyna terakota w pasie: zakaz, którego złamanie szkodzi drzewku. */
+.home-step__note--warn {
+    color: var(--c-tertiary-on-dark);
+}
+
+/* --- 5. Style formowania -------------------------------------------------------------- */
+/* Moyogi prowadzi (dobry pierwszy styl), Chokkan i Kengai stoją obok jako trudniejsze. */
+.home-styles {
+    scroll-margin-top: 96px;
+}
+
+.home-styles__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.home-style {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    overflow: clip;
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-lg);
+}
+
+.home-style--lead {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+
+.home-style__media {
+    overflow: clip;
+    min-height: 100%;
+    background-color: var(--c-surface-container);
+}
+
+.home-style--lead .home-style__media {
+    aspect-ratio: 512 / 279;
+}
+
+.home-style__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-style__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+}
+
+.home-style--lead .home-style__body {
+    justify-content: center;
+    padding: 40px 48px;
+}
+
+.home-style__name {
+    font-size: 17px;
+}
+
+.home-style--lead .home-style__name {
+    font-size: 22px;
+}
+
+.home-style__title {
+    margin-top: 6px;
+    font-size: 22px;
+    line-height: 1.25;
+}
+
+.home-style--lead .home-style__title {
+    font-size: 30px;
+}
+
+.home-style__text {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--c-on-surface-variant);
+}
+
+.home-style--lead .home-style__text {
+    font-size: 16px;
+}
+
+.home-style__level {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--c-on-surface-variant);
+}
+
+.home-style__level strong {
+    font-weight: 500;
+    color: var(--c-on-surface);
+}
+
+.home-style__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--c-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--c-outline-variant);
+    text-underline-offset: 5px;
+    cursor: pointer;
+}
+
+.home-style__link:hover {
+    text-decoration-color: currentColor;
+}
+
+/* --- 6. Zaproszenie na koniec --------------------------------------------------------- */
+.home-cta {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 48px;
+    margin-top: 96px;
+    padding-top: 48px;
+    border-top: 1px solid var(--c-outline-variant);
+}
+
+.home-cta__title {
+    max-width: 22ch;
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+.home-cta__lead {
+    max-width: 52ch;
+    margin-top: 12px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--c-on-surface-variant);
+}
+
+.home-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.home-cta > :not(.home-cta__actions) {
+    flex: 0 1 auto;
+}
+
+/* Tytuł i opis w jednej kolumnie po lewej, przyciski po prawej. */
+.home-cta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "title actions"
+        "lead actions";
+    column-gap: 48px;
+}
+
+.home-cta__title { grid-area: title; }
+.home-cta__lead { grid-area: lead; }
+.home-cta__actions { grid-area: actions; align-self: end; }
+
+/* --- Responsywność -------------------------------------------------------------------- */
+@media (max-width: 1180px) {
+    .home-risk__choices {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-tools__list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 20px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .home-hero {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 40px;
+    }
+
+    .home-hero__media {
+        max-width: 520px;
+    }
+
+    .home-section__head--split {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .home-section__aside {
+        flex-basis: auto;
+        max-width: 620px;
+    }
+
+    .home-risk__panel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-risk__choices {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .home-result {
+        position: static;
+    }
+
+    .home-rescue {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 48px;
+        padding: 56px 40px;
+    }
+
+    .home-styles__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .home {
+        padding-top: 24px;
+    }
+
+    .home-section {
+        margin-top: 88px;
+    }
+
+    .home-risk,
+    .home-cta {
+        margin-top: 72px;
+    }
+
+    .home-section__title,
+    .home-rescue__title {
+        font-size: 30px;
+    }
+
+    .home-hero__lead {
+        font-size: 17px;
+    }
+
+    .home-hero__actions .btn {
+        flex: 1 1 100%;
+    }
+
+    .home-risk__form {
+        padding: 20px;
+        gap: 28px;
+    }
+
+    .home-risk__choices,
+    .home-risk__selects {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-choice__body {
+        min-height: 56px;
+    }
+
+    .home-result {
+        padding: 20px;
+    }
+
+    .home-result__parts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-cause-lead {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .home-cause-lead__title {
+        font-size: 26px;
+    }
+
+    .home-causes__list {
+        margin-top: 40px;
+    }
+
+    .home-cause {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        padding-block: 24px;
+    }
+
+    .home-cause__title {
+        font-size: 20px;
+    }
+
+    .home-rescue {
+        padding: 40px 20px;
+        margin-inline: calc(var(--gutter) * -1 + 8px);
+    }
+
+    .home-step {
+        padding-left: 60px;
+    }
+
+    .home-step::before {
+        width: 36px;
+        font-size: 36px;
+    }
+
+    .home-step:not(:last-child)::after {
+        top: 44px;
+        left: 18px;
+    }
+
+    .home-step__title {
+        font-size: 21px;
+    }
+
+    .home-style,
+    .home-style--lead {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-style__media,
+    .home-style--lead .home-style__media {
+        min-height: 0;
+        aspect-ratio: 512 / 279;
+    }
+
+    .home-style__body,
+    .home-style--lead .home-style__body {
+        padding: 20px;
+    }
+
+    .home-style--lead .home-style__title {
+        font-size: 26px;
+    }
+
+    .home-cta {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "title"
+            "lead"
+            "actions";
+        row-gap: 0;
+    }
+
+    .home-cta__actions {
+        margin-top: 24px;
+    }
+
+    .home-cta__actions .btn {
+        flex: 1 1 100%;
+    }
+
+    .home-cta__title {
+        font-size: 28px;
+    }
+}
+
+/* --- Ruch przy przewijaniu -------------------------------------------------------------- */
+/* Odsłanianie prowadzi wzrok sekcja po sekcji; kaskada w listach podkreśla kolejność czytania. */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        .home-section__head,
+        .home-risk__panel,
+        .home-cause-lead,
+        .home-cause,
+        .home-rescue__intro,
+        .home-step,
+        .home-style,
+        .home-cta {
+            animation: var(--sd-reveal);
+            animation-timeline: view();
+            animation-range: var(--sd-range);
+        }
+
+        .home-cause:nth-child(2),
+        .home-step:nth-child(2),
+        .home-style:nth-child(2) {
+            animation-range: var(--sd-range-2);
+        }
+
+        .home-cause:nth-child(3),
+        .home-step:nth-child(3),
+        .home-style:nth-child(3) {
+            animation-range: var(--sd-range-3);
+        }
+
+        /* Linia między krokami rysuje się w dół: kolejność działań. */
+        .home-step:not(:last-child)::after {
+            animation: var(--sd-draw);
+            animation-timeline: view();
+            animation-range: cover 10% cover 50vh;
+        }
+
+        /* Zdjęcia stylów: ramka odsłania się od góry, a obraz jedzie wolniej niż strona. */
+        .home-style__media {
+            animation: var(--sd-clip);
+            animation-timeline: view();
+            animation-range: cover 0% cover 42vh;
+        }
+
+        .home-style__media img,
+        .home-cause-lead__media img {
+            animation: var(--sd-pan);
+            animation-timeline: view();
+            animation-range: cover 0% cover 100%;
+        }
+    }
+}
+
+/* --- Parallax: warstwy tła ---------------------------------------------------------------- */
+/* Dwa znaki kanji z treścią: 木漏れ日 (komorebi, nazwa marki) w hero i 救 (ratunek) w pasie pierwszej pomocy.
+   Widoczne zawsze, bardzo słabe; ruch dochodzi tylko tam, gdzie działa animation-timeline. */
+.home-hero,
+.home-rescue {
+    position: relative;
+    overflow: clip;
+}
+
+.home-hero > *,
+.home-rescue > * {
+    position: relative;
+    z-index: 1;
+}
+
+.home-hero::before,
+.home-rescue::after {
+    position: absolute;
+    z-index: 0;
+    font-family: "Zen Old Mincho", var(--font-serif);
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+.home-hero::before {
+    content: "木漏れ日";
+    content: "木漏れ日" / "";
+    top: -24px;
+    left: -12px;
+    font-size: 240px;
+    letter-spacing: -0.04em;
+    color: color-mix(in srgb, var(--c-primary) 5%, transparent);
+}
+
+.home-rescue::after {
+    content: "救";
+    content: "救" / "";
+    right: -20px;
+    bottom: -120px;
+    font-size: 400px;
+    color: color-mix(in srgb, var(--c-on-band) 5%, transparent);
+}
+
+@media (max-width: 768px) {
+    .home-hero::before {
+        font-size: 120px;
+        top: -8px;
+    }
+
+    .home-rescue::after {
+        font-size: 240px;
+        bottom: -70px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        /* Hero: kanji schodzi najwolniej, tekst zostaje w tyle, rysunek przesuwa się w ramce.
+           Trzy prędkości dają głębię papieru, tuszu i tła. */
+        .home-hero::before {
+            --sd-y0: 0px;
+            --sd-y1: 200px;
+            animation: var(--sd-layer);
+            animation-timeline: scroll(root block);
+            animation-range: 0 900px;
+        }
+
+        .home-hero__content {
+            animation: var(--sd-lag);
+            animation-timeline: scroll(root block);
+            animation-range: 120px 700px;
+        }
+
+        .home-hero__media {
+            --sd-y0: 0px;
+            --sd-y1: 90px;
+            animation: var(--sd-layer);
+            animation-timeline: scroll(root block);
+            animation-range: 0 800px;
+        }
+
+        .home-hero__media img {
+            animation: var(--sd-pan);
+            animation-timeline: scroll(root block);
+            animation-range: 0 700px;
+        }
+
+        /* Pas pierwszej pomocy: kanji płynie w górę na osi czasu samej sekcji. */
+        .home-rescue {
+            view-timeline: --home-rescue block;
+        }
+
+        .home-rescue::after {
+            --sd-y0: 120px;
+            --sd-y1: -120px;
+            animation: var(--sd-layer);
+            animation-timeline: --home-rescue;
+            animation-range: cover 0% cover 100%;
+        }
     }
 }

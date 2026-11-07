@@ -285,5 +285,56 @@
         }
     }
 
+    /* ----------------------------------------------------------------- Motyw */
+    const root = doc.documentElement;
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const effectiveTheme = () => (['light', 'dark'].includes(root.dataset.theme) ? root.dataset.theme : (systemDark.matches ? 'dark' : 'light'));
+
+    /** Ustawia przyciski motywu zgodnie z motywem widocznym teraz (też systemowym, którego serwer nie zna). */
+    function syncThemeToggles() {
+        const dark = effectiveTheme() === 'dark';
+        doc.querySelectorAll('[data-theme-form] button[name="theme"]').forEach((button) => {
+            button.value = dark ? 'light' : 'dark';
+            button.setAttribute('aria-pressed', String(dark));
+            const icon = button.querySelector('.ms');
+            if (icon) {
+                icon.textContent = dark ? 'light_mode' : 'dark_mode';
+            }
+        });
+    }
+
+    function applyTheme(theme) {
+        root.dataset.theme = theme;
+        doc.querySelector('meta[name="color-scheme"]')?.setAttribute('content', ['light', 'dark'].includes(theme) ? theme : 'light dark');
+        syncThemeToggles();
+    }
+
+    syncThemeToggles();
+    systemDark.addEventListener('change', syncThemeToggles);
+
+    doc.addEventListener('submit', async (event) => {
+        const form = event.target;
+        if (!form.matches('[data-theme-form]')) {
+            return;
+        }
+
+        event.preventDefault();
+        const previous = root.dataset.theme;
+        const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+
+        // Płynne przenikanie motywów tam, gdzie przeglądarka ma View Transitions, a ruch nie jest ograniczony.
+        if (doc.startViewTransition && !reduceMotion) {
+            doc.startViewTransition(() => applyTheme(next));
+        } else {
+            applyTheme(next);
+        }
+
+        const result = await post(form, { theme: next });
+        if (!result.ok) {
+            applyTheme(previous);
+            toast(result.data.message ?? 'Nie udało się zapisać motywu.', 'error');
+        }
+    });
+
     window.Komorebi = { request, post, fetchDocument, swap, play, toast, sleep, reduceMotion, applyUnread, refreshNotifications, resizeImage };
 })();

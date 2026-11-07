@@ -1,6 +1,6 @@
 /**
- * Kolekcja i karta okazu: filtry i szukanie na żywo, zabiegi (podlanie / korekta) z animowanym paskiem,
- * dziennik obserwacji z autozapisem szkicu, zamgławianie. Wymaga app.js (`window.Komorebi`).
+ * Kolekcja i karta okazu: filtry i szukanie bez przeładowania, zabiegi (podlanie / korekta) z animowanym paskiem,
+ * dziennik obserwacji z autozapisem szkicu. Wymaga app.js (`window.Komorebi`).
  */
 (() => {
     'use strict';
@@ -14,7 +14,7 @@
     const isCollection = () => !!doc.querySelector('[data-collection]');
     // Fragmenty odświeżane po zabiegu: kolekcja albo karta okazu.
     const refreshSelectors = () => (isCollection()
-        ? ['[data-collection]', '.dash-stats', '.dash-rituals', '.dash-calendar']
+        ? ['[data-collection]', '[data-due]', '[data-summary]', '.dash-calendar']
         : ['.passport-layout']);
 
     const barValues = () => [...doc.querySelectorAll('main .progress__bar, main .passport-meter__bar, .app-sidebar .progress__bar')]
@@ -59,13 +59,17 @@
 
     async function showCollection(url, push = true) {
         const mine = ++ticket;
-        const trees = doc.querySelector('[data-trees]');
-        trees?.classList.add('is-loading');
+        const region = doc.querySelector('[data-collection]');
+        region?.classList.add('is-loading');
 
         let next;
         try {
             next = await K.fetchDocument(url);
         } catch {
+            if (mine === ticket) {
+                region?.classList.remove('is-loading');
+                K.toast('Nie udało się wczytać kolekcji. Sprawdź połączenie i spróbuj ponownie.', 'error');
+            }
             return;
         }
 
@@ -74,7 +78,7 @@
         }
 
         K.swap(next, ['[data-collection]']);
-        K.play(doc.querySelector('[data-trees]'), 'fx-in');
+        K.play(doc.querySelector('[data-collection]'), 'fx-in');
         if (push) {
             history.pushState({}, '', url);
         }
@@ -87,38 +91,53 @@
         }
 
         event.preventDefault();
+        const q = new URL(link.href).searchParams.get('q') ?? '';
+        searches.forEach((input) => {
+            input.value = q;
+        });
         showCollection(link.href);
     });
 
     window.addEventListener('popstate', () => {
         if (isCollection()) {
+            const q = new URLSearchParams(location.search).get('q') ?? '';
+            searches.forEach((input) => {
+                input.value = q;
+            });
             showCollection(location.href, false);
         }
     });
 
-    const search = doc.querySelector('.app-topbar__search input[name="q"]');
+    // Pole w górnym pasku (desktop) i w sekcji kolekcji (mobile) szukają tak samo i pokazują tę samą frazę.
+    const searches = isCollection()
+        ? [...doc.querySelectorAll('.app-topbar__search input[name="q"], input[data-search]')]
+        : [];
     let timer = 0;
-    const buildUrl = () => {
+    const buildUrl = (value) => {
         const params = new URLSearchParams(location.search);
-        const value = search.value.trim();
         value ? params.set('q', value) : params.delete('q');
         const query = params.toString();
 
         return `/collection${query ? `?${query}` : ''}`;
     };
 
-    if (search && isCollection()) {
-        search.addEventListener('input', () => {
+    searches.forEach((input) => {
+        input.addEventListener('input', () => {
+            searches.forEach((other) => {
+                if (other !== input) {
+                    other.value = input.value;
+                }
+            });
             clearTimeout(timer);
-            timer = setTimeout(() => showCollection(buildUrl()), 240);
+            timer = setTimeout(() => showCollection(buildUrl(input.value.trim())), 240);
         });
 
-        search.closest('form').addEventListener('submit', (event) => {
+        input.form.addEventListener('submit', (event) => {
             event.preventDefault();
             clearTimeout(timer);
-            showCollection(buildUrl());
+            showCollection(buildUrl(input.value.trim()));
         });
-    }
+    });
 
     // --- Zabiegi: podlanie / korekta ---------------------------------------------------------
     doc.addEventListener('submit', async (event) => {
@@ -141,7 +160,9 @@
         }
 
         K.toast(result.data.message, 'success');
-        await refresh();
+        if (!(await refresh())) {
+            location.reload();
+        }
     });
 
     // --- Dziennik obserwacji ---------------------------------------------------------------------
@@ -149,7 +170,7 @@
     if (journalForm) {
         const area = journalForm.querySelector('textarea');
         const counter = doc.querySelector('[data-journal-counter]');
-        const badge = doc.querySelector('[data-autosave]');
+        const draft = doc.querySelector('[data-autosave]');
         const key = 'komorebi:journal-draft';
         let saveTimer = 0;
 
@@ -160,7 +181,7 @@
         try {
             if (!area.value && localStorage.getItem(key)) {
                 area.value = localStorage.getItem(key);
-                badge.textContent = 'Przywrócono szkic';
+                draft.textContent = 'Przywrócono szkic';
             }
         } catch {
             /* localStorage może być niedostępny (tryb prywatny) */
@@ -169,14 +190,13 @@
 
         area.addEventListener('input', () => {
             updateCounter();
-            badge.textContent = 'Zapisywanie…';
             clearTimeout(saveTimer);
             saveTimer = setTimeout(() => {
                 try {
                     area.value ? localStorage.setItem(key, area.value) : localStorage.removeItem(key);
-                    badge.textContent = area.value ? 'Szkic zapisany' : 'Autosave';
+                    draft.textContent = area.value ? 'Szkic zapisany w przeglądarce' : '';
                 } catch {
-                    badge.textContent = 'Autosave';
+                    draft.textContent = '';
                 }
             }, 500);
         });
@@ -209,7 +229,7 @@
 
             area.value = '';
             updateCounter();
-            badge.textContent = 'Autosave';
+            draft.textContent = '';
             try {
                 localStorage.removeItem(key);
             } catch {
@@ -218,37 +238,6 @@
             K.toast(result.data.message, 'success');
         });
     }
-
-    // --- Zamgławianie -----------------------------------------------------------------------------
-    doc.addEventListener('change', async (event) => {
-        const checkbox = event.target.closest('[data-misting-form] input[type="checkbox"]');
-        if (!checkbox) {
-            return;
-        }
-
-        const result = await K.post(checkbox.form);
-        if (!result.ok) {
-            checkbox.checked = !checkbox.checked;
-            K.toast(result.data.message ?? 'Nie udało się zapisać ustawienia.', 'error');
-            return;
-        }
-
-        K.toast(result.data.message, 'info');
-    });
-
-    // --- Odśwież odczyty (mobile) --------------------------------------------------------------------
-    doc.addEventListener('click', async (event) => {
-        const link = event.target.closest('[data-refresh-link]');
-        if (!link) {
-            return;
-        }
-
-        event.preventDefault();
-        link.classList.add('is-spinning');
-        await refresh();
-        K.toast('Odświeżono odczyty czujników.', 'info');
-        doc.querySelector('[data-refresh-link]')?.classList.remove('is-spinning');
-    });
 
     window.KomorebiCollection = { refresh };
 })();

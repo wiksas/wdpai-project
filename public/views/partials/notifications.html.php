@@ -24,7 +24,7 @@ $notifEscape = static fn (mixed $value): string => htmlspecialchars((string) $va
         </header>
 
         <?php if ($notifItems === []): ?>
-            <p class="notif__empty">Brak powiadomień. Twój ogród jest spokojny.</p>
+            <p class="notif__empty">Brak powiadomień. Pojawią się tu, gdy drzewko będzie wymagało podlania, kontroli drutu albo zacznie się nowa pora sekki.</p>
         <?php else: ?>
             <ul class="notif__list">
                 <?php foreach ($notifItems as $item): ?>

@@ -6,7 +6,7 @@ namespace App\Service;
 
 /**
  * Baza wiedzy konsultanta Kliniki: kuratorowane odpowiedzi dopasowywane do pytania po słowach kluczowych.
- * To nie jest model językowy — przy braku dopasowania asystent mówi to wprost i podpowiada tematy.
+ * To nie jest model językowy: przy braku dopasowania konsultant mówi to wprost i podpowiada tematy.
  */
 final class ClinicKnowledge
 {
@@ -15,17 +15,17 @@ final class ClinicKnowledge
         [
             'id' => 'cambium',
             'keys' => ['zyje', 'zywa', 'zywy', 'pod kora', 'cambium', 'kambium', 'martwa', 'martwy', 'galazk'],
-            'answer' => 'Test kambium: delikatnie zarysuj paznokciem lub ostrzem kawałek kory na cienkiej gałązce. Zielona, wilgotna warstwa pod spodem oznacza żywą tkankę; brązowa i sucha — martwą. Rób test w mało widocznym miejscu i nie tnij głębiej niż do drewna.',
+            'answer' => 'Test kambium: delikatnie zarysuj paznokciem lub ostrzem kawałek kory na cienkiej gałązce. Zielona, wilgotna warstwa pod spodem oznacza żywą tkankę, a brązowa i sucha martwą. Rób test w mało widocznym miejscu i nie tnij głębiej niż do drewna.',
         ],
         [
             'id' => 'po-kapieli',
             'keys' => ['po kapieli', 'kapiel', 'zanurzeniow', 'kiedy podlac', 'podlac po'],
-            'answer' => 'Po kąpieli zanurzeniowej nie podlewaj od razu. Odczekaj, aż górny centymetr podłoża przeschnie (zwykle 1–2 dni — sprawdzaj patyczkiem bambusowym). Pierwsze zwykłe podlanie zrób dopiero wtedy, a drzewko do tego czasu trzymaj w półcieniu.',
+            'answer' => 'Po kąpieli zanurzeniowej nie podlewaj od razu. Odczekaj, aż górny centymetr podłoża przeschnie (zwykle 1–2 dni; sprawdzaj patyczkiem bambusowym). Pierwsze zwykłe podlanie zrób dopiero wtedy, a drzewko do tego czasu trzymaj w półcieniu.',
         ],
         [
             'id' => 'stare-igly',
             'keys' => ['igly', 'zzolkn', 'zolkn', 'zeszlego roku', 'stare igly', 'usunac', 'opadaj'],
-            'answer' => 'Starych igieł nie ścinaj „na zapas”. Naturalne żółknięcie i zrzut igieł z wnętrza korony jesienią jest normalne (sosna zrzuca 2–3-letnie igły). Usuwaj wyłącznie całkowicie brązowe i suche — palcami, delikatnym ruchem w dół. Żółknięcie świeżych wierzchołków to inny objaw (chloroza lub przesuszenie).',
+            'answer' => 'Starych igieł nie ścinaj „na zapas”. Naturalne żółknięcie i zrzut igieł z wnętrza korony jesienią jest normalne (sosna zrzuca 2–3-letnie igły). Usuwaj wyłącznie całkowicie brązowe i suche, palcami, delikatnym ruchem w dół. Żółknięcie świeżych wierzchołków to inny objaw (chloroza lub przesuszenie).',
         ],
         [
             'id' => 'chelat',
@@ -45,7 +45,7 @@ final class ClinicKnowledge
         [
             'id' => 'szkodniki',
             'keys' => ['przedziork', 'mszyc', 'szkodnik', 'pajeczyn', 'neem', 'wrog'],
-            'answer' => 'Przędziorki i mszyce: najpierw mechanicznie spłucz koronę strumieniem wody (także od spodu liści), potem opryskaj olejkiem neem lub mydłem potasowym wieczorem, poza słońcem. Powtórz po 7 dniach. Potrząśnij gałązką nad białą kartką — ruchome kropki to przędziorki.',
+            'answer' => 'Przędziorki i mszyce: najpierw mechanicznie spłucz koronę strumieniem wody (także od spodu liści), potem opryskaj olejkiem neem lub mydłem potasowym wieczorem, poza słońcem. Powtórz po 7 dniach. Potrząśnij gałązką nad białą kartką: ruchome kropki to przędziorki.',
         ],
         [
             'id' => 'przesadzanie',
@@ -55,7 +55,7 @@ final class ClinicKnowledge
         [
             'id' => 'drut',
             'keys' => ['drut', 'wrasta', 'wcina', 'miedz', 'aluminium', 'formowan'],
-            'answer' => 'Drut kontroluj co tydzień w okresie wzrostu. Gdy zaczyna się wcinać w korę, zdejmij go — przecinając szczypcami do drutu w kilku miejscach, a nie odwijając (żeby nie złamać gałęzi). Zwykle drut zostaje 3–6 miesięcy; u klonów krócej.',
+            'answer' => 'Drut kontroluj co tydzień w okresie wzrostu. Gdy zaczyna się wcinać w korę, zdejmij go, przecinając szczypcami do drutu w kilku miejscach, a nie odwijając (żeby nie złamać gałęzi). Zwykle drut zostaje 3–6 miesięcy, u klonów krócej.',
         ],
         [
             'id' => 'nawozenie',
@@ -70,7 +70,7 @@ final class ClinicKnowledge
         [
             'id' => 'swiatlo',
             'keys' => ['swiatl', 'slonc', 'okno', 'parapet', 'polcien', 'ekspozycj', 'cien'],
-            'answer' => 'Większość bonsai gatunków rodzimych potrzebuje minimum 5–6 godzin jasnego światła dziennie — najlepiej na zewnątrz. Parapet południowy przez szybę jest tylko rozwiązaniem tymczasowym dla gatunków pokojowych (np. fikus). Drzewka po zabiegach i osłabione trzymaj w półcieniu.',
+            'answer' => 'Większość bonsai gatunków rodzimych potrzebuje minimum 5–6 godzin jasnego światła dziennie, najlepiej na zewnątrz. Parapet południowy przez szybę jest tylko rozwiązaniem tymczasowym dla gatunków pokojowych (np. fikus). Drzewka po zabiegach i osłabione trzymaj w półcieniu.',
         ],
         [
             'id' => 'podlewanie',
