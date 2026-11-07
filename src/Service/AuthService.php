@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\DuplicateUserException;
 use App\Repository\UserRepository;
 
 /**
@@ -38,7 +39,7 @@ final class AuthService
     /**
      * Zalogowany użytkownik w postaci bezpiecznej dla widoków (bez hasha hasła) albo null.
      *
-     * @return array{id: int, name: string, email: string, role: string, initials: string, label: string}|null
+     * @return array{id: int, name: string, login: string, email: string, role: string, initials: string, label: string}|null
      */
     public function currentUser(): ?array
     {
@@ -86,26 +87,33 @@ final class AuthService
     }
 
     /**
-     * Zakłada konto z zahashowanym hasłem i od razu loguje. Zwraca false, gdy e-mail jest zajęty.
+     * Zakłada konto z zahashowanym hasłem i od razu loguje.
+     * Zwraca null przy sukcesie albo nazwę zajętego pola (`login`/`email`), gdy ktoś zajął je w międzyczasie.
      *
      * @param list<string> $species
      */
-    public function register(string $name, string $email, string $password, string $level, array $species): bool
+    public function register(string $login, string $name, string $email, string $password, string $level, array $species): ?string
     {
-        $user = $this->users->create($name, $email, password_hash($password, self::HASH_ALGORITHM), $level, $species);
-        if ($user === null) {
-            return false;
+        try {
+            $user = $this->users->create($login, $name, $email, password_hash($password, self::HASH_ALGORITHM), $level, $species);
+        } catch (DuplicateUserException $duplicate) {
+            return $duplicate->field;
         }
 
         $this->users->recordLogin((int) $user['id']);
         $this->signIn((int) $user['id']);
 
-        return true;
+        return null;
     }
 
     public function emailTaken(string $email): bool
     {
         return $this->users->emailExists($email);
+    }
+
+    public function loginTaken(string $login): bool
+    {
+        return $this->users->loginExists($login);
     }
 
     public function signIn(int $userId): void
@@ -124,7 +132,7 @@ final class AuthService
 
     /**
      * @param array<string, mixed> $user
-     * @return array{id: int, name: string, email: string, role: string, initials: string, label: string}
+     * @return array{id: int, name: string, login: string, email: string, role: string, initials: string, label: string}
      */
     private function present(array $user): array
     {
@@ -137,6 +145,7 @@ final class AuthService
         return [
             'id' => (int) $user['id'],
             'name' => (string) $user['name'],
+            'login' => (string) $user['login'],
             'email' => (string) $user['email'],
             'role' => (string) $user['role'],
             'initials' => $initials !== '' ? $initials : '?',

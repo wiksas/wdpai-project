@@ -6,6 +6,9 @@ namespace App\Controllers;
 
 class AuthController extends AppController
 {
+    /** Login: zaczyna się literą, potem litery, cyfry, `.`, `_`, `-` (razem 3–30). Bez `@`, więc nie pomyli się z e-mailem. */
+    private const LOGIN_PATTERN = '/^[a-z][a-z0-9._-]{2,29}$/';
+    private const RESERVED_LOGINS = ['admin', 'administrator', 'root', 'komorebi', 'support', 'system'];
     private const LEVELS = ['beginner', 'enthusiast', 'master'];
     private const SPECIES = ['pinus', 'acer', 'juniperus', 'ficus', 'ulmus'];
 
@@ -63,6 +66,7 @@ class AuthController extends AppController
 
         $this->redirectIfLoggedIn();
 
+        $login = mb_strtolower(trim((string) ($_POST['login'] ?? '')));
         $name = trim((string) ($_POST['name'] ?? ''));
         $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
@@ -72,6 +76,12 @@ class AuthController extends AppController
         $termsAccepted = ($_POST['terms'] ?? '') === '1';
 
         $errors = [];
+
+        if (preg_match(self::LOGIN_PATTERN, $login) !== 1) {
+            $errors['login'] = 'Login musi mieć 3–30 znaków: litery bez polskich znaków, cyfry, kropka, _ lub -, na początku litera.';
+        } elseif (in_array($login, self::RESERVED_LOGINS, true) || $this->auth()->loginTaken($login)) {
+            $errors['login'] = 'Ten login jest już zajęty. Wybierz inny.';
+        }
 
         if (mb_strlen($name) < 2 || mb_strlen($name) > 60) {
             $errors['name'] = 'Podaj imię (od 2 do 60 znaków).';
@@ -99,8 +109,11 @@ class AuthController extends AppController
             $errors['email'] = 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
         }
 
-        // Unikalny indeks w bazie łapie też wyścig dwóch rejestracji tym samym adresem.
-        if ($errors === [] && !$this->auth()->register($name, $email, $password, $level, $species)) {
+        // Unikalne indeksy w bazie łapią też wyścig dwóch rejestracji tym samym loginem lub adresem.
+        $conflict = $errors === [] ? $this->auth()->register($login, $name, $email, $password, $level, $species) : null;
+        if ($conflict === 'login') {
+            $errors['login'] = 'Ten login jest już zajęty. Wybierz inny.';
+        } elseif ($conflict === 'email') {
             $errors['email'] = 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
         }
 
@@ -109,12 +122,12 @@ class AuthController extends AppController
             $this->render('register', [
                 'pageTitle' => 'Nowe konto | KOMOREBI',
                 'errors' => $errors,
-                'old' => ['name' => $name, 'email' => $email, 'experience' => $level, 'species' => $species, 'terms' => $termsAccepted],
+                'old' => ['login' => $login, 'name' => $name, 'email' => $email, 'experience' => $level, 'species' => $species, 'terms' => $termsAccepted],
             ]);
             return;
         }
 
-        $this->flash('success', 'Witaj, ' . $name . '! Konto zostało założone.');
+        $this->flash('success', 'Witaj, ' . $name . '! Konto zostało założone. Zalogujesz się loginem ' . $login . ' albo adresem e-mail.');
         $this->redirect('/collection');
     }
 
@@ -149,6 +162,6 @@ class AuthController extends AppController
      */
     private function registerDefaults(): array
     {
-        return ['name' => '', 'email' => '', 'experience' => 'beginner', 'species' => [], 'terms' => false];
+        return ['login' => '', 'name' => '', 'email' => '', 'experience' => 'beginner', 'species' => [], 'terms' => false];
     }
 }

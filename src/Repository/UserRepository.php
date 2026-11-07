@@ -54,21 +54,29 @@ final class UserRepository
 
     public function emailExists(string $email): bool
     {
-        $needle = mb_strtolower(trim($email));
-        $statement = $this->db->prepare('SELECT 1 FROM users WHERE lower(email) = :email OR lower(login) = :login');
-        $statement->execute(['email' => $needle, 'login' => $needle]);
+        $statement = $this->db->prepare('SELECT 1 FROM users WHERE lower(email) = :email');
+        $statement->execute(['email' => mb_strtolower(trim($email))]);
+
+        return $statement->fetchColumn() !== false;
+    }
+
+    public function loginExists(string $login): bool
+    {
+        $statement = $this->db->prepare('SELECT 1 FROM users WHERE lower(login) = :login');
+        $statement->execute(['login' => mb_strtolower(trim($login))]);
 
         return $statement->fetchColumn() !== false;
     }
 
     /**
-     * Zakłada konto (login = e-mail) razem z wybranymi gatunkami w jednej transakcji.
-     * Zwraca null, gdy adres zajęło w międzyczasie inne konto (unikalny indeks w bazie).
+     * Zakłada konto razem z wybranymi gatunkami w jednej transakcji.
+     * Gdy login albo e-mail zajęło w międzyczasie inne konto (unikalne indeksy w bazie),
+     * rzuca DuplicateUserException z nazwą pola.
      *
      * @param list<string> $species
-     * @return array<string, mixed>|null
+     * @return array<string, mixed>
      */
-    public function create(string $name, string $email, string $passwordHash, string $level, array $species): ?array
+    public function create(string $login, string $name, string $email, string $passwordHash, string $level, array $species): array
     {
         $this->db->beginTransaction();
 
@@ -76,7 +84,7 @@ final class UserRepository
             $statement = $this->db->prepare(
                 'INSERT INTO users (login, email, name, password_hash, level) VALUES (:login, :email, :name, :hash, :level) RETURNING id',
             );
-            $statement->execute(['login' => $email, 'email' => $email, 'name' => $name, 'hash' => $passwordHash, 'level' => $level]);
+            $statement->execute(['login' => $login, 'email' => $email, 'name' => $name, 'hash' => $passwordHash, 'level' => $level]);
             $id = (int) $statement->fetchColumn();
 
             $insertSpecies = $this->db->prepare('INSERT INTO user_species (user_id, species) VALUES (:id, :species)');
@@ -88,13 +96,14 @@ final class UserRepository
         } catch (PDOException $exception) {
             $this->db->rollBack();
             if ($exception->getCode() === self::UNIQUE_VIOLATION) {
-                return null;
+                // Komunikat PostgreSQL zawiera nazwę naruszonego indeksu (users_login_lower_key / users_email_lower_key).
+                throw new DuplicateUserException(str_contains($exception->getMessage(), 'users_login_lower_key') ? 'login' : 'email');
             }
 
             throw $exception;
         }
 
-        return $this->findById($id);
+        return (array) $this->findById($id);
     }
 
     /** Po udanym logowaniu: czas logowania i (opcjonalnie) hash przeliczony silniejszym algorytmem. */

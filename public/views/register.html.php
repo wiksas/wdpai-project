@@ -40,6 +40,7 @@
             ];
             // Etykiety i pola do listy błędów u góry formularza (link przenosi do pola).
             $errorTargets = [
+                'login' => ['Login', 'register-login'],
                 'name' => ['Imię', 'register-name'],
                 'email' => ['Adres e-mail', 'register-email'],
                 'password' => ['Hasło', 'register-password'],
@@ -71,6 +72,15 @@
 
                 <div class="auth-form__row">
                     <div class="field auth-field">
+                        <label class="field__label auth-field__label" for="register-login">Login</label>
+                        <div class="input-group auth-input">
+                            <span class="ms" aria-hidden="true">badge</span>
+                            <input class="input" type="text" id="register-login" name="login" value="<?= $e($old['login']) ?>" minlength="3" maxlength="30" pattern="[A-Za-z][A-Za-z0-9._\-]{2,29}" autocomplete="username" autocapitalize="none" spellcheck="false" required aria-describedby="register-login-hint<?= isset($errors['login']) ? ' register-login-error' : '' ?>"<?= isset($errors['login']) ? ' aria-invalid="true"' : '' ?>>
+                        </div>
+                        <p class="auth-hint" id="register-login-hint">Unikalny, 3–30 znaków: litery bez polskich znaków, cyfry, kropka, _ lub -. Wielkość liter nie ma znaczenia.</p>
+                        <?= $fieldError('login') ?>
+                    </div>
+                    <div class="field auth-field">
                         <label class="field__label auth-field__label" for="register-name">Imię</label>
                         <div class="input-group auth-input">
                             <span class="ms" aria-hidden="true">person</span>
@@ -78,14 +88,15 @@
                         </div>
                         <?= $fieldError('name') ?>
                     </div>
-                    <div class="field auth-field">
-                        <label class="field__label auth-field__label" for="register-email">Adres e-mail</label>
-                        <div class="input-group auth-input">
-                            <span class="ms" aria-hidden="true">mail</span>
-                            <input class="input" type="email" id="register-email" name="email" value="<?= $e($old['email']) ?>" placeholder="ty@przyklad.pl" autocomplete="email" required<?= isset($errors['email']) ? ' aria-invalid="true" aria-describedby="register-email-error"' : '' ?>>
-                        </div>
-                        <?= $fieldError('email') ?>
+                </div>
+
+                <div class="field auth-field">
+                    <label class="field__label auth-field__label" for="register-email">Adres e-mail</label>
+                    <div class="input-group auth-input">
+                        <span class="ms" aria-hidden="true">mail</span>
+                        <input class="input" type="email" id="register-email" name="email" value="<?= $e($old['email']) ?>" placeholder="ty@przyklad.pl" autocomplete="email" required<?= isset($errors['email']) ? ' aria-invalid="true" aria-describedby="register-email-error"' : '' ?>>
                     </div>
+                    <?= $fieldError('email') ?>
                 </div>
 
                 <div class="auth-form__row">

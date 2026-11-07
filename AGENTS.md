@@ -47,7 +47,7 @@ Aktualnie aplikacja obsluguje:
 ├── storage/                   # dane uruchomieniowe poza `public/` (state/, uploads/ — w .gitignore)
 ├── DESIGN.md                  # kierunek wizualny i powody decyzji projektowych
 ├── composer.json              # konfiguracja autoloadingu
-├── docker/db/01-schema.sql    # schemat bazy (tabele `users`, `user_species`), wykonywany przy pierwszym starcie bazy
+├── docker/db/                 # schemat (01-schema.sql) i migracje (02-…sql) wykonywane przy pierwszym starcie bazy
 └── docker-compose.yaml        # uslugi `server`, `php`, `db` (PostgreSQL z wolumenem `pg-data`)
 ```
 
@@ -128,7 +128,8 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 - Sesja jest startowana w `public/index.php` (ciasteczko `HttpOnly`, `SameSite=Lax`). Do `$_SESSION` siega wylacznie `App\Service\Session` (uzywana przez `AuthService`, `Csrf`, `Flash`); kontrolery i widoki korzystaja z tych serwisow.
 - `AppController::render()` dodaje do kazdego widoku zmienna `$currentUser` (`null` dla goscia; tablica `id`, `name`, `email`, `role`, `initials`, `label` — bez hasha hasla).
 - Strony aplikacji (`/collection`, `/collection/{id}`, `/studio`, `/clinic`, `/schedule`) zaczynaja akcje od `$this->requireLogin()`, ktore przekierowuje goscia na `/login`. Nowy kontroler aplikacji musi robic to samo.
-- Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia (imie, e-mail, haslo 8–128 znakow, powtorzenie hasla, zgoda) zyje w kontrolerze; zapis i logowanie robi `AuthService` (`register()`, `attempt()`, `emailTaken()`).
+- Logowanie, rejestracja i wylogowanie to `AuthController`: `GET/POST /login`, `GET/POST /register`, `POST /logout`. Walidacja wejscia (login, imie, e-mail, haslo 8–128 znakow, powtorzenie hasla, zgoda) zyje w kontrolerze; zapis i logowanie robi `AuthService` (`register()`, `attempt()`, `emailTaken()`, `loginTaken()`). Logowanie przyjmuje login albo e-mail.
+- Login wybiera uzytkownik przy rejestracji: zapisany malymi literami, 3–30 znakow, zaczyna sie litera, potem litery, cyfry, `.`, `_`, `-` (`AuthController::LOGIN_PATTERN`, w bazie ograniczenie `users_login_format` z `docker/db/02-login-format.sql`). Bez `@`, wiec nie myli sie z e-mailem. Zarezerwowane loginy: `AuthController::RESERVED_LOGINS`. Gdy login lub e-mail zajmie ktos w trakcie rejestracji, `UserRepository::create()` rzuca `DuplicateUserException` z nazwa pola.
 - Hasla hashuje wylacznie `AuthService` przez `password_hash(..., PASSWORD_ARGON2ID)`; w bazie jest tylko hash. Przy logowaniu `password_needs_rehash()` przelicza starsze hashe (np. bcrypt konta demonstracyjnego) i zapisuje `last_login_at`. Dla nieistniejacego konta `password_verify` liczy sie na atrapie, zeby czas odpowiedzi nie zdradzal, czy e-mail istnieje. Unikalnosc loginu i e-maila (bez wielkosci liter) pilnuje indeks w bazie, takze przy rownoczesnych rejestracjach.
 - Konto demonstracyjne `admin` / `admin` (id 1) wstawia schemat SQL. Usun je przed wdrozeniem produkcyjnym.
 - Menu konta (`partials/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.
