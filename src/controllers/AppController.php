@@ -3,13 +3,16 @@
 namespace App\Controllers;
 
 use App\Repository\Database;
+use App\Repository\EmailVerificationRepository;
 use App\Repository\TreeRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserStateRepository;
 use App\Service\AuthService;
 use App\Service\CollectionService;
 use App\Service\Csrf;
+use App\Service\EmailVerification;
 use App\Service\Flash;
+use App\Service\Mailer;
 use App\Service\NotificationService;
 use App\Service\ScheduleService;
 use App\Service\Session;
@@ -22,6 +25,7 @@ class AppController
 
     private ?Session $session = null;
     private ?AuthService $auth = null;
+    private ?UserRepository $users = null;
     private ?UserStateRepository $states = null;
     private ?CollectionService $collection = null;
     private ?ScheduleService $schedule = null;
@@ -31,9 +35,24 @@ class AppController
         return $this->session ??= new Session();
     }
 
+    protected function users(): UserRepository
+    {
+        return $this->users ??= new UserRepository(Database::connection());
+    }
+
     protected function auth(): AuthService
     {
-        return $this->auth ??= new AuthService(new UserRepository(Database::connection()), $this->session());
+        return $this->auth ??= new AuthService($this->users(), $this->session());
+    }
+
+    protected function emailVerification(): EmailVerification
+    {
+        return new EmailVerification(
+            new EmailVerificationRepository(Database::connection()),
+            $this->users(),
+            Mailer::fromEnv(),
+            (string) (getenv('APP_URL') ?: 'http://localhost:8080'),
+        );
     }
 
     protected function csrf(): Csrf

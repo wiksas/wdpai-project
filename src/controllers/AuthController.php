@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Repository\DuplicateUserException;
+use App\Service\AuthService;
+use App\Service\MailerException;
+
 class AuthController extends AppController
 {
     /** Login: zaczyna się literą, potem litery, cyfry, `.`, `_`, `-` (razem 3–30). Bez `@`, więc nie pomyli się z e-mailem. */
@@ -12,15 +16,17 @@ class AuthController extends AppController
     private const LEVELS = ['beginner', 'enthusiast', 'master'];
     private const SPECIES = ['pinus', 'acer', 'juniperus', 'ficus', 'ulmus'];
 
-    // Obsługa trasy: GET /login
+    // Obsługa trasy: GET /login (opcjonalnie ?login=…: wpisany login po potwierdzeniu adresu e-mail)
     public function login(): void
     {
         $this->redirectIfLoggedIn();
 
+        $prefill = $_GET['login'] ?? '';
+
         $this->render('login', [
             'pageTitle' => 'Logowanie | KOMOREBI',
             'errors' => [],
-            'old' => ['login' => ''],
+            'old' => ['login' => is_string($prefill) ? mb_substr(trim($prefill), 0, 120) : ''],
         ]);
     }
 
@@ -39,7 +45,14 @@ class AuthController extends AppController
             return;
         }
 
-        if (!$this->auth()->attempt($login, $password)) {
+        $status = $this->auth()->attempt($login, $password);
+
+        if ($status === AuthService::LOGIN_UNVERIFIED) {
+            $this->renderLoginError('Najpierw potwierdź adres e-mail: kliknij link z wiadomości, którą wysłaliśmy po rejestracji.', $login, true);
+            return;
+        }
+
+        if ($status !== AuthService::LOGIN_OK) {
             $this->renderLoginError('Nieprawidłowy login lub hasło.', $login);
             return;
         }
@@ -110,14 +123,18 @@ class AuthController extends AppController
         }
 
         // Unikalne indeksy w bazie łapią też wyścig dwóch rejestracji tym samym loginem lub adresem.
-        $conflict = $errors === [] ? $this->auth()->register($login, $name, $email, $password, $level, $species) : null;
-        if ($conflict === 'login') {
-            $errors['login'] = 'Ten login jest już zajęty. Wybierz inny.';
-        } elseif ($conflict === 'email') {
-            $errors['email'] = 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
+        $user = null;
+        if ($errors === []) {
+            try {
+                $user = $this->auth()->register($login, $name, $email, $password, $level, $species);
+            } catch (DuplicateUserException $duplicate) {
+                $errors[$duplicate->field] = $duplicate->field === 'login'
+                    ? 'Ten login jest już zajęty. Wybierz inny.'
+                    : 'Konto z tym adresem e-mail już istnieje. Zaloguj się albo użyj innego adresu.';
+            }
         }
 
-        if ($errors !== []) {
+        if ($errors !== [] || $user === null) {
             http_response_code(422);
             $this->render('register', [
                 'pageTitle' => 'Nowe konto | KOMOREBI',
@@ -127,8 +144,16 @@ class AuthController extends AppController
             return;
         }
 
-        $this->flash('success', 'Witaj, ' . $name . '! Konto zostało założone. Zalogujesz się loginem ' . $login . ' albo adresem e-mail.');
-        $this->redirect('/collection');
+        // Konto czeka na potwierdzenie adresu: link przychodzi e-mailem, logowanie dopiero po kliknięciu.
+        $this->session()->set(VerificationController::PENDING_EMAIL, $email);
+        try {
+            $this->emailVerification()->send($user);
+        } catch (MailerException $exception) {
+            error_log('KOMOREBI: nie wysłano e-maila weryfikacyjnego: ' . $exception->getMessage());
+            $this->flash('error', 'Konto zostało założone, ale nie udało się wysłać e-maila. Wyślij link ponownie za chwilę.');
+        }
+
+        $this->redirect('/verify-email');
     }
 
     // Obsługa trasy: POST /logout
@@ -147,12 +172,13 @@ class AuthController extends AppController
         }
     }
 
-    private function renderLoginError(string $message, string $login): void
+    private function renderLoginError(string $message, string $login, bool $unverified = false): void
     {
         http_response_code(401);
         $this->render('login', [
             'pageTitle' => 'Logowanie | KOMOREBI',
             'errors' => ['form' => $message],
+            'unverified' => $unverified,
             'old' => ['login' => $login],
         ]);
     }

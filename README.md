@@ -8,7 +8,8 @@ Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bons
 |---|---|---|---|
 | Strona startowa | `/` | publiczny | Przewodnik: szybka ocena ryzyka, najczęstsze błędy, protokół pierwszej pomocy, style formowania |
 | Logowanie | `/login` | gość | Logowanie loginem lub e-mailem, komunikaty o błędach |
-| Rejestracja | `/register` | gość | Założenie konta hodowcy (walidacja, hasło hashowane), automatyczne zalogowanie |
+| Rejestracja | `/register` | gość | Założenie konta hodowcy (walidacja, hasło hashowane); konto aktywuje link wysłany e-mailem |
+| Potwierdzenie e-maila | `/verify-email` | wszyscy | „Sprawdź skrzynkę” po rejestracji, obsługa linku aktywacyjnego (24 h, jednorazowy), ponowna wysyłka (raz na minutę) |
 | Wylogowanie | `POST /logout` | zalogowany | Menu konta w nagłówku |
 | Moja Kolekcja | `/collection` | zalogowany | Panel kolekcji: filtry (iglaste/liściaste/do podlania) i wyszukiwarka na żywo, podlewanie, dziennik obserwacji, nadchodzące zabiegi |
 | Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia, podlanie z animowanym paskiem, galeria zdjęć (upload ze zmniejszaniem), druk i udostępnianie (404 dla nieznanego id) |
@@ -33,7 +34,7 @@ Konta są zapisywane w bazie PostgreSQL (usługa `db`, tabele `users` i `user_sp
 ## Uruchomienie
 
 ```bash
-docker compose up --build -d server php db
+docker compose up --build -d server php db mailpit
 ```
 
 Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`). Dane dostępowe bazy (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) pochodzą z `.env` (wzór w `.env.example`). Podgląd bazy: pgAdmin pod `http://localhost:5050` albo `docker compose exec db psql -U wdpai_user -d wdpai_db`.
@@ -43,6 +44,13 @@ Jeśli wolumen bazy już istniał przed dodaniem schematu lub migracji, wykonaj 
 ```bash
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/01-schema.sql
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/02-login-format.sql
+docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/03-email-verification.sql
 ```
 
-`02-login-format.sql` nadaje kontom założonym przed dodaniem pola „Login” login z części adresu e-mail przed `@` (przy kolizji z numerem na końcu) i dodaje regułę formatu loginu.
+`02-login-format.sql` nadaje kontom założonym przed dodaniem pola „Login” login z części adresu e-mail przed `@` (przy kolizji z numerem na końcu) i dodaje regułę formatu loginu. `03-email-verification.sql` dodaje potwierdzanie adresu e-mail; istniejące wtedy konta uznaje za potwierdzone.
+
+## Poczta i potwierdzanie konta
+
+Po rejestracji konto jest nieaktywne, dopóki użytkownik nie kliknie linku z e-maila; logowanie przed potwierdzeniem pokazuje komunikat i przycisk ponownej wysyłki. Link działa 24 godziny i jest jednorazowy, a w bazie (`email_verifications`) leży tylko skrót SHA-256 tokenu. Ponowna wysyłka unieważnia poprzedni link i nie zdradza, czy konto istnieje.
+
+Wiadomości wysyła `App\Service\Mailer` przez SMTP. W Dockerze odbiera je Mailpit: nic nie wychodzi na zewnątrz, a skrzynka testowa jest pod `http://localhost:8025`. Konfiguracja w `.env` / `docker-compose.yaml`: `APP_URL` (adres w linkach), `MAIL_HOST`, `MAIL_PORT`, `MAIL_FROM`. Prawdziwy serwer pocztowy wymagałby dodania TLS i uwierzytelniania SMTP.

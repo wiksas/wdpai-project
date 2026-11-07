@@ -55,6 +55,17 @@
                 <button type="submit" class="btn btn--primary btn--block auth-submit">Zaloguj się</button>
             </form>
 
+            <?php if (!empty($unverified)): ?>
+                <form action="/verify-email/resend" method="POST" class="auth-verify__form auth-verify__form--login">
+                    <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                    <input type="hidden" name="identifier" value="<?= htmlspecialchars((string) ($old['login'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                    <button type="submit" class="btn btn--secondary btn--block">
+                        <span class="ms" aria-hidden="true">send</span>
+                        Wyślij link aktywacyjny ponownie
+                    </button>
+                </form>
+            <?php endif; ?>
+
             <p class="auth-demo">
                 <span class="ms" aria-hidden="true">info</span>
                 <span>Konto demonstracyjne: login <strong>admin</strong>, hasło <strong>admin</strong>.</span>

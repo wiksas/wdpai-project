@@ -21,12 +21,14 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 // 1. Trasa główna przez DefaultController
 Routing::get('', 'DefaultController', 'index');
 
-// 2. Konto: logowanie, rejestracja i wylogowanie
+// 2. Konto: logowanie, rejestracja, wylogowanie i potwierdzenie adresu e-mail
 Routing::get('login', 'AuthController', 'login');
 Routing::post('login', 'AuthController', 'authenticate');
 Routing::get('register', 'AuthController', 'register');
 Routing::post('register', 'AuthController', 'store');
 Routing::post('logout', 'AuthController', 'logout');
+Routing::get('verify-email', 'VerificationController', 'show');
+Routing::post('verify-email/resend', 'VerificationController', 'resend');
 
 // 3. Kolekcja: lista okazów, karta okazu ({id}) oraz zabiegi, zdjęcia i dziennik
 Routing::get('collection', 'CollectionController', 'index');

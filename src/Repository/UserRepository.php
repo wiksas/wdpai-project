@@ -17,7 +17,7 @@ final class UserRepository
 {
     private const UNIQUE_VIOLATION = '23505';
 
-    private const COLUMNS = 'id, login, email, name, password_hash, role, level';
+    private const COLUMNS = 'id, login, email, name, password_hash, role, level, email_verified_at';
 
     public function __construct(private readonly PDO $db)
     {
@@ -120,6 +120,13 @@ final class UserRepository
         $statement->execute(['id' => $id]);
     }
 
+    /** Potwierdza adres e-mail (link z wiadomości). Nie nadpisuje daty wcześniejszego potwierdzenia. */
+    public function markEmailVerified(int $id): void
+    {
+        $statement = $this->db->prepare('UPDATE users SET email_verified_at = now() WHERE id = :id AND email_verified_at IS NULL');
+        $statement->execute(['id' => $id]);
+    }
+
     /**
      * @param array<string, mixed>|false $row
      * @return array<string, mixed>|null
@@ -138,6 +145,7 @@ final class UserRepository
             'login' => (string) $row['login'],
             'email' => (string) $row['email'],
             'name' => (string) $row['name'],
+            'verified' => $row['email_verified_at'] !== null,
             'passwordHash' => (string) $row['password_hash'],
             'role' => (string) $row['role'],
             'level' => (string) $row['level'],

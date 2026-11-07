@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Repository\DuplicateUserException;
 use App\Repository\UserRepository;
 
 /**
@@ -12,6 +11,10 @@ use App\Repository\UserRepository;
  */
 final class AuthService
 {
+    public const LOGIN_OK = 'ok';
+    public const LOGIN_INVALID = 'invalid';
+    public const LOGIN_UNVERIFIED = 'unverified';
+
     private const SESSION_KEY = 'user_id';
 
     /** Argon2id: odporny na łamanie na GPU; starsze hashe (bcrypt) są przeliczane przy logowaniu. */
@@ -63,10 +66,13 @@ final class AuthService
     }
 
     /**
-     * Sprawdza dane logowania; przy poprawnych otwiera sesję, zapisuje czas logowania
-     * i przelicza hash, jeśli powstał starszym algorytmem.
+     * Sprawdza dane logowania. Przy poprawnych otwiera sesję, zapisuje czas logowania
+     * i przelicza hash, jeśli powstał starszym algorytmem. Konto z niepotwierdzonym adresem
+     * nie loguje się (status LOGIN_UNVERIFIED zwracamy dopiero po poprawnym haśle).
+     *
+     * @return self::LOGIN_* status logowania
      */
-    public function attempt(string $login, string $password): bool
+    public function attempt(string $login, string $password): string
     {
         $user = $this->users->findByLogin($login);
 
@@ -74,7 +80,11 @@ final class AuthService
         $valid = password_verify($password, $user['passwordHash'] ?? self::DUMMY_HASH);
 
         if ($user === null || !$valid) {
-            return false;
+            return self::LOGIN_INVALID;
+        }
+
+        if (!$user['verified']) {
+            return self::LOGIN_UNVERIFIED;
         }
 
         $rehash = password_needs_rehash($user['passwordHash'], self::HASH_ALGORITHM)
@@ -83,27 +93,19 @@ final class AuthService
         $this->users->recordLogin((int) $user['id'], $rehash);
         $this->signIn((int) $user['id']);
 
-        return true;
+        return self::LOGIN_OK;
     }
 
     /**
-     * Zakłada konto z zahashowanym hasłem i od razu loguje.
-     * Zwraca null przy sukcesie albo nazwę zajętego pola (`login`/`email`), gdy ktoś zajął je w międzyczasie.
+     * Zakłada konto z zahashowanym hasłem i niepotwierdzonym adresem (bez logowania:
+     * najpierw link z e-maila). Gdy login lub e-mail ktoś zajął w międzyczasie, rzuca DuplicateUserException.
      *
      * @param list<string> $species
+     * @return array<string, mixed>
      */
-    public function register(string $login, string $name, string $email, string $password, string $level, array $species): ?string
+    public function register(string $login, string $name, string $email, string $password, string $level, array $species): array
     {
-        try {
-            $user = $this->users->create($login, $name, $email, password_hash($password, self::HASH_ALGORITHM), $level, $species);
-        } catch (DuplicateUserException $duplicate) {
-            return $duplicate->field;
-        }
-
-        $this->users->recordLogin((int) $user['id']);
-        $this->signIn((int) $user['id']);
-
-        return null;
+        return $this->users->create($login, $name, $email, password_hash($password, self::HASH_ALGORITHM), $level, $species);
     }
 
     public function emailTaken(string $email): bool
