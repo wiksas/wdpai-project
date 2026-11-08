@@ -11,7 +11,7 @@ class ScheduleController extends AppController
 {
     private const MAX_CUSTOM_TASKS = 100;
 
-    // Obsługa trasy: GET /schedule?date=YYYY-MM-DD — Harmonogram zabiegów i zadań
+    // Obsługa trasy: GET /schedule?date=YYYY-MM-DD, harmonogram zabiegów i zadań
     public function index(): void
     {
         $user = $this->requireLogin();

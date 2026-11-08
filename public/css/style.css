@@ -1,15 +1,7 @@
-/* ==========================================================================
-   KOMOREBI: globalny arkusz stylów
-   Kierunek wizualny i powody decyzji: DESIGN.md w katalogu głównym projektu.
-   ========================================================================== */
+/* KOMOREBI: globalny arkusz stylów. Kierunek wizualny: DESIGN.md. */
 
-/* ==========================================================================
-   1. TOKENY (paleta jasna i ciemna, typografia, promienie, cienie)
-   Każdy kolor ma dwie wartości: light-dark(jasny, ciemny). Motyw wybiera
-   `color-scheme`: domyślnie systemowy, a `data-theme` na <html> (ustawiany
-   z ciasteczka przez ThemeController) wymusza jasny albo ciemny.
-   Strony używają wyłącznie tokenów; literał koloru tylko dla tekstu na zdjęciu.
-   ========================================================================== */
+/* 1. Tokeny (paleta jasna i ciemna, typografia, promienie, cienie)
+   Kolor to light-dark(jasny, ciemny); `data-theme` na <html> wymusza motyw. Literał koloru tylko dla tekstu na zdjęciu. */
 :root {
     color-scheme: light dark;
 
@@ -53,8 +45,7 @@
     --c-on-band: light-dark(#ffffff, #e3e3dc);
     --c-on-band-variant: light-dark(#a9c7b5, #a9c7b5);
 
-    /* Krój: Noto Serif (prawdziwa kursywa, polskie znaki) z Zen Old Mincho dla kanji;
-       Zen Kaku Gothic New: japoński grotesk z polskimi znakami, jeden głos dla tekstu i kanji. */
+    /* Krój: Noto Serif z Zen Old Mincho dla kanji; Zen Kaku Gothic New to jeden głos dla tekstu i kanji. */
     --font-serif: "Noto Serif", "Zen Old Mincho", Georgia, "Times New Roman", serif;
     --font-sans: "Zen Kaku Gothic New", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -88,9 +79,7 @@
     color-scheme: dark;
 }
 
-/* ==========================================================================
-   2. RESET I BAZA
-   ========================================================================== */
+/* 2. Reset i baza */
 *,
 *::before,
 *::after {
@@ -162,7 +151,6 @@ button {
     border: 0;
 }
 
-/* Każda kontrolka ma kursor dłoni; wyłączona dostaje „not-allowed”. */
 button,
 summary,
 select,
@@ -205,9 +193,7 @@ input[type="range"],
     border: 0;
 }
 
-/* ==========================================================================
-   3. TYPOGRAFIA POMOCNICZA
-   ========================================================================== */
+/* 3. Typografia pomocnicza */
 .serif {
     font-family: var(--font-serif);
 }
@@ -269,9 +255,7 @@ input[type="range"],
     color: var(--c-tertiary);
 }
 
-/* ==========================================================================
-   4. IKONY (Material Symbols Outlined)
-   ========================================================================== */
+/* 4. Ikony (Material Symbols Outlined) */
 .ms {
     display: inline-block;
     flex-shrink: 0;
@@ -298,9 +282,7 @@ input[type="range"],
     font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
-/* ==========================================================================
-   5. UKŁAD
-   ========================================================================== */
+/* 5. Układ */
 .container {
     width: 100%;
     max-width: var(--container);
@@ -308,9 +290,7 @@ input[type="range"],
     padding-inline: var(--gutter);
 }
 
-/* ==========================================================================
-   6. PRZYCISKI
-   ========================================================================== */
+/* 6. Przyciski */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -478,9 +458,7 @@ input[type="range"],
     background-color: var(--c-primary-container);
 }
 
-/* ==========================================================================
-   7. ETYKIETY: BADGE (kanciaste) I PILL (zaokrąglone). Tylko dla realnego stanu.
-   ========================================================================== */
+/* 7. Etykiety: badge (kanciaste) i pill (zaokrąglone), tylko dla realnego stanu */
 .badge,
 .pill {
     display: inline-flex;
@@ -560,10 +538,7 @@ input[type="range"],
     background-color: var(--c-primary);
 }
 
-/* ==========================================================================
-   8. KARTY, PANELE, KAFELKI IKON
-   Karty leżą płasko (linia zamiast cienia); cień tylko dla warstw nad treścią.
-   ========================================================================== */
+/* 8. Karty, panele, kafelki ikon */
 .card {
     background-color: var(--c-surface-lowest);
     border: 1px solid var(--c-divider);
@@ -619,9 +594,7 @@ input[type="range"],
     background-color: var(--c-surface-lowest);
 }
 
-/* ==========================================================================
-   9. PASKI POSTĘPU
-   ========================================================================== */
+/* 9. Paski postępu */
 .progress {
     position: relative;
     display: block;
@@ -656,9 +629,7 @@ input[type="range"],
     background-color: var(--c-tertiary-bright);
 }
 
-/* ==========================================================================
-   10. FORMULARZE
-   ========================================================================== */
+/* 10. Formularze */
 .search {
     display: flex;
     align-items: center;
@@ -784,9 +755,7 @@ input[type="range"],
     accent-color: var(--c-primary);
 }
 
-/* ==========================================================================
-   11. ZNAK FIRMOWY
-   ========================================================================== */
+/* 11. Znak firmowy */
 .brand {
     display: inline-flex;
     align-items: center;
@@ -829,9 +798,7 @@ input[type="range"],
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   12. NAGŁÓWEK STRONY PUBLICZNEJ
-   ========================================================================== */
+/* 12. Nagłówek strony publicznej */
 /* Jedyne rozmycie w projekcie: przyklejony nagłówek strony publicznej (treść przewija się pod nim). */
 .site-header {
     position: sticky;
@@ -1023,9 +990,7 @@ input[type="range"],
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   13. STOPKA STRONY PUBLICZNEJ
-   ========================================================================== */
+/* 13. Stopka strony publicznej */
 .site-footer {
     margin-top: 6rem;
     background-color: var(--c-surface-low);
@@ -1038,7 +1003,6 @@ input[type="range"],
     padding: 4rem var(--gutter) 2.5rem;
 }
 
-/* Stopka: znak i jedno zdanie o aplikacji, obok dwie grupy linków, które naprawdę istnieją. */
 .site-footer__main {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr));
@@ -1094,9 +1058,7 @@ input[type="range"],
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   14. POWŁOKA APLIKACJI: PANEL BOCZNY, GÓRNY PASEK, TREŚĆ
-   ========================================================================== */
+/* 14. Powłoka aplikacji: panel boczny, górny pasek, treść */
 .app {
     display: grid;
     grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -1276,9 +1238,7 @@ input[type="range"],
     padding: 2rem max(2rem, calc((100% - var(--content-max)) / 2)) 4rem;
 }
 
-/* ==========================================================================
-   STRONA 404
-   ========================================================================== */
+/* Strona 404 */
 .not-found {
     display: flex;
     justify-content: center;
@@ -1310,16 +1270,12 @@ input[type="range"],
     margin-top: 0.75rem;
 }
 
-/* ==========================================================================
-   15. DOLNA NAWIGACJA (MOBILE)
-   ========================================================================== */
+/* 15. Dolna nawigacja (mobile) */
 .bottom-nav {
     display: none;
 }
 
-/* ==========================================================================
-   16. RESPONSYWNOŚĆ POWŁOKI
-   ========================================================================== */
+/* 16. Responsywność powłoki */
 @media (max-width: 1240px) {
     .site-header__inner {
         gap: 1.25rem;
@@ -1391,7 +1347,6 @@ input[type="range"],
         color: var(--c-on-surface-variant);
     }
 
-    /* Aktywna zakładka: ikona w zaokrąglonym polu w kolorze mchu, czytelna w obu motywach. */
     .bottom-nav__link .ms {
         width: 56px;
         height: 30px;
@@ -1580,25 +1535,16 @@ input[type="range"],
     }
 }
 
-/* ==========================================================================
-   17. SCROLL-DRIVEN ANIMATIONS (czysty CSS, bez JavaScriptu)
-   Animacje sterowane przewijaniem: `animation-timeline: scroll()` / `view()`.
-   Włączają się tylko tam, gdzie przeglądarka je obsługuje i gdy użytkownik nie
-   ograniczył ruchu (prefers-reduced-motion). W pozostałych przypadkach treść
-   jest po prostu widoczna, nic nie jest ukrywane na stałe.
-   Strony dopisują własne elementy w `css/pages/*.css`, używając tokenów:
-     animation: var(--sd-reveal);
-     animation-timeline: view();
-     animation-range: var(--sd-range);
-   ========================================================================== */
+/* 17. Animacje sterowane przewijaniem */
+/* Tylko gdy przeglądarka je obsługuje i bez prefers-reduced-motion; inaczej treść jest po prostu widoczna.
+   Strony w css/pages/*.css używają: animation: var(--sd-reveal); animation-timeline: view(); animation-range: var(--sd-range). */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
         :root {
             --sd-reveal: sd-reveal linear both;
             --sd-reveal-left: sd-reveal-left linear both;
             --sd-turn: sd-turn linear both;
-            /* Zakres odsłaniania: element pojawia się na odcinku ok. 40% wysokości ekranu,
-               czyli kończy, gdy jego góra dojedzie do ~60% od góry okna (widać cały ruch). */
+            /* Odsłanianie na ok. 40% wysokości ekranu: kończy się, gdy góra elementu dojedzie do ~60% okna. */
             --sd-range: cover 0% cover 40vh;
             /* Opóźnione warianty dla kolejnych elementów rzędu (efekt kaskady). */
             --sd-range-2: cover 2vh cover 44vh;
@@ -1642,7 +1588,6 @@ input[type="range"],
     }
 
     @supports (animation-timeline: scroll()) {
-        /* Cienka linia postępu czytania u góry każdej strony. */
         html::before {
             content: "";
             position: fixed;
@@ -1656,7 +1601,6 @@ input[type="range"],
             animation-timeline: scroll(root block);
         }
 
-        /* Nagłówki nabierają cienia po zjechaniu ze szczytu strony. */
         .site-header {
             animation: sd-elevate-site linear both;
             animation-timeline: scroll(root block);
@@ -1701,7 +1645,6 @@ input[type="range"],
     }
 
     @supports (animation-timeline: view()) {
-        /* Wspólne bloki: karty, panele, karta błędu 404. */
         .card,
         .panel,
         .not-found__card {
@@ -1710,7 +1653,7 @@ input[type="range"],
             animation-range: var(--sd-range);
         }
 
-        /* Stopka jest ostatnia na stronie i nie ma jak wjechać wyżej, więc odsłania się do pełnego wejścia na ekran. */
+        /* Stopka jest ostatnia i nie wjedzie wyżej, więc odsłania się do pełnego wejścia na ekran. */
         .site-footer__about,
         .site-footer__nav {
             animation: var(--sd-reveal);
@@ -1722,8 +1665,7 @@ input[type="range"],
             animation-range: entry 12% entry 100%;
         }
 
-        /* Zapas przewijania pod treścią aplikacji: ostatnie elementy też mogą wjechać wyżej
-           (bez tego zostałyby na dole strony półprzezroczyste lub z niedopełnionym paskiem). */
+        /* Zapas przewijania, żeby ostatnie elementy mogły wjechać wyżej i nie zostały półprzezroczyste. */
         .app-content {
             padding-bottom: max(4rem, 30vh);
         }
@@ -1736,7 +1678,7 @@ input[type="range"],
     }
 }
 
-/* --- 17b. Dodatkowe efekty: wsuwanie z boku, odsłanianie zdjęć, paski, ikony ---- */
+/* 17b. Dodatkowe efekty przewijania */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
         :root {
@@ -1786,7 +1728,6 @@ input[type="range"],
             }
         }
 
-        /* Wyjście: blok delikatnie unosi się i blednie, gdy odjeżdża z ekranu. */
         @keyframes sd-exit {
             from {
                 opacity: 1;
@@ -1821,7 +1762,6 @@ input[type="range"],
             }
         }
 
-        /* Ramka zdjęcia odsłania się od góry (samo przycięcie, bez ruchu obrazu). */
         @keyframes sd-clip-in {
             from {
                 clip-path: inset(0 0 100% 0);
@@ -1832,7 +1772,6 @@ input[type="range"],
             }
         }
 
-        /* Treść hero zostaje w tyle i blednie, gdy strona odjeżdża. */
         @keyframes sd-lag {
             from {
                 opacity: 1;
@@ -1855,7 +1794,6 @@ input[type="range"],
             }
         }
 
-        /* Paski postępu (wilgotność, witalność) „dopełniają się” przy wejściu na ekran. */
         .progress__bar {
             transform-origin: 0 50%;
             animation: var(--sd-grow);
@@ -1870,7 +1808,7 @@ input[type="range"],
     }
 }
 
-/* --- 17c. Paralaksa globalna: stopka i strona 404 ------------------------- */
+/* 17c. Paralaksa globalna: stopka i strona 404 */
 .site-footer,
 .not-found__card {
     position: relative;
@@ -1952,9 +1890,7 @@ input[type="range"],
     }
 }
 
-/* ==========================================================================
-   18. POWIADOMIENIA (DZWONEK) I TOASTY
-   ========================================================================== */
+/* 18. Powiadomienia (dzwonek) i toasty */
 .notif {
     position: relative;
 }
@@ -2290,7 +2226,7 @@ input[type="range"],
     }
 }
 
-/* --- Toasty (komunikaty po zapisaniu akcji) ------------------------------- */
+/* Toasty (komunikaty po zapisaniu akcji) */
 .toasts {
     position: fixed;
     right: 20px;
@@ -2381,9 +2317,7 @@ input[type="range"],
     }
 }
 
-/* ==========================================================================
-   19. NARZĘDZIA ANIMACJI (uruchamiane z app.js klasami) I PRZEJŚCIA PASKÓW
-   ========================================================================== */
+/* 19. Narzędzia animacji (klasy z app.js) i przejścia pasków */
 .fx-in {
     animation: fx-in 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
@@ -2426,9 +2360,8 @@ input[type="range"],
     }
 }
 
-/* --- 20. Przejścia między stronami (View Transitions API, MPA) --------------
-   Stałe elementy układu (panel boczny, pasek górny, nawigacja) zostają w miejscu,
-   a treść strony płynnie zanika i wjeżdża. Przeglądarki bez wsparcia pomijają blok. */
+/* 20. Przejścia między stronami (View Transitions API, MPA) */
+/* Panel boczny, pasek górny i nawigacja zostają w miejscu; przeglądarki bez wsparcia pomijają blok. */
 @media (prefers-reduced-motion: no-preference) {
     @view-transition {
         navigation: auto;

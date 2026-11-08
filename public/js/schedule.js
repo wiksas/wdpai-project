@@ -105,7 +105,7 @@
         K.refreshNotifications();
     }
 
-    // --- Nawigacja: strzałki, „Dziś”, dni, kafelki nadchodzących zabiegów ---------------
+    // Nawigacja: strzałki, „Dziś”, dni, kafelki nadchodzących zabiegów
     doc.addEventListener('click', (event) => {
         const opener = event.target.closest('[data-open-add]');
         if (opener) {
@@ -131,7 +131,7 @@
 
     window.addEventListener('popstate', () => navigate(location.href, { push: false }));
 
-    // --- Strzałki lewo/prawo między dniami tygodnia --------------------------------------
+    // Strzałki lewo/prawo między dniami tygodnia
     doc.addEventListener('keydown', (event) => {
         if (!['ArrowLeft', 'ArrowRight'].includes(event.key) || !event.target.matches?.('[data-day]')) {
             return;
@@ -145,7 +145,7 @@
         }
     });
 
-    // --- Gest przeciągnięcia na ekranie dotykowym: w lewo = następny tydzień -------------
+    // Gest przeciągnięcia na ekranie dotykowym: w lewo = następny tydzień
     let startX = 0;
     let startY = 0;
     doc.addEventListener('touchstart', (event) => {
@@ -170,7 +170,7 @@
         }
     }, { passive: true });
 
-    // --- Odhaczanie zadań -----------------------------------------------------------------
+    // Odhaczanie zadań
     doc.addEventListener('change', async (event) => {
         const checkbox = event.target.closest('.schedule-task__check');
         const form = checkbox?.closest('[data-task-form]');
@@ -210,7 +210,7 @@
         K.refreshNotifications();
     });
 
-    // --- Usuwanie własnego zabiegu ---------------------------------------------------------
+    // Usuwanie własnego zabiegu
     doc.addEventListener('submit', async (event) => {
         const form = event.target;
 
@@ -230,7 +230,7 @@
             navigate(location.href, { push: false, direction: 'fade' });
         }
 
-        // --- Dodawanie własnego zabiegu -------------------------------------------------------
+        // Dodawanie własnego zabiegu
         if (form.matches('[data-add-form]')) {
             event.preventDefault();
             if (!form.reportValidity()) {

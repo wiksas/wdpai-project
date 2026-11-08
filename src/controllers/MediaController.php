@@ -8,7 +8,7 @@ use App\Service\MediaStorage;
 
 class MediaController extends AppController
 {
-    // Obsługa trasy: GET /media/{name} — zdjęcie zalogowanego użytkownika (cudze pliki nie istnieją w jego katalogu)
+    // Obsługa trasy: GET /media/{name}, zdjęcie zalogowanego użytkownika (cudze pliki nie istnieją w jego katalogu)
     public function show(string $name): void
     {
         $user = $this->requireLogin();

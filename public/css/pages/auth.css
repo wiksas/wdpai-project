@@ -1,7 +1,4 @@
-/* ==========================================================================
-   KOMOREBI: logowanie i rejestracja (/login, /register)
-   Formularz leży na płaskiej karcie (papier), obok ciemny pas z rysunkiem tuszem.
-   ========================================================================== */
+/* Logowanie i rejestracja (/login, /register): płaska karta formularza obok ciemnego pasa z rysunkiem tuszem. */
 
 .auth {
     /* Ramka pól i opcji: min. 3:1 do tła (WCAG 1.4.11) w obu motywach */
@@ -16,9 +13,7 @@
     padding: 56px 32px 64px;
 }
 
-/* --------------------------------------------------------------------------
-   Panel marki: ciemny pas w obu motywach (tusz na papierze)
-   -------------------------------------------------------------------------- */
+/* Panel marki: ciemny pas w obu motywach (tusz na papierze) */
 .auth-panel {
     position: sticky;
     top: 32px;
@@ -105,9 +100,7 @@
     color: var(--c-on-band);
 }
 
-/* --------------------------------------------------------------------------
-   Karta formularza
-   -------------------------------------------------------------------------- */
+/* Karta formularza */
 .auth-card {
     min-width: 0;
     padding: 32px 40px 40px;
@@ -522,9 +515,7 @@
     color: var(--c-on-surface);
 }
 
-/* --------------------------------------------------------------------------
-   Potwierdzenie adresu e-mail (/verify-email)
-   -------------------------------------------------------------------------- */
+/* Potwierdzenie adresu e-mail (/verify-email) */
 .auth-verify__icon {
     display: inline-flex;
     align-items: center;
@@ -584,9 +575,7 @@
     text-decoration-thickness: 2px;
 }
 
-/* --------------------------------------------------------------------------
-   Responsywność
-   -------------------------------------------------------------------------- */
+/* Responsywność */
 @media (max-width: 1024px) {
     .auth {
         grid-template-columns: minmax(0, 1fr);

@@ -1,8 +1,6 @@
 <?php
 /**
- * Przełącznik motywu jasny/ciemny. Bez JS: formularz POST /theme zapisuje ciasteczko i wraca na stronę.
- * Z JS (app.js): wartość `theme` liczona z motywu widocznego teraz (także systemowego), zmiana bez przeładowania.
- *
+ * Przełącznik motywu. Bez JS: POST /theme zapisuje ciasteczko. Z JS (app.js): `theme` liczony z motywu widocznego teraz.
  * Wymaga: $theme (light|dark|system), $currentPath.
  */
 $isDark = ($theme ?? 'system') === 'dark';

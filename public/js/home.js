@@ -1,7 +1,6 @@
 /**
- * Strona główna: ocena ryzyka liczona na żywo po zmianie parametrów.
- * Model orientacyjny (edukacyjny): sumuje punkty za gatunek, podłoże, podlewanie i stanowisko.
- * Bez JS widok pokazuje wynik dla ustawień domyślnych (te same liczby co poniżej).
+ * Strona główna: ocena ryzyka liczona na żywo po zmianie parametrów (model orientacyjny, edukacyjny).
+ * Bez JS widok pokazuje wynik dla ustawień domyślnych.
  */
 (() => {
     'use strict';

@@ -6,7 +6,7 @@ namespace App\Controllers;
 
 class NotificationController extends AppController
 {
-    // Obsługa trasy: GET /notifications — gotowy HTML dzwonka (odświeżanie panelu bez przeładowania strony)
+    // Obsługa trasy: GET /notifications, gotowy HTML dzwonka (odświeżanie panelu bez przeładowania strony)
     public function index(): void
     {
         $user = $this->requireLogin();

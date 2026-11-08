@@ -66,9 +66,8 @@ final class AuthService
     }
 
     /**
-     * Sprawdza dane logowania. Przy poprawnych otwiera sesję, zapisuje czas logowania
-     * i przelicza hash, jeśli powstał starszym algorytmem. Konto z niepotwierdzonym adresem
-     * nie loguje się (status LOGIN_UNVERIFIED zwracamy dopiero po poprawnym haśle).
+     * Sprawdza dane logowania; przy sukcesie otwiera sesję i przelicza hash starszego algorytmu.
+     * LOGIN_UNVERIFIED zwracamy dopiero po poprawnym haśle.
      *
      * @return self::LOGIN_* status logowania
      */
@@ -97,8 +96,8 @@ final class AuthService
     }
 
     /**
-     * Zakłada konto z zahashowanym hasłem i niepotwierdzonym adresem (bez logowania:
-     * najpierw link z e-maila). Gdy login lub e-mail ktoś zajął w międzyczasie, rzuca DuplicateUserException.
+     * Zakłada konto z zahashowanym hasłem i niepotwierdzonym adresem (bez logowania).
+     * Gdy login lub e-mail zajęto w międzyczasie, rzuca DuplicateUserException.
      *
      * @param list<string> $species
      * @return array<string, mixed>

@@ -8,10 +8,8 @@ use App\Repository\UserStateRepository;
 use App\Support\PolishDate;
 
 /**
- * Powiadomienia pod ikoną dzwonka. Są wyliczane z aktualnego stanu kolekcji i harmonogramu,
- * a w stanie użytkownika zapisujemy tylko identyfikatory przeczytanych.
- * Identyfikator zawiera datę lub status, więc ta sama sytuacja (np. „Momiji jest przesuszone”)
- * zgłasza się ponownie, gdy wróci następnego dnia.
+ * Powiadomienia pod dzwonkiem wyliczane z kolekcji i harmonogramu; w stanie użytkownika są tylko id przeczytanych.
+ * Id zawiera datę lub status, więc ta sama sytuacja zgłasza się ponownie następnego dnia.
  */
 final class NotificationService
 {

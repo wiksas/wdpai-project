@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 /**
- * Wysyłka e-maili przez SMTP bez zewnętrznej biblioteki.
- *
- * W środowisku Docker serwerem jest Mailpit (usługa `mailpit`, port 1025), który przechwytuje
- * wszystkie wiadomości i pokazuje je pod http://localhost:8025. Klient nie obsługuje TLS ani AUTH,
- * więc produkcyjny serwer pocztowy wymagałby ich dodania.
+ * Wysyłka e-maili przez SMTP bez zewnętrznej biblioteki; w Dockerze serwerem jest Mailpit (`mailpit:1025`, UI na :8025).
+ * Klient nie obsługuje TLS ani AUTH, więc produkcyjny serwer wymagałby ich dodania.
  */
 final class Mailer
 {

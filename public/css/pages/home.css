@@ -1,9 +1,5 @@
-/* ==========================================================================
-   STRONA GŁÓWNA (/)
-   Kierunek: DESIGN.md. Dial ENERGY 2 / RHYTHM 2 / MOTION 3 (parallax warstw tła).
-   Kolejność sekcji idzie za historią produktu: co robi aplikacja, jak ocenić
-   ryzyko, skąd biorą się szkody, co zrobić od razu, jak formować.
-   ========================================================================== */
+/* Strona główna (/): kierunek wg DESIGN.md (ENERGY 2 / RHYTHM 2 / MOTION 3).
+   Sekcje idą za historią produktu: aplikacja, ocena ryzyka, szkody, pierwsza pomoc, formowanie. */
 
 .home {
     padding-top: 48px;
@@ -13,9 +9,7 @@
     margin-top: 96px;
 }
 
-/* --- Wspólne nagłówki sekcji ---------------------------------------------- */
-/* Odstępy między sekcjami różnią się celowo: kalkulator stoi blisko hero (to jego dalszy ciąg),
-   sekcje wiedzy mają więcej powietrza. */
+/* Wspólne nagłówki sekcji. Odstępy różnią się celowo: kalkulator stoi blisko hero, sekcje wiedzy mają więcej powietrza. */
 .home-section {
     margin-top: 120px;
 }
@@ -58,7 +52,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* --- 1. Hero ---------------------------------------------------------------- */
+/* 1. Hero */
 /* Jeden punkt skupienia: nagłówek. Rysunek tuszem na papierze powtarza kierunek „washi i tusz”. */
 .home-hero {
     display: grid;
@@ -159,7 +153,7 @@
     text-underline-offset: 4px;
 }
 
-/* --- 2. Ocena ryzyka ------------------------------------------------------------ */
+/* 2. Ocena ryzyka */
 .home-risk {
     margin-top: 96px;
     scroll-margin-top: 96px;
@@ -477,7 +471,7 @@
     }
 }
 
-/* --- 3. Przyczyny ------------------------------------------------------------------ */
+/* 3. Przyczyny */
 /* Hierarchia: przelanie dostaje zdjęcie i pełną szerokość, pozostałe trzy to lista do przejrzenia. */
 .home-cause-lead {
     display: grid;
@@ -557,7 +551,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* --- 4. Pierwsza pomoc (ciemny pas w obu motywach) -------------------------------- */
+/* 4. Pierwsza pomoc (ciemny pas w obu motywach) */
 .home-rescue {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -676,7 +670,7 @@
     color: var(--c-tertiary-on-dark);
 }
 
-/* --- 5. Style formowania -------------------------------------------------------------- */
+/* 5. Style formowania */
 /* Moyogi prowadzi (dobry pierwszy styl), Chokkan i Kengai stoją obok jako trudniejsze. */
 .home-styles {
     scroll-margin-top: 96px;
@@ -788,7 +782,7 @@
     text-decoration-color: currentColor;
 }
 
-/* --- 6. Zaproszenie na koniec --------------------------------------------------------- */
+/* 6. Zaproszenie na koniec */
 .home-cta {
     display: flex;
     align-items: flex-end;
@@ -840,7 +834,7 @@
 .home-cta__lead { grid-area: lead; }
 .home-cta__actions { grid-area: actions; align-self: end; }
 
-/* --- Responsywność -------------------------------------------------------------------- */
+/* Responsywność */
 @media (max-width: 1180px) {
     .home-risk__choices {
         grid-template-columns: minmax(0, 1fr);
@@ -1033,7 +1027,6 @@
     }
 }
 
-/* --- Ruch przy przewijaniu -------------------------------------------------------------- */
 /* Odsłanianie prowadzi wzrok sekcja po sekcji; kaskada w listach podkreśla kolejność czytania. */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
@@ -1085,7 +1078,7 @@
     }
 }
 
-/* --- Parallax: warstwy tła ---------------------------------------------------------------- */
+/* Parallax: warstwy tła */
 /* Dwa znaki kanji z treścią: 木漏れ日 (komorebi, nazwa marki) w hero i 救 (ratunek) w pasie pierwszej pomocy.
    Widoczne zawsze, bardzo słabe; ruch dochodzi tylko tam, gdzie działa animation-timeline. */
 .home-hero,

@@ -7,9 +7,8 @@ namespace App\Repository;
 use PDO;
 
 /**
- * Połączenie PDO z bazą PostgreSQL (usługa `db` z docker-compose).
- * Dane dostępowe pochodzą ze zmiennych środowiskowych kontenera PHP (`.env`), nie z kodu.
- * Jedno połączenie na żądanie HTTP, otwierane dopiero przy pierwszym zapytaniu.
+ * Połączenie PDO z PostgreSQL, dane dostępowe ze zmiennych środowiskowych (`.env`).
+ * Jedno połączenie na żądanie, otwierane przy pierwszym zapytaniu.
  */
 final class Database
 {

@@ -8,8 +8,8 @@ use PDO;
 use PDOException;
 
 /**
- * Konta użytkowników w bazie PostgreSQL (tabele `users` i `user_species`, schemat: docker/db/01-schema.sql).
- * Hash hasła nigdy nie opuszcza warstwy repozytorium/AuthService (widoki dostają AuthService::present()).
+ * Konta użytkowników (`users`, `user_species`).
+ * Hash hasła nie opuszcza repozytorium i AuthService: widoki dostają AuthService::present().
  *
  * @phpstan-type User array{id: int, login: string, email: string, name: string, passwordHash: string, role: string, level: string, species: list<string>}
  */
@@ -69,9 +69,8 @@ final class UserRepository
     }
 
     /**
-     * Zakłada konto razem z wybranymi gatunkami w jednej transakcji.
-     * Gdy login albo e-mail zajęło w międzyczasie inne konto (unikalne indeksy w bazie),
-     * rzuca DuplicateUserException z nazwą pola.
+     * Zakłada konto z gatunkami w jednej transakcji.
+     * Gdy login lub e-mail zajęto w międzyczasie, rzuca DuplicateUserException z nazwą pola.
      *
      * @param list<string> $species
      * @return array<string, mixed>

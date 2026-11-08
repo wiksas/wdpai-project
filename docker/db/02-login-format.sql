@@ -1,7 +1,6 @@
 -- Format loginu wybieranego przy rejestracji (zgodny z AuthController::LOGIN_PATTERN):
 -- zaczyna się literą, potem litery, cyfry, `.`, `_`, `-`; razem 3–30 znaków, zapisany małymi literami.
--- Login bez `@` nie pomyli się z adresem e-mail, bo logowanie przyjmuje jedno albo drugie.
--- Idempotentne: można uruchomić ponownie na istniejącej bazie.
+-- Login bez `@` nie pomyli się z e-mailem, bo logowanie przyjmuje jedno albo drugie. Idempotentne.
 
 DO $$
 DECLARE

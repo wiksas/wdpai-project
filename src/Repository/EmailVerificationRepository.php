@@ -7,8 +7,8 @@ namespace App\Repository;
 use PDO;
 
 /**
- * Jednorazowe linki potwierdzające adres e-mail (tabela `email_verifications`, migracja 03).
- * Przechowujemy tylko skrót SHA-256 tokenu: wyciek bazy nie daje działających linków.
+ * Jednorazowe linki potwierdzające e-mail (`email_verifications`).
+ * Tylko skrót SHA-256 tokenu: wyciek bazy nie daje działających linków.
  */
 final class EmailVerificationRepository
 {

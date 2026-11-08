@@ -1,7 +1,7 @@
 -- Weryfikacja adresu e-mail przy zakładaniu konta.
 -- users.email_verified_at: NULL = adres niepotwierdzony, logowanie zablokowane.
 -- email_verifications: jednorazowe linki; w bazie tylko skrót SHA-256 tokenu, nigdy sam token.
--- Idempotentne: można uruchomić ponownie na istniejącej bazie.
+-- Idempotentne.
 
 DO $$
 BEGIN

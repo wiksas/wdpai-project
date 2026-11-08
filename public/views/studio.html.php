@@ -1,7 +1,6 @@
 <?php
 /**
- * Studio formowania: style klasyczne, kalendarz zabiegów gatunku, kalkulator drutu,
- * wzorzec kąta owijania i symulator cięcia (liczy tylko geometrię rysunku).
+ * Studio formowania. Symulator cięcia liczy tylko geometrię rysunku.
  *
  * @var list<array<string, mixed>> $styles
  * @var array<string, mixed> $style

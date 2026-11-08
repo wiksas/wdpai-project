@@ -46,7 +46,6 @@ class Routing
             }
         }
 
-        // 6. Obsługa 404 dla nieobsługiwanego adresu
         http_response_code(404);
         $notFoundController = new DefaultController();
         $notFoundController->notFound();

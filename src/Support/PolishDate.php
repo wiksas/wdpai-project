@@ -98,7 +98,7 @@ final class PolishDate
         return ($last >= 2 && $last <= 4 && ($lastTwo < 12 || $lastTwo > 14)) ? $few : $many;
     }
 
-    /** „dziś”, „wczoraj”, „5 dni temu” — dla znacznika czasu z przeszłości */
+    /** „dziś”, „wczoraj”, „5 dni temu” dla znacznika czasu z przeszłości. */
     public static function ago(int $timestamp): string
     {
         $then = self::now()->setTimestamp($timestamp)->setTime(0, 0);

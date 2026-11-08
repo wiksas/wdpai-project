@@ -37,7 +37,7 @@
         requestAnimationFrame(step);
     }
 
-    // --- Style i gatunki: podmiana fragmentów ----------------------------------------------------------
+    // Style i gatunki: podmiana fragmentów
     let navigating = false;
 
     async function navigate(url, focusSelector) {
@@ -80,7 +80,7 @@
         }
     });
 
-    // --- Kalkulator grubości drutu ------------------------------------------------------------------
+    // Kalkulator grubości drutu
     const WIRE = {
         aluminium: { label: 'aluminium', sizes: [1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6], factor: 1 / 3 },
         copper: { label: 'miedź wyżarzana', sizes: [0.8, 1, 1.3, 1.6, 2, 2.5, 3, 3.5, 4, 5], factor: 1 / 4 },
@@ -125,7 +125,7 @@
         }
     });
 
-    // --- Wzorzec kąta owijania ----------------------------------------------------------------------
+    // Wzorzec kąta owijania
     function updateAngle(input) {
         const angle = Number(input.value);
         const dx = 48 * Math.tan((angle * Math.PI) / 180);
@@ -196,7 +196,7 @@
         }
     });
 
-    // --- Próbne cięcie: liczy tylko geometrię rysunku (pole liści i ich położenie względem osi pnia) ----
+    // Próbne cięcie: tylko geometria rysunku (pole liści i ich położenie względem osi pnia)
     const AXIS_X = 284;
     const CROWN_HALF = 211;
     const MAX_CUT = 1 / 3;

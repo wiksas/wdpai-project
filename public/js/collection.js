@@ -54,7 +54,7 @@
         return true;
     }
 
-    // --- Filtry i szukanie ----------------------------------------------------------------
+    // Filtry i szukanie
     let ticket = 0;
 
     async function showCollection(url, push = true) {
@@ -139,7 +139,7 @@
         });
     });
 
-    // --- Zabiegi: podlanie / korekta ---------------------------------------------------------
+    // Zabiegi: podlanie i korekta
     doc.addEventListener('submit', async (event) => {
         const form = event.target;
         if (!form.matches('[data-care-form]')) {
@@ -165,7 +165,7 @@
         }
     });
 
-    // --- Dziennik obserwacji ---------------------------------------------------------------------
+    // Dziennik obserwacji
     const journalForm = doc.querySelector('[data-journal-form]');
     if (journalForm) {
         const area = journalForm.querySelector('textarea');

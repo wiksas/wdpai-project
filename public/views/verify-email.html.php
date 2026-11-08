@@ -1,10 +1,6 @@
 <?php
 /**
- * Potwierdzenie adresu e-mail. Stany ($state):
- * - sent: po rejestracji, link wysłany na $email;
- * - resend: formularz ponownej wysyłki (wejście bez rejestracji w tej sesji);
- * - expired: link wygasł (24 h), nowy można wysłać jednym przyciskiem;
- * - invalid: link nieprawidłowy albo już użyty.
+ * Stany $state: sent (po rejestracji), resend (formularz ponownej wysyłki), expired (link wygasł po 24 h), invalid (link zły albo użyty).
  *
  * @var string $state
  * @var string $email

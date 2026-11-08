@@ -22,7 +22,7 @@
         }
     }
 
-    // --- Dodawanie zdjęcia: wybór pliku od razu wysyła zmniejszoną wersję --------------------------
+    // Dodawanie zdjęcia: wybór pliku od razu wysyła zmniejszoną wersję
     doc.addEventListener('change', async (event) => {
         const input = event.target.closest('[data-photo-input]');
         const form = input?.form;
@@ -51,7 +51,7 @@
         await refreshPhotos();
     });
 
-    // --- Usuwanie zdjęcia -------------------------------------------------------------------------
+    // Usuwanie zdjęcia
     doc.addEventListener('submit', async (event) => {
         const form = event.target.closest('[data-photo-delete]');
         if (!form) {
@@ -73,7 +73,7 @@
         await refreshPhotos();
     });
 
-    // --- Drukowanie i udostępnianie ---------------------------------------------------------------
+    // Drukowanie i udostępnianie
     doc.addEventListener('click', async (event) => {
         if (event.target.closest('[data-print]')) {
             window.print();

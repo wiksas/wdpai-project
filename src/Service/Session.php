@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 /**
- * Cienka warstwa nad `$_SESSION` — jedyne miejsce, które dotyka tablicy sesji.
+ * Cienka warstwa nad `$_SESSION`: jedyne miejsce, które dotyka tej tablicy.
  * Sesję startuje front controller (`public/index.php`).
  */
 final class Session

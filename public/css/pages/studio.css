@@ -1,11 +1,5 @@
-/* ==========================================================================
-   STUDIO FORMOWANIA (/studio)
-   Strona-narzędzie: każda sekcja to jedno narzędzie (style, kalendarz, drut,
-   próbne cięcie), a punktem skupienia sekcji jest jej rysunek lub wynik.
-   Panele leżą płasko (tło + linia --c-divider). Terakota tylko dla stanu
-   ostrzeżenia (pora roku, zły kąt, zbyt mocne cięcie) i zaznaczonej gałęzi.
-   Kolory rysunków SVG to role (.studio-svg-*) zamienione tu na tokeny motywu.
-   ========================================================================== */
+/* Studio formowania (/studio): panele płasko (tło + linia --c-divider), terakota tylko dla ostrzeżeń i zaznaczonej gałęzi.
+   Kolory rysunków SVG to role (.studio-svg-*) zamienione na tokeny motywu. */
 
 .studio {
     display: flex;
@@ -29,7 +23,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* --- Nagłówek strony ------------------------------------------------------ */
+/* Nagłówek strony */
 .studio-hero {
     display: flex;
     flex-direction: column;
@@ -80,7 +74,7 @@
     text-decoration-color: currentColor;
 }
 
-/* --- Nagłówek sekcji ------------------------------------------------------ */
+/* Nagłówek sekcji */
 .studio-section {
     display: flex;
     flex-direction: column;
@@ -138,7 +132,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* --- Style klasyczne ------------------------------------------------------ */
+/* Style klasyczne */
 .studio-styles {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -192,7 +186,7 @@
     color: var(--c-on-primary);
 }
 
-/* --- Opis stylu i rysunek ------------------------------------------------- */
+/* Opis stylu i rysunek */
 .studio-detail {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -300,7 +294,7 @@
     color: var(--c-primary);
 }
 
-/* --- Role kolorów w rysunkach SVG ----------------------------------------- */
+/* Role kolorów w rysunkach SVG */
 .studio-svg-axis {
     stroke: var(--c-outline);
     stroke-width: 1;
@@ -415,7 +409,7 @@ path.studio-svg-back {
     stroke-dasharray: 1;
 }
 
-/* --- Kalendarz zabiegów --------------------------------------------------- */
+/* Kalendarz zabiegów */
 .studio-tabs {
     display: flex;
     gap: 4px;
@@ -615,7 +609,7 @@ path.studio-svg-back {
     box-shadow: inset 0 0 0 2px var(--c-on-surface);
 }
 
-/* --- Drutowanie ----------------------------------------------------------- */
+/* Drutowanie */
 .studio-wiring {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -816,7 +810,7 @@ path.studio-svg-back {
     background-color: var(--c-surface-low);
 }
 
-/* --- Próbne cięcie -------------------------------------------------------- */
+/* Próbne cięcie */
 .studio-sim {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -981,7 +975,7 @@ path.studio-svg-back {
     box-shadow: inset 0 0 0 1px var(--c-secondary);
 }
 
-/* --- Techniki na zdjęciach ------------------------------------------------ */
+/* Techniki na zdjęciach */
 .studio-cases {
     display: grid;
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
@@ -1038,7 +1032,7 @@ path.studio-svg-back {
     color: var(--c-on-surface-variant);
 }
 
-/* --- Responsywność -------------------------------------------------------- */
+/* Responsywność */
 @media (max-width: 1240px) {
     .studio-styles {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1137,7 +1131,7 @@ path.studio-svg-back {
     }
 }
 
-/* --- Druk: tylko kalendarz zabiegów -------------------------------------- */
+/* Druk: tylko kalendarz zabiegów */
 @media print {
     .studio-hero,
     .studio-section:not(:has(.studio-calendar)),
@@ -1151,7 +1145,7 @@ path.studio-svg-back {
     }
 }
 
-/* --- Ruch ----------------------------------------------------------------- */
+/* Ruch */
 /* Rysunek stylu rysuje się po wczytaniu: pokazuje kolejność budowy drzewa (pień, gałęzie, korona). */
 @media (prefers-reduced-motion: no-preference) {
     .studio-diagram__branch {

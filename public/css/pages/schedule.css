@@ -1,11 +1,5 @@
-/* ==========================================================================
-   HARMONOGRAM ZABIEGÓW (/schedule)
-   Ekran odpowiada na pytanie „co robię dziś”: lista zadań wybranego dnia jest
-   punktem skupienia, pasek tygodnia służy do nawigacji, panel boczny daje
-   kontekst sezonu. Karty leżą płasko (tło + linia --c-divider), jedyny ciemny
-   pas to okno sezonowe (ograniczone w czasie). Terakota tylko dla stanu „pilne”
-   i znacznika dzisiejszego dnia.
-   ========================================================================== */
+/* Harmonogram zabiegów (/schedule): karty płasko (tło + linia --c-divider), jedyny ciemny pas to okno sezonowe.
+   Terakota tylko dla stanu „pilne” i znacznika dzisiejszego dnia. */
 
 .schedule-layout,
 .schedule-main,
@@ -34,9 +28,7 @@
     color: var(--c-primary);
 }
 
-/* ==========================================================================
-   1. NAGŁÓWEK STRONY I PORA SEKKI
-   ========================================================================== */
+/* 1. Nagłówek strony i pora sekki */
 .schedule-head {
     padding-bottom: 20px;
 }
@@ -88,9 +80,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   2. TYDZIEŃ
-   ========================================================================== */
+/* 2. Tydzień */
 .schedule-week {
     padding: 16px;
     border: 1px solid var(--c-divider);
@@ -269,9 +259,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   3. ZADANIA WYBRANEGO DNIA (punkt skupienia ekranu)
-   ========================================================================== */
+/* 3. Zadania wybranego dnia */
 .schedule-today {
     margin-top: 32px;
 }
@@ -554,9 +542,7 @@
     outline-offset: 2px;
 }
 
-/* ==========================================================================
-   4. DODAWANIE WŁASNEGO ZABIEGU (<details>, działa bez JS)
-   ========================================================================== */
+/* 4. Dodawanie własnego zabiegu (<details>, działa bez JS) */
 .schedule-add {
     margin-top: 16px;
 }
@@ -653,9 +639,7 @@
     font-size: 15px;
 }
 
-/* ==========================================================================
-   5. OKNO SEZONOWE (ciemny pas w obu motywach: ograniczony czas zabiegu)
-   ========================================================================== */
+/* 5. Okno sezonowe (ciemny pas w obu motywach) */
 .schedule-window {
     padding: 20px;
     border-radius: var(--radius-lg);
@@ -730,9 +714,7 @@
     outline-offset: 2px;
 }
 
-/* ==========================================================================
-   6. NAJBLIŻSZE ZABIEGI (14 dni)
-   ========================================================================== */
+/* 6. Najbliższe zabiegi (14 dni) */
 .schedule-upcoming {
     padding: 20px;
     border: 1px solid var(--c-divider);
@@ -803,9 +785,7 @@
     color: var(--c-on-surface);
 }
 
-/* ==========================================================================
-   7. ZASADA MIESIĄCA
-   ========================================================================== */
+/* 7. Zasada miesiąca */
 .schedule-rule {
     padding: 20px;
     border: 1px solid var(--c-divider);
@@ -835,9 +815,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   PRZEJŚCIA TYGODNIA (klasy ustawia schedule.js przez K.play)
-   ========================================================================== */
+/* Przejścia tygodnia (klasy ustawia schedule.js przez K.play) */
 @keyframes week-out-next {
     to {
         opacity: 0;
@@ -893,9 +871,7 @@
     animation: week-fade-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
 
-/* ==========================================================================
-   RESPONSYWNOŚĆ
-   ========================================================================== */
+/* Responsywność */
 @media (max-width: 768px) {
     .app-content.schedule {
         padding-top: 20px;
@@ -1022,7 +998,7 @@
     }
 }
 
-/* --- Scroll-driven animations: odsłanianie prowadzi wzrok do kolejnej sekcji --- */
+/* Animacje sterowane przewijaniem: odsłanianie prowadzi wzrok do kolejnej sekcji */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
         .schedule-main > *,

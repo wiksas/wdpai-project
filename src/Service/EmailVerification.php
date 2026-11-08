@@ -8,10 +8,8 @@ use App\Repository\EmailVerificationRepository;
 use App\Repository\UserRepository;
 
 /**
- * Potwierdzanie adresu e-mail przy zakładaniu konta.
- *
- * Link zawiera losowy token (32 bajty); w bazie leży tylko jego skrót SHA-256. Link działa 24 godziny
- * i jest jednorazowy. Ponowna wysyłka unieważnia poprzedni link i jest możliwa raz na minutę.
+ * Potwierdzanie adresu e-mail: token (32 bajty) trafia do linku, w bazie leży tylko jego skrót SHA-256.
+ * Link jest jednorazowy i ważny 24 godziny; ponowna wysyłka unieważnia poprzedni i jest możliwa raz na minutę.
  */
 final class EmailVerification
 {
