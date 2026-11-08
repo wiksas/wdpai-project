@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 /**
- * Baza wiedzy konsultanta Kliniki: kuratorowane odpowiedzi dopasowywane do pytania po słowach kluczowych.
- * To nie jest model językowy: przy braku dopasowania konsultant mówi to wprost i podpowiada tematy.
+ * Baza porad Kliniki dopasowywana po słowach kluczowych: podstawa dla modelu w `ClinicConsultant`
+ * i zapasowa odpowiedź, gdy model jest niedostępny. Bez dopasowania mówi to wprost i podpowiada tematy.
  */
 final class ClinicKnowledge
 {
@@ -97,9 +97,28 @@ final class ClinicKnowledge
      */
     public function answer(string $question): array
     {
+        $best = $this->related($question, 1);
+
+        if ($best === []) {
+            return [
+                'answer' => 'Nie mam pewnej odpowiedzi na to pytanie w swojej bazie wiedzy. Opisz objaw konkretniej (np. co dokładnie się zmieniło i na której części drzewka) albo wybierz jeden z tematów poniżej. Przy poważnych objawach skonsultuj się ze specjalistą.',
+                'matched' => false,
+                'topics' => self::TOPICS,
+            ];
+        }
+
+        return ['answer' => $best[0], 'matched' => true, 'topics' => []];
+    }
+
+    /**
+     * Porady pasujące do pytania, od najlepiej dopasowanej (puste, gdy żadna nie pasuje).
+     *
+     * @return list<string>
+     */
+    public function related(string $question, int $limit): array
+    {
         $normalized = $this->normalize($question);
-        $best = null;
-        $bestScore = 0;
+        $scored = [];
 
         foreach (self::ENTRIES as $entry) {
             $score = 0;
@@ -109,21 +128,14 @@ final class ClinicKnowledge
                     $score += 1 + (int) (strlen($key) / 6);
                 }
             }
-            if ($score > $bestScore) {
-                $best = $entry;
-                $bestScore = $score;
+            if ($score > 0) {
+                $scored[] = ['answer' => $entry['answer'], 'score' => $score];
             }
         }
 
-        if ($best === null) {
-            return [
-                'answer' => 'Nie mam pewnej odpowiedzi na to pytanie w swojej bazie wiedzy. Opisz objaw konkretniej (np. co dokładnie się zmieniło i na której części drzewka) albo wybierz jeden z tematów poniżej. Przy poważnych objawach skonsultuj się ze specjalistą.',
-                'matched' => false,
-                'topics' => self::TOPICS,
-            ];
-        }
+        usort($scored, static fn (array $a, array $b): int => $b['score'] <=> $a['score']);
 
-        return ['answer' => $best['answer'], 'matched' => true, 'topics' => []];
+        return array_slice(array_column($scored, 'answer'), 0, $limit);
     }
 
     private function normalize(string $text): string

@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use PDOException;
+
 /**
- * Stan aplikacji per użytkownik w `storage/state/user-{id}.json`.
- * Rozwiązanie tymczasowe do czasu przeniesienia do bazy.
- *
- * @phpstan-type State array{
- *     notificationsRead: list<string>,
- *     tasksDone: list<string>,
- *     customTasks: list<array<string, mixed>>,
- *     care: array<string, array<string, int>>,
- *     journal: list<array<string, mixed>>
- * }
+ * Stan aplikacji per konto w tabeli `user_state` (JSONB, `docker/db/04-user-state.sql`): kolekcja, zabiegi, skany,
+ * zdjęcia, dziennik, rozmowa z konsultantem. Przetrwa restart i przebudowę kontenerów, bo leży w wolumenie bazy.
+ * Starszy plik `storage/state/user-{id}.json` jest importowany przy pierwszym użyciu konta i oznaczany jako `.migrated`.
  */
 final class UserStateRepository
 {
@@ -28,13 +23,21 @@ final class UserStateRepository
         'scans' => [],
         'customTrees' => [],
         'removedTrees' => [],
+        'chat' => [],
     ];
 
-    private readonly string $directory;
+    private const UNDEFINED_TABLE = '42P01';
 
-    public function __construct(?string $directory = null)
+    private readonly string $legacyDirectory;
+    private readonly string $migrationFile;
+
+    /** @var array<int, array<string, mixed>> stan odczytany w tym żądaniu; unieważniany przez update() */
+    private array $cache = [];
+
+    public function __construct(?string $legacyDirectory = null)
     {
-        $this->directory = $directory ?? dirname(__DIR__, 2) . '/storage/state';
+        $this->legacyDirectory = $legacyDirectory ?? dirname(__DIR__, 2) . '/storage/state';
+        $this->migrationFile = dirname(__DIR__, 2) . '/docker/db/04-user-state.sql';
     }
 
     /**
@@ -42,44 +45,55 @@ final class UserStateRepository
      */
     public function get(int $userId): array
     {
-        return $this->read($userId);
+        return $this->cache[$userId] ??= $this->withTable(fn (): array => $this->read($userId));
     }
 
     /**
-     * Odczyt, modyfikacja i zapis pod blokadą pliku. Funkcja dostaje aktualny stan i zwraca nowy.
+     * Odczyt, modyfikacja i zapis w transakcji z blokadą wiersza. Funkcja dostaje aktualny stan i zwraca nowy.
      *
      * @param callable(array<string, mixed>): array<string, mixed> $mutator
      * @return array<string, mixed> zapisany stan
      */
     public function update(int $userId, callable $mutator): array
     {
-        $this->ensureDirectory();
-        $path = $this->path($userId);
+        unset($this->cache[$userId]);
 
-        $handle = fopen($path, 'c+');
-        if ($handle === false) {
-            throw new \RuntimeException('Nie można otworzyć pliku stanu: ' . $path);
-        }
+        return $this->cache[$userId] = $this->withTable(fn (): array => $this->write($userId, $mutator));
+    }
+
+    /**
+     * @param callable(array<string, mixed>): array<string, mixed> $mutator
+     * @return array<string, mixed>
+     */
+    private function write(int $userId, callable $mutator): array
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
 
         try {
-            if (!flock($handle, LOCK_EX)) {
-                throw new \RuntimeException('Nie można zablokować pliku stanu: ' . $path);
-            }
+            // Wiersz musi istnieć, żeby dało się go zablokować; pierwszy zapis przenosi też stary plik JSON.
+            $pdo->prepare('INSERT INTO user_state (user_id, state) VALUES (:id, :state) ON CONFLICT (user_id) DO NOTHING')
+                ->execute(['id' => $userId, 'state' => $this->encode($this->legacy($userId))]);
 
-            $raw = stream_get_contents($handle);
-            $current = $this->normalize(is_string($raw) && $raw !== '' ? json_decode($raw, true) : null);
+            $select = $pdo->prepare('SELECT state FROM user_state WHERE user_id = :id FOR UPDATE');
+            $select->execute(['id' => $userId]);
+            $current = $this->normalize(json_decode((string) $select->fetchColumn(), true));
+
             $next = $this->normalize($mutator($current));
+            $pdo->prepare('UPDATE user_state SET state = :state, updated_at = now() WHERE user_id = :id')
+                ->execute(['id' => $userId, 'state' => $this->encode($next)]);
 
-            ftruncate($handle, 0);
-            rewind($handle);
-            fwrite($handle, json_encode($next, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
-            fflush($handle);
-            flock($handle, LOCK_UN);
-
-            return $next;
-        } finally {
-            fclose($handle);
+            $pdo->commit();
+        } catch (\Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
         }
+
+        $this->retireLegacy($userId);
+
+        return $next;
     }
 
     /**
@@ -87,12 +101,62 @@ final class UserStateRepository
      */
     private function read(int $userId): array
     {
-        $path = $this->path($userId);
-        if (!is_file($path)) {
-            return self::DEFAULTS;
-        }
+        $select = Database::connection()->prepare('SELECT state FROM user_state WHERE user_id = :id');
+        $select->execute(['id' => $userId]);
+        $raw = $select->fetchColumn();
 
-        return $this->normalize(json_decode((string) file_get_contents($path), true));
+        return $raw === false ? $this->legacy($userId) : $this->normalize(json_decode((string) $raw, true));
+    }
+
+    /**
+     * Stan z dawnego pliku JSON (albo domyślny), dopóki konto nie ma wiersza w bazie.
+     *
+     * @return array<string, mixed>
+     */
+    private function legacy(int $userId): array
+    {
+        $path = $this->legacyPath($userId);
+
+        return $this->normalize(is_file($path) ? json_decode((string) file_get_contents($path), true) : null);
+    }
+
+    /** Po przeniesieniu do bazy plik nie może zasilić innego konta, które dostanie to samo id po resecie bazy. */
+    private function retireLegacy(int $userId): void
+    {
+        $path = $this->legacyPath($userId);
+        if (is_file($path)) {
+            @rename($path, $path . '.migrated');
+        }
+    }
+
+    /**
+     * Wykonuje operację; gdy tabeli jeszcze nie ma (baza sprzed migracji 04), zakłada ją i powtarza raz.
+     *
+     * @template T
+     * @param callable(): T $operation
+     * @return T
+     */
+    private function withTable(callable $operation): mixed
+    {
+        try {
+            return $operation();
+        } catch (PDOException $exception) {
+            if (($exception->errorInfo[0] ?? '') !== self::UNDEFINED_TABLE) {
+                throw $exception;
+            }
+
+            Database::connection()->exec((string) file_get_contents($this->migrationFile));
+
+            return $operation();
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     */
+    private function encode(array $state): string
+    {
+        return json_encode($state, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -113,15 +177,8 @@ final class UserStateRepository
         return $result;
     }
 
-    private function ensureDirectory(): void
+    private function legacyPath(int $userId): string
     {
-        if (!is_dir($this->directory) && !mkdir($this->directory, 0775, true) && !is_dir($this->directory)) {
-            throw new \RuntimeException('Nie można utworzyć katalogu stanu: ' . $this->directory);
-        }
-    }
-
-    private function path(int $userId): string
-    {
-        return $this->directory . '/user-' . $userId . '.json';
+        return $this->legacyDirectory . '/user-' . $userId . '.json';
     }
 }

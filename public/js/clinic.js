@@ -301,6 +301,8 @@
 
     // Czat z bazą wiedzy
     const thread = doc.querySelector('[data-chat-thread]');
+    // Zapisana rozmowa otwiera się na ostatnich wiadomościach.
+    thread?.scrollTo({ top: thread.scrollHeight });
 
     function addMessage({ text, meta, user = false }) {
         const row = doc.createElement('div');
@@ -337,7 +339,7 @@
             input.value = '';
         }
 
-        const pending = addMessage({ text: 'Szukam w bazie porad…', meta: 'Konsultant' });
+        const pending = addMessage({ text: 'Konsultant pisze…', meta: 'Konsultant' });
         pending.classList.add('is-pending');
 
         const body = new FormData();
@@ -352,7 +354,8 @@
             return;
         }
 
-        const reply = addMessage({ text: result.data.answer, meta: `Konsultant, ${result.data.time}` });
+        const label = result.data.source === 'knowledge' ? 'Konsultant (baza porad)' : 'Konsultant';
+        const reply = addMessage({ text: result.data.answer, meta: `${label}, ${result.data.time}` });
         if (!result.data.matched && result.data.topics?.length) {
             const topics = doc.createElement('div');
             topics.className = 'clinic-chat__topics';

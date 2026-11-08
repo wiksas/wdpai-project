@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Service\ClinicConsultant;
 use App\Service\ClinicKnowledge;
 use App\Service\MediaStorage;
+use App\Service\OllamaClient;
 use App\Service\PlantVision;
 use App\Service\VisionException;
 use App\Support\PolishDate;
 
 class ClinicController extends AppController
 {
+    private const MAX_CHAT = 40;
+    private const CHAT_CONTEXT = 8;
     private const MAX_SCANS = 30;
     private const MAX_CUSTOM_TASKS = 100;
     private const PARTS = ['leaves', 'bark', 'roots', 'wiring'];
@@ -31,6 +35,7 @@ class ClinicController extends AppController
             'activeNav' => 'clinic',
             'scans' => array_slice(array_reverse($allScans), 0, 5),
             'scanCount' => count($allScans),
+            'chat' => $this->states()->get($user['id'])['chat'],
             'archiveFilter' => $species,
         ]);
     }
@@ -117,10 +122,10 @@ class ClinicController extends AppController
         $this->respond('Zapisano skan w historii.', '/clinic', ['scan' => ['id' => $scan['id'], 'url' => '/media/' . $file]]);
     }
 
-    // Obsługa trasy: POST /clinic/ask: odpowiedź z bazy wiedzy na pytanie (pole `q` lub `faq`)
+    // Obsługa trasy: POST /clinic/ask: odpowiedź konsultanta na pytanie (pole `q` lub `faq`); rozmowa zapisuje się na koncie
     public function ask(): void
     {
-        $this->requireLogin();
+        $user = $this->requireLogin();
         $this->requireCsrf();
 
         $question = trim((string) ($_POST['faq'] ?? '') !== '' ? (string) $_POST['faq'] : (string) ($_POST['q'] ?? ''));
@@ -128,10 +133,24 @@ class ClinicController extends AppController
             $this->respond('Zadaj pytanie (3–300 znaków).', '/clinic#clinic-consultant', [], false, 422);
         }
 
-        $result = (new ClinicKnowledge())->answer($question);
+        $history = array_map(
+            static fn (array $message): array => ['role' => (string) $message['role'], 'text' => (string) $message['text']],
+            array_slice($this->states()->get($user['id'])['chat'], -self::CHAT_CONTEXT),
+        );
+        $result = (new ClinicConsultant(new ClinicKnowledge(), OllamaClient::fromEnvironment('CHAT_MODEL', 'gemma3:4b')))
+            ->reply($question, $history, $this->consultContext($user['id'], $question . ' ' . implode(' ', array_column(array_slice($history, -2), 'text'))));
+
+        $now = PolishDate::now();
+        $this->states()->update($user['id'], static function (array $state) use ($question, $result, $now): array {
+            $state['chat'][] = ['role' => 'user', 'text' => $question, 'at' => $now->getTimestamp()];
+            $state['chat'][] = ['role' => 'assistant', 'text' => $result['answer'], 'at' => $now->getTimestamp()];
+            $state['chat'] = array_slice($state['chat'], -self::MAX_CHAT);
+
+            return $state;
+        });
 
         if ($this->isAjax()) {
-            $this->json(['ok' => true, 'question' => $question, 'time' => PolishDate::now()->format('H:i')] + $result);
+            $this->json(['ok' => true, 'question' => $question, 'time' => $now->format('H:i')] + $result);
         }
 
         $this->flash('info', $result['answer']);
@@ -211,5 +230,41 @@ class ClinicController extends AppController
             'causeLabel' => PlantVision::CAUSES[$analysis['cause']],
             'confidenceLabel' => PlantVision::CONFIDENCE[$analysis['confidence']],
         ];
+    }
+
+    /**
+     * Opis okazów i ostatniego skanu, które konsultant dostaje jako kontekst. Tylko to, o czym jest mowa w rozmowie
+     * (nazwa lub gatunek drzewka, „moje”/„kolekcja”, „skan”), bo inaczej model wplata dane kolekcji w każdą odpowiedź.
+     */
+    private function consultContext(int $userId, string $topic): string
+    {
+        $topic = mb_strtolower($topic);
+        $wholeCollection = (bool) preg_match('/\b(moj\w*|kolekcj\w*|wszystk\w*)\b/u', $topic);
+
+        $lines = [];
+        foreach ($this->collection()->all($userId) as $tree) {
+            $species = mb_substr(mb_strtolower((string) strtok((string) $tree['commonName'], ' ')), 0, 5);
+            if (!$wholeCollection && !str_contains($topic, mb_strtolower((string) $tree['name'])) && !($species !== '' && str_contains($topic, mb_substr($species, 0, 4)))) {
+                continue;
+            }
+            $lines[] = sprintf(
+                '%s (%s, %s): status %s, wilgotność %d%%, ostatnie podlanie: %s',
+                $tree['name'],
+                $tree['commonName'],
+                $tree['category'] === 'conifer' ? 'iglaste' : 'liściaste',
+                mb_strtolower((string) $tree['statusLabel']),
+                (int) $tree['moisture'],
+                $tree['lastWatering'],
+            );
+        }
+
+        $scans = $this->states()->get($userId)['scans'];
+        $last = $scans === [] ? null : end($scans);
+        if (is_array($last) && is_array($last['diagnosis'] ?? null) && ($last['diagnosis']['summary'] ?? '') !== ''
+            && preg_match('/skan|zdj[eę]c/u', $topic)) {
+            $lines[] = 'Ostatni skan zdjęcia (' . PolishDate::ago((int) $last['at']) . '): ' . $last['title'] . '. ' . $last['diagnosis']['summary'];
+        }
+
+        return implode("\n", $lines);
     }
 }

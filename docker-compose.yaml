@@ -52,6 +52,8 @@
       # Skaner zdjęć: model wizyjny w usłudze `ollama` (pierwsze użycie wymaga `ollama pull`).
       OLLAMA_URL: http://ollama:11434
       VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
+      # Konsultant w Klinice: osobny model do rozmowy (lepsza polszczyzna niż model wizyjny).
+      CHAT_MODEL: ${CHAT_MODEL:-gemma3:4b}
     depends_on:
       - db
       - mailpit

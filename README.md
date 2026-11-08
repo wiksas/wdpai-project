@@ -15,7 +15,7 @@ Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bons
 | Nowe drzewko | `/collection/new` | zalogowany | Formularz własnego okazu: nazwa, gatunek, rodzaj, styl, wiek, donica i opcjonalne zdjęcie; błędy przy polach, działa bez JS |
 | Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia, podlanie z animowanym paskiem, galeria zdjęć (upload ze zmniejszaniem), druk i udostępnianie, usuwanie z kolekcji z potwierdzeniem (404 dla nieznanego id) |
 | Studio Formowania | `/studio` | zalogowany | 5 stylów klasycznych i 4 gatunki (`?style=`, `?species=`), kalendarz zabiegów dla bieżącego miesiąca, kalkulator grubości drutu, wzorzec kąta owijania, symulator balansu korony z zapisem planu cięcia do harmonogramu |
-| Klinika | `/clinic` | zalogowany | Skaner zdjęcia: model wizyjny (Ollama) ogląda drzewko, rozpoznaje przesuszenie, przelanie, szkodniki lub niedobór składników, podaje pewność, co widać i co zrobić (kroki trafiają do harmonogramu); historia skanów, konsultant odpowiadający z bazy wiedzy (dopasowanie słów kluczowych, nie model językowy), protokół ratunkowy, filtr archiwum |
+| Klinika | `/clinic` | zalogowany | Skaner zdjęcia: model wizyjny (Ollama) ogląda drzewko, rozpoznaje przesuszenie, przelanie, szkodniki lub niedobór składników, podaje pewność, co widać i co zrobić (kroki trafiają do harmonogramu); historia skanów; konsultant (model z Ollama znający Twoją kolekcję i ostatni skan, rozmowa zapisuje się na koncie, awaryjnie baza porad); protokół ratunkowy, filtr archiwum |
 | Harmonogram | `/schedule` | zalogowany | Tydzień ze strzałkami (animowane przesuwanie, gest przeciągnięcia, „Dziś”), zadania dnia z odhaczaniem, własne zabiegi, okna sezonowe (sekki) |
 | Powiadomienia | dzwonek w pasku górnym | zalogowany | Panel powiadomień liczonych z danych (podlewanie, zadania, okna sezonowe), oznaczanie jako przeczytane |
 | Motyw jasny/ciemny | przycisk w nagłówku i pasku górnym | wszyscy | Domyślnie zgodny z motywem ustawionym w systemie (zmienia się razem z nim). Przycisk wymusza motyw inny niż systemowy i zapisuje go w ciasteczku `theme` (`POST /theme`); powrót do motywu systemowego usuwa ciasteczko. Zmiana bez przeładowania z JS, formularzem bez JS |
@@ -46,20 +46,24 @@ Jeśli wolumen bazy już istniał przed dodaniem schematu lub migracji, wykonaj 
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/01-schema.sql
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/02-login-format.sql
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/03-email-verification.sql
+docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < docker/db/04-user-state.sql
 ```
 
-`02-login-format.sql` nadaje kontom założonym przed dodaniem pola „Login” login z części adresu e-mail przed `@` (przy kolizji z numerem na końcu) i dodaje regułę formatu loginu. `03-email-verification.sql` dodaje potwierdzanie adresu e-mail; istniejące wtedy konta uznaje za potwierdzone.
+`02-login-format.sql` nadaje kontom założonym przed dodaniem pola „Login” login z części adresu e-mail przed `@` (przy kolizji z numerem na końcu) i dodaje regułę formatu loginu. `03-email-verification.sql` dodaje potwierdzanie adresu e-mail; istniejące wtedy konta uznaje za potwierdzone. `04-user-state.sql` tworzy tabelę `user_state`: cały stan konta (własne drzewka, zabiegi, skany, zdjęcia, dziennik, rozmowa z konsultantem) leży w bazie, więc przetrwa restart kontenerów. Aplikacja sama zakłada tę tabelę i importuje stare pliki `storage/state/user-{id}.json` przy pierwszym użyciu konta. Zdjęcia zostają w `storage/uploads/`. Wolumen `pg-data` znika dopiero po `docker compose down -v`.
 
-## Skaner zdjęć (Ollama)
+## Skaner zdjęć i konsultant (Ollama)
 
 Skaner używa modelu wizyjnego z usługi `ollama` (domyślnie `qwen2.5vl:7b`, zmiana przez `VISION_MODEL` w `.env`). Model odpowiada tylko „tak/nie” na pytania o to, co widać na zdjęciu; przyczynę i zalecenia wyprowadza z tych odpowiedzi reguła w `App\Service\PlantVision`. Wynik jest podpowiedzią, nie diagnozą. Przy pierwszym uruchomieniu pobierz model (ok. 6 GB):
 
 ```bash
 docker compose up -d ollama
 docker compose exec ollama ollama pull qwen2.5vl:7b
+docker compose exec ollama ollama pull gemma3:4b
 ```
 
 Usługa `ollama` rezerwuje GPU NVIDIA (analiza trwa kilka sekund); bez GPU usuń blok `deploy` z `docker-compose.yaml`, a analiza potrwa dłużej. Gdy Ollama nie działa lub brakuje modelu, skaner pokazuje samą analizę barwy z przeglądarki.
+
+Konsultant w Klinice rozmawia innym modelem (`CHAT_MODEL`, domyślnie `gemma3:4b`, ok. 3 GB): zna kolekcję i ostatni skan użytkownika, pamięta rozmowę (zapis na koncie) i opiera się na poradach z `ClinicKnowledge`. Na karcie 8 GB oba modele nie mieszczą się naraz, więc przy przełączaniu między zdjęciem a rozmową pierwsza odpowiedź trwa kilkanaście sekund dłużej.
 
 ## Poczta i potwierdzanie konta
 

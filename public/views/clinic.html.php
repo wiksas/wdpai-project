@@ -163,7 +163,7 @@ $clinicFaq = [
                 <section class="clinic-consult" id="clinic-consultant" aria-labelledby="clinic-chat-title">
                     <div class="clinic-consult__intro">
                         <h2 class="clinic-consult__title" id="clinic-chat-title">Konsultant</h2>
-                        <p class="clinic-consult__lead">Szuka w pytaniu słów kluczowych i odpowiada gotową poradą z bazy wiedzy (podlewanie, przesadzanie, szkodniki, drut, zimowanie). Gdy nie znajdzie tematu, powie to wprost.</p>
+                        <p class="clinic-consult__lead">Odpowiada model językowy, który zna Twoją kolekcję i ostatni skan, pamięta rozmowę (zapisuje się na koncie) i opiera się na poradach o podlewaniu, przesadzaniu, szkodnikach, drucie i zimowaniu. To podpowiedź, nie diagnoza. Gdy model jest niedostępny, odpowiada gotowa porada z bazy.</p>
                         <p class="clinic-consult__faq-title" id="clinic-faq-title">Częste pytania</p>
                         <ul class="clinic-consult__faq" aria-labelledby="clinic-faq-title">
                             <?php foreach ($clinicFaq as $faq): ?>
@@ -182,6 +182,15 @@ $clinicFaq = [
                                     <p class="clinic-chat__bubble">Opisz, co się zmieniło i na której części drzewka, albo zapytaj o konkretny zabieg, np. „kiedy przesadzać sosnę?”.</p>
                                 </div>
                             </div>
+                            <?php foreach ($chat as $message): ?>
+                                <?php $isUser = $message['role'] === 'user'; ?>
+                                <div class="clinic-chat__row<?= $isUser ? ' clinic-chat__row--user' : '' ?>">
+                                    <div class="clinic-chat__message">
+                                        <p class="clinic-chat__meta"><?= $isUser ? 'Ty' : 'Konsultant' ?>, <?= htmlspecialchars(\App\Support\PolishDate::now()->setTimestamp((int) $message['at'])->format('H:i'), ENT_QUOTES, 'UTF-8') ?></p>
+                                        <p class="clinic-chat__bubble"><?= htmlspecialchars((string) $message['text'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                         <form class="clinic-chat__form" id="clinic-chat-form" action="/clinic/ask" method="post" data-chat-form>
                             <?php include __DIR__ . '/partials/csrf.html.php'; ?>

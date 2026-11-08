@@ -43,8 +43,6 @@ final class PlantVision
         'wiring' => 'the wire on the branches and the bark under it',
     ];
 
-    private const TIMEOUT = 150;
-
     /**
      * Pytania do modelu w stałej kolejności (numer pytania = pozycja + 1). `blurry` i `plant` nie liczą się do przyczyn.
      */
@@ -154,21 +152,13 @@ final class PlantVision
         'nutrients' => 'Objawy przypominają niedobór składników pokarmowych',
     ];
 
-    public function __construct(
-        private readonly string $baseUrl,
-        private readonly string $model,
-    ) {
+    public function __construct(private readonly OllamaClient $client)
+    {
     }
 
     public static function fromEnvironment(): self
     {
-        $url = getenv('OLLAMA_URL');
-        $model = getenv('VISION_MODEL');
-
-        return new self(
-            rtrim($url !== false && $url !== '' ? $url : 'http://ollama:11434', '/'),
-            $model !== false && $model !== '' ? $model : 'qwen2.5vl:7b',
-        );
+        return new self(OllamaClient::fromEnvironment());
     }
 
     /**
@@ -184,19 +174,11 @@ final class PlantVision
         }
 
         $focus = self::FOCUS[$part] ?? self::FOCUS['leaves'];
-        $reply = $this->chat([
-            'model' => $this->model,
-            'stream' => false,
-            'keep_alive' => '15m',
-            'options' => ['temperature' => 0, 'seed' => 7],
-            'messages' => [[
-                'role' => 'user',
-                'content' => self::prompt($focus),
-                'images' => [base64_encode($image)],
-            ]],
-        ]);
-
-        $text = (string) ($reply['message']['content'] ?? '');
+        $text = $this->client->chat([[
+            'role' => 'user',
+            'content' => self::prompt($focus),
+            'images' => [base64_encode($image)],
+        ]], ['temperature' => 0, 'seed' => 7]);
         $answers = self::parseAnswers($text);
         if (!isset($answers['plant'])) {
             error_log('PlantVision: model returned unusable answers: ' . substr($text, 0, 300));
@@ -400,46 +382,6 @@ final class PlantVision
         );
 
         return self::SUMMARY[$cause] . ($reasons === [] ? '.' : ': ' . implode('; ', $reasons) . '.');
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @return array<string, mixed>
-     */
-    private function chat(array $payload): array
-    {
-        $curl = curl_init($this->baseUrl . '/api/chat');
-        curl_setopt_array($curl, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload, JSON_THROW_ON_ERROR),
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 3,
-            CURLOPT_TIMEOUT => self::TIMEOUT,
-        ]);
-
-        $body = curl_exec($curl);
-        $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        $error = curl_error($curl);
-        curl_close($curl);
-
-        if ($body === false) {
-            error_log('PlantVision: Ollama request failed: ' . $error);
-            throw new VisionException('Analiza zdjęcia jest teraz niedostępna. Spróbuj za chwilę.');
-        }
-
-        if ($status === 404) {
-            error_log("PlantVision: model {$this->model} is not pulled; run `docker compose exec ollama ollama pull {$this->model}`");
-            throw new VisionException('Model do analizy zdjęć nie jest jeszcze pobrany.');
-        }
-
-        $reply = json_decode((string) $body, true);
-        if ($status !== 200 || !is_array($reply)) {
-            error_log("PlantVision: Ollama answered HTTP {$status}: " . substr((string) $body, 0, 300));
-            throw new VisionException('Analiza zdjęcia nie powiodła się. Spróbuj ponownie.');
-        }
-
-        return $reply;
     }
 
     private static function text(mixed $value, int $max): string
