@@ -15,6 +15,9 @@ use DateTimeImmutable;
  */
 final class CollectionService
 {
+    public const CAPACITY = 12;
+    public const FIRST_CUSTOM_ID = 100;
+
     /** Wilgotność bryły po podlaniu. */
     private const WATERED_MOISTURE = 88;
 
@@ -32,7 +35,7 @@ final class CollectionService
         $state = $this->states->get($userId);
         $now = PolishDate::now();
 
-        return array_map(fn (array $tree): array => $this->applyState($tree, $state, $now), $this->trees->findAll());
+        return array_map(fn (array $tree): array => $this->applyState($tree, $state, $now), $this->owned($state));
     }
 
     /**
@@ -40,12 +43,10 @@ final class CollectionService
      */
     public function find(int $userId, int $id): ?array
     {
-        $tree = $this->trees->findById($id);
-        if ($tree === null) {
-            return null;
-        }
+        $state = $this->states->get($userId);
+        $tree = $this->ownedById($state, $id);
 
-        return $this->applyState($tree, $this->states->get($userId), PolishDate::now());
+        return $tree === null ? null : $this->applyState($tree, $state, PolishDate::now());
     }
 
     /**
@@ -138,7 +139,7 @@ final class CollectionService
             'wired' => count(array_filter($trees, static fn (array $t): bool => $t['care'] !== null)),
             'health' => $health,
             'healthLabel' => $health >= 90 ? 'Optymalna' : ($health >= 75 ? 'Dobra' : 'Wymaga uwagi'),
-            'capacity' => 12,
+            'capacity' => self::CAPACITY,
         ];
     }
 
@@ -150,7 +151,7 @@ final class CollectionService
      */
     public function care(int $userId, int $treeId, string $type): ?array
     {
-        $tree = $this->trees->findById($treeId);
+        $tree = $this->ownedById($this->states->get($userId), $treeId);
         if ($tree === null || !in_array($type, ['water', 'adjust'], true)) {
             return null;
         }
@@ -167,6 +168,96 @@ final class CollectionService
         });
 
         return $this->applyState($tree, $state, PolishDate::now());
+    }
+
+    /**
+     * Dodaje własny okaz użytkownika. Zwraca go albo null, gdy kolekcja jest pełna.
+     *
+     * @param array{name: string, commonName: string, species: string, category: string, style: string, pot: string, age: int} $data
+     * @return array<string, mixed>|null
+     */
+    public function add(int $userId, array $data, ?string $photoFile): ?array
+    {
+        $created = null;
+        $this->states->update($userId, function (array $state) use ($data, $photoFile, &$created): array {
+            if (count($this->owned($state)) >= self::CAPACITY) {
+                return $state;
+            }
+
+            $created = TreeRepository::custom(max([99, ...array_column($state['customTrees'], 'id')]) + 1, $data, $photoFile);
+            $state['customTrees'][] = $created;
+
+            return $state;
+        });
+
+        return $created === null ? null : $this->find($userId, $created['id']);
+    }
+
+    /**
+     * Usuwa okaz z kolekcji użytkownika razem z jego zabiegami i zdjęciami. Przykładowe okazy są tylko ukrywane
+     * (dla innych kont zostają). Zwraca usunięty okaz i pliki zdjęć do skasowania albo null, gdy okazu nie ma.
+     *
+     * @return array{tree: array<string, mixed>, files: list<string>}|null
+     */
+    public function remove(int $userId, int $treeId): ?array
+    {
+        $result = null;
+        $this->states->update($userId, function (array $state) use ($treeId, &$result): array {
+            $tree = $this->ownedById($state, $treeId);
+            if ($tree === null) {
+                return $state;
+            }
+
+            $files = array_values(array_filter(array_map(
+                static fn (array $photo): string => (int) ($photo['treeId'] ?? 0) === $treeId ? (string) ($photo['file'] ?? '') : '',
+                $state['photos'],
+            )));
+            if (is_string($tree['photoFile'] ?? null)) {
+                $files[] = $tree['photoFile'];
+            }
+
+            if ($treeId >= self::FIRST_CUSTOM_ID) {
+                $state['customTrees'] = array_values(array_filter($state['customTrees'], static fn (array $t): bool => $t['id'] !== $treeId));
+            } else {
+                $state['removedTrees'][] = $treeId;
+            }
+            unset($state['care'][(string) $treeId]);
+            $state['photos'] = array_values(array_filter($state['photos'], static fn (array $photo): bool => (int) ($photo['treeId'] ?? 0) !== $treeId));
+
+            $result = ['tree' => $tree, 'files' => $files];
+
+            return $state;
+        });
+
+        return $result;
+    }
+
+    /**
+     * Okazy użytkownika: przykładowe bez ukrytych oraz własne.
+     *
+     * @param array<string, mixed> $state
+     * @return list<array<string, mixed>>
+     */
+    private function owned(array $state): array
+    {
+        $demo = array_filter($this->trees->findAll(), static fn (array $tree): bool => !in_array($tree['id'], $state['removedTrees'], true));
+
+        return [...array_values($demo), ...$state['customTrees']];
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>|null
+     */
+    private function ownedById(array $state, int $id): ?array
+    {
+        foreach ($this->owned($state) as $tree) {
+            if ($tree['id'] === $id) {
+                return $tree;
+            }
+        }
+
+        return null;
     }
 
     /**

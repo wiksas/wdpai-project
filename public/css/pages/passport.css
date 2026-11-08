@@ -1,14 +1,11 @@
-/* ==========================================================================
-   KARTA OKAZU — /collection/{id}
-   Karty leżą płasko (tło lowest + linia divider), cień tylko w warstwach nad treścią.
-   Terakota: główna akcja (Zarejestruj podlanie) i alert. Paralaksa tylko na stronie głównej.
-   ========================================================================== */
+/* Karta okazu (/collection/{id}): karty płasko (tło lowest + linia divider), cień tylko nad treścią.
+   Terakota: główna akcja (Zarejestruj podlanie) i alert. */
 
 .passport {
     --passport-bleed: 2rem;
 }
 
-/* Pasek powrotu ------------------------------------------------------------ */
+/* Pasek powrotu */
 .passport-toolbar {
     display: flex;
     align-items: center;
@@ -57,7 +54,7 @@
     font-size: 22px;
 }
 
-/* Układ -------------------------------------------------------------------- */
+/* Układ */
 .passport-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
@@ -77,7 +74,7 @@
     gap: 2.5rem;
 }
 
-/* Zdjęcie okazu: jedyny punkt skupienia ekranu ----------------------------- */
+/* Zdjęcie okazu: jedyny punkt skupienia ekranu */
 .passport-hero {
     position: relative;
     display: flex;
@@ -141,7 +138,7 @@
     font-family: var(--font-serif);
 }
 
-/* Metryka: styl / podłoże / doniczka w jednym panelu ----------------------- */
+/* Metryka: styl / podłoże / doniczka w jednym panelu */
 .passport-specs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -189,7 +186,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* Stan na dziś ------------------------------------------------------------- */
+/* Stan na dziś */
 .passport-status {
     display: flex;
     flex-direction: column;
@@ -425,7 +422,7 @@
     text-decoration-color: currentColor;
 }
 
-/* Zalecenia sezonowe: tekst na papierze, bez ramki ------------------------- */
+/* Zalecenia sezonowe: tekst na papierze, bez ramki */
 .passport-advice {
     padding: 0.25rem 0 0;
 }
@@ -464,7 +461,7 @@
     color: var(--c-primary);
 }
 
-/* Nagłówki sekcji bocznych ------------------------------------------------- */
+/* Nagłówki sekcji bocznych */
 .passport-section-header {
     display: flex;
     align-items: baseline;
@@ -483,6 +480,44 @@
     color: var(--c-on-surface-variant);
 }
 
+/* Usuwanie okazu: przycisk rozwija potwierdzenie, bez okna confirm(). */
+.passport-remove__title {
+    font-size: 20px;
+    line-height: 1.3;
+}
+
+.passport-remove__box {
+    margin-top: 0.75rem;
+}
+
+.passport-remove__toggle {
+    display: inline-flex;
+    cursor: pointer;
+    list-style: none;
+}
+
+.passport-remove__toggle::-webkit-details-marker {
+    display: none;
+}
+
+.passport-remove__form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+    margin-top: 0.875rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--c-tertiary-soft);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-md);
+}
+
+.passport-remove__text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--c-on-surface);
+}
+
 .passport-empty {
     padding: 1.25rem;
     font-size: 14px;
@@ -499,7 +534,7 @@
     text-underline-offset: 0.2em;
 }
 
-/* Historia zabiegów -------------------------------------------------------- */
+/* Historia zabiegów */
 .passport-timeline {
     position: relative;
     display: flex;
@@ -630,7 +665,7 @@
     color: var(--c-on-surface-variant);
 }
 
-/* Twoje zdjęcia ------------------------------------------------------------ */
+/* Twoje zdjęcia */
 .passport-photos__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -756,9 +791,7 @@ label.passport-upload__label:has(+ input:focus-visible) {
     color: var(--c-on-surface-variant);
 }
 
-/* ==========================================================================
-   Responsywność
-   ========================================================================== */
+/* Responsywność */
 @media (max-width: 1024px) {
     .passport {
         --passport-bleed: 1.5rem;
@@ -895,7 +928,7 @@ label.passport-upload__label:has(+ input:focus-visible) {
     }
 }
 
-/* --- Scroll-driven animations: wejście sekcji prowadzi wzrok w dół ----------- */
+/* Animacje sterowane przewijaniem: wejście sekcji prowadzi wzrok w dół */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
         .passport-hero,

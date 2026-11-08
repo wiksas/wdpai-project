@@ -1,0 +1,198 @@
+/* Nowe drzewko (/collection/new): jedna kolumna formularza, płaskie pola z tokenami z sekcji 1 style.css. */
+
+.treeform {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 760px;
+}
+
+.treeform-back {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.375rem;
+    min-height: 44px;
+    font-size: 15px;
+    color: var(--c-on-surface-variant);
+}
+
+.treeform-back:hover {
+    color: var(--c-primary);
+}
+
+.treeform-head__title {
+    font-size: 36px;
+    line-height: 1.2;
+}
+
+.treeform-head__lead {
+    margin-top: 0.5rem;
+    max-width: 62ch;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--c-on-surface-variant);
+}
+
+.treeform-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-lg);
+}
+
+.treeform-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.treeform-optional {
+    font-weight: 400;
+    color: var(--c-outline);
+}
+
+.treeform-hint {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--c-on-surface-variant);
+}
+
+.treeform-file {
+    padding-block: 0.625rem;
+    font-size: 14px;
+}
+
+/* Rodzaj: dwie duże opcje; wybrana dostaje ciemną ramkę i tło. */
+.treeform-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.treeform-choices .field__label,
+.treeform-choices .treeform-error {
+    grid-column: 1 / -1;
+}
+
+.treeform-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    background-color: var(--c-surface-low);
+    border: 1px solid var(--c-outline-variant);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.treeform-choice:hover {
+    border-color: var(--c-outline);
+}
+
+.treeform-choice:has(input:checked) {
+    background-color: var(--c-secondary-container);
+    border-color: var(--c-secondary);
+}
+
+.treeform-choice:has(input:focus-visible) {
+    outline: 2px solid var(--c-secondary);
+    outline-offset: 2px;
+}
+
+.treeform-choice__name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--c-primary);
+}
+
+.treeform-choice__text {
+    font-size: 13px;
+    color: var(--c-on-surface-variant);
+}
+
+.treeform-choice:has(input:checked) .treeform-choice__text {
+    color: var(--c-on-secondary-container);
+}
+
+.treeform-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* Błędy: lista u góry (link przenosi do pola) i komunikat pod polem. */
+.treeform-errors {
+    padding: 1rem 1.25rem;
+    background-color: var(--c-tertiary-soft);
+    border: 1px solid var(--c-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.treeform-errors__title {
+    font-weight: 600;
+    color: var(--c-tertiary);
+}
+
+.treeform-errors ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0.5rem 0 0;
+    padding-left: 1.125rem;
+    list-style: disc;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--c-on-surface);
+}
+
+.treeform-errors a {
+    font-weight: 600;
+    color: var(--c-tertiary);
+    text-decoration: underline;
+}
+
+.treeform-errors__note {
+    margin-top: 0.5rem;
+    font-size: 13px;
+    color: var(--c-on-surface-variant);
+}
+
+.treeform-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--c-tertiary);
+}
+
+.treeform-error .ms {
+    font-size: 18px;
+}
+
+.treeform [aria-invalid="true"] {
+    border-color: var(--c-tertiary);
+}
+
+@media (max-width: 640px) {
+    .treeform-head__title {
+        font-size: 30px;
+    }
+
+    .treeform-form {
+        padding: 1.25rem;
+    }
+
+    .treeform-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

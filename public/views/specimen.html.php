@@ -13,6 +13,8 @@ $termKanji = [
     'Chokkan' => '直幹',
     'Kengai' => '懸崖',
     'Hokidachi' => '箒立ち',
+    'Shakan' => '斜幹',
+    'Fukinagashi' => '吹流し',
     'Akadama' => '赤玉',
     'Kiryu' => '桐生',
     'Tokoname' => '常滑',
@@ -250,6 +252,25 @@ $term = static function (string $value) use ($e, $termKanji): string {
                                 <button type="submit" class="btn passport-upload__send">Wyślij zdjęcie</button>
                                 <p class="passport-upload__hint" id="passport-photo-hint">JPG, PNG lub WebP, do 2 MB.</p>
                             </form>
+                        </section>
+
+                        <section class="passport-remove" aria-labelledby="passport-remove-title">
+                            <h2 class="passport-remove__title" id="passport-remove-title">Usuń okaz z kolekcji</h2>
+                            <details class="passport-remove__box">
+                                <summary class="btn btn--secondary passport-remove__toggle">
+                                    <span class="ms" aria-hidden="true">delete</span>
+                                    Usuń z kolekcji
+                                </summary>
+                                <form action="<?= $treeUrl ?>/delete" method="POST" class="passport-remove__form">
+                                    <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                    <p class="passport-remove__text">
+                                        „<?= $e($tree['name']) ?>” zniknie z Twojej kolekcji razem z dodanymi zdjęciami i zapisanymi zabiegami.
+                                        <?= (int) $tree['id'] < \App\Service\CollectionService::FIRST_CUSTOM_ID ? 'To okaz przykładowy: dla innych kont zostaje.' : '' ?>
+                                        Tej operacji nie można cofnąć.
+                                    </p>
+                                    <button type="submit" class="btn btn--tertiary">Tak, usuń okaz</button>
+                                </form>
+                            </details>
                         </section>
                     </div>
                 </div>

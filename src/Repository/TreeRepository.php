@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Support\PolishDate;
+
 /**
- * Demonstracyjna kolekcja drzewek wyświetlana w panelu i na kartach okazów.
- * Dane są zapisane w kodzie, bo aplikacja nie ma jeszcze warstwy bazy danych.
+ * Demonstracyjna kolekcja drzewek, zapisana w kodzie (brak jeszcze tabeli w bazie).
  */
 final class TreeRepository
 {
+    public const STYLES = [
+        'Chokkan' => 'Formalny pion',
+        'Moyogi' => 'Swobodny pion',
+        'Shakan' => 'Pień pochylony',
+        'Kengai' => 'Pełna kaskada',
+        'Hokidachi' => 'Miotła',
+        'Fukinagashi' => 'Smagany wiatrem',
+    ];
+
+    private const DEFAULT_IMAGE = '/images/bonsai-thumb.jpg';
+
     private const TREES = [
         1 => [
             'id' => 1,
@@ -276,5 +288,61 @@ final class TreeRepository
     public function findById(int $id): ?array
     {
         return self::TREES[$id] ?? null;
+    }
+
+    /**
+     * Pełny rekord okazu dodanego przez użytkownika (id od 100; przykładowe mają 1-4). Wilgotność, status i faza
+     * wzrostu to wartości startowe: zmieniają się dopiero po zapisach użytkownika.
+     *
+     * @param array{name: string, commonName: string, species: string, category: string, style: string, pot: string, age: int} $data
+     * @return array<string, mixed>
+     */
+    public static function custom(int $id, array $data, ?string $photoFile): array
+    {
+        $now = PolishDate::now();
+
+        return [
+            'id' => $id,
+            'name' => $data['name'],
+            'kanji' => '',
+            'species' => $data['species'] !== '' ? $data['species'] : 'gatunek nieokreślony',
+            'commonName' => $data['commonName'],
+            'category' => $data['category'],
+            'ageLabel' => $data['age'] . ' ' . PolishDate::plural($data['age'], 'rok', 'lata', 'lat'),
+            'style' => $data['style'],
+            'styleDescription' => self::STYLES[$data['style']],
+            'substrate' => 'nieokreślone',
+            'substrateMix' => '',
+            'pot' => $data['pot'] !== '' ? $data['pot'] : 'nieokreślona',
+            'potDescription' => '',
+            'moisture' => 60,
+            'moistureLabel' => 'Optymalna',
+            'status' => 'ideal',
+            'statusLabel' => 'Nowy okaz',
+            'lastWatering' => 'brak wpisu',
+            'image' => $photoFile !== null ? '/media/' . $photoFile : self::DEFAULT_IMAGE,
+            'photoFile' => $photoFile,
+            'inCollectionSince' => (int) $now->format('Y'),
+            'alert' => null,
+            'care' => null,
+            'reminder' => null,
+            'action' => null,
+            'actionType' => null,
+            'phenology' => [
+                'phase' => 'Faza wzrostu zależy od gatunku i pory roku',
+                'description' => 'Kalendarz zabiegów dla gatunków znajdziesz w Studio formowania.',
+            ],
+            'vitality' => [
+                'label' => $data['category'] === 'conifer' ? 'Turgor igieł' : 'Turgor liści',
+                'value' => 'Do oceny',
+                'description' => 'Wgraj zdjęcie w skanerze Kliniki, żeby ocenić kondycję.',
+            ],
+            'recommendation' => [
+                'month' => PolishDate::month($now),
+                'text' => 'Podlewaj, gdy wierzch podłoża zaczyna jaśnieć, i obserwuj nowy przyrost.',
+                'nextStep' => 'Skaner: zrób pierwsze zdjęcie w Klinice',
+            ],
+            'history' => [],
+        ];
     }
 }

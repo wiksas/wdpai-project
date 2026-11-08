@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Repository\TreeRepository;
+use App\Service\CollectionService;
 use App\Service\MediaStorage;
 use App\Support\PolishDate;
 
@@ -202,6 +204,127 @@ class CollectionController extends AppController
 
         (new MediaStorage())->delete($user['id'], $file);
         $this->respond('Usunięto zdjęcie.', $back);
+    }
+
+    // Obsługa trasy: GET /collection/new, formularz dodawania własnego drzewka
+    public function create(): void
+    {
+        $user = $this->requireLogin();
+        if (count($this->collection()->all($user['id'])) >= CollectionService::CAPACITY) {
+            $this->flash('error', 'Kolekcja jest pełna (' . CollectionService::CAPACITY . ' okazów). Usuń któryś okaz, żeby dodać nowy.');
+            $this->redirect('/collection');
+        }
+
+        $this->renderTreeForm([], ['name' => '', 'commonName' => '', 'species' => '', 'category' => 'conifer', 'style' => 'Moyogi', 'pot' => '', 'age' => '']);
+    }
+
+    // Obsługa trasy: POST /collection, dodaj własne drzewko (multipart, opcjonalne pole `photo`)
+    public function store(): void
+    {
+        $user = $this->requireLogin();
+        $this->requireCsrf();
+
+        $old = [];
+        foreach (['name', 'commonName', 'species', 'category', 'style', 'pot', 'age'] as $field) {
+            $old[$field] = is_string($_POST[$field] ?? null) ? trim($_POST[$field]) : '';
+        }
+
+        $errors = [];
+        $length = static fn (string $value): int => mb_strlen($value);
+        if ($length($old['name']) < 1 || $length($old['name']) > 40) {
+            $errors['name'] = 'Podaj nazwę drzewka (do 40 znaków).';
+        }
+        if ($length($old['commonName']) < 2 || $length($old['commonName']) > 60) {
+            $errors['commonName'] = 'Podaj gatunek po polsku (2-60 znaków), np. Jałowiec chiński.';
+        }
+        if ($length($old['species']) > 60) {
+            $errors['species'] = 'Nazwa łacińska może mieć do 60 znaków.';
+        }
+        if (!in_array($old['category'], ['conifer', 'deciduous'], true)) {
+            $errors['category'] = 'Wybierz, czy drzewko jest iglaste, czy liściaste.';
+        }
+        if (!isset(TreeRepository::STYLES[$old['style']])) {
+            $errors['style'] = 'Wybierz styl z listy.';
+        }
+        if ($length($old['pot']) > 40) {
+            $errors['pot'] = 'Opis donicy może mieć do 40 znaków.';
+        }
+        if (!ctype_digit($old['age']) || (int) $old['age'] < 1 || (int) $old['age'] > 500) {
+            $errors['age'] = 'Podaj przybliżony wiek w latach (1-500).';
+        }
+
+        $storage = new MediaStorage();
+        $photo = null;
+        if ($errors === [] && ($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            try {
+                $photo = $storage->store($user['id'], $_FILES['photo']);
+            } catch (\InvalidArgumentException $exception) {
+                $errors['photo'] = $exception->getMessage();
+            }
+        }
+
+        if ($errors !== []) {
+            http_response_code(422);
+            $this->renderTreeForm($errors, $old);
+
+            return;
+        }
+
+        $tree = $this->collection()->add($user['id'], [
+            'name' => $old['name'],
+            'commonName' => $old['commonName'],
+            'species' => $old['species'],
+            'category' => $old['category'],
+            'style' => $old['style'],
+            'pot' => $old['pot'],
+            'age' => (int) $old['age'],
+        ], $photo);
+
+        if ($tree === null) {
+            if ($photo !== null) {
+                $storage->delete($user['id'], $photo);
+            }
+            $this->flash('error', 'Kolekcja jest pełna (' . CollectionService::CAPACITY . ' okazów). Usuń któryś okaz, żeby dodać nowy.');
+            $this->redirect('/collection');
+        }
+
+        $this->flash('success', 'Dodano do kolekcji: ' . $tree['name'] . '.');
+        $this->redirect('/collection/' . $tree['id']);
+    }
+
+    // Obsługa trasy: POST /collection/{id}/delete, usuń okaz z kolekcji użytkownika (wraz ze zdjęciami i zabiegami)
+    public function destroy(string $id): void
+    {
+        $user = $this->requireLogin();
+        $this->requireCsrf();
+
+        $removed = ctype_digit($id) ? $this->collection()->remove($user['id'], (int) $id) : null;
+        if ($removed === null) {
+            $this->respond('Nie ma takiego okazu w Twojej kolekcji.', '/collection', [], false, 404);
+        }
+
+        $storage = new MediaStorage();
+        foreach ($removed['files'] as $file) {
+            $storage->delete($user['id'], $file);
+        }
+
+        $this->flash('success', 'Usunięto z kolekcji: ' . $removed['tree']['name'] . '.');
+        $this->redirect('/collection');
+    }
+
+    /**
+     * @param array<string, string> $errors
+     * @param array<string, string> $old
+     */
+    private function renderTreeForm(array $errors, array $old): void
+    {
+        $this->render('tree-new', [
+            'pageTitle' => 'Nowe drzewko | KOMOREBI',
+            'activeNav' => 'collection',
+            'errors' => $errors,
+            'old' => $old,
+            'styles' => TreeRepository::STYLES,
+        ]);
     }
 
     /**

@@ -66,6 +66,10 @@ $filters = [
                         <?php endif; ?>
                         <a href="/schedule">Harmonogram na dziś: <?= (int) $tasksToday ?> <?= $e(PolishDate::plural((int) $tasksToday, 'otwarte zadanie', 'otwarte zadania', 'otwartych zadań')) ?></a>
                     </p>
+                    <a href="/collection/new" class="btn btn--primary dash-head__add">
+                        <span class="ms" aria-hidden="true">add</span>
+                        Dodaj drzewko
+                    </a>
                 </header>
 
                 <div class="dash-layout">
@@ -163,19 +167,27 @@ $filters = [
 
                                 <?php if ($trees === []): ?>
                                     <div class="dash-empty dash-empty--trees" role="status">
-                                        <?php if ($criteria['q'] !== ''): ?>
+                                        <?php if ($treeCount === 0): ?>
+                                            <p class="dash-empty__title">Kolekcja jest pusta.</p>
+                                            <p>Dodaj pierwsze drzewko: nazwę, gatunek, styl i wiek. Zdjęcie możesz dołożyć od razu albo później na karcie okazu.</p>
+                                            <div class="dash-empty__actions">
+                                                <a href="/collection/new" class="btn btn--primary btn--sm">Dodaj drzewko</a>
+                                            </div>
+                                        <?php elseif ($criteria['q'] !== ''): ?>
                                             <p class="dash-empty__title">Żaden okaz nie pasuje do „<?= $e($criteria['q']) ?>”<?= $hasFilters ? ' w wybranym filtrze' : '' ?>.</p>
                                             <p>Szukamy w nazwie, kanji, gatunku, stylu i donicy. Sprawdź pisownię albo wyczyść wyszukiwanie.</p>
                                         <?php else: ?>
                                             <p class="dash-empty__title">Brak okazów w tym filtrze.</p>
                                             <p>Żadne drzewko w kolekcji nie spełnia tego warunku.</p>
                                         <?php endif; ?>
-                                        <div class="dash-empty__actions">
-                                            <?php if ($criteria['q'] !== '' && $hasFilters): ?>
-                                                <a href="<?= $e($query($keepFilters)) ?>" class="btn btn--tonal btn--sm" data-filter-link>Wyczyść wyszukiwanie</a>
-                                            <?php endif; ?>
-                                            <a href="/collection" class="btn btn--primary btn--sm" data-filter-link>Pokaż wszystkie okazy</a>
-                                        </div>
+                                        <?php if ($treeCount > 0): ?>
+                                            <div class="dash-empty__actions">
+                                                <?php if ($criteria['q'] !== '' && $hasFilters): ?>
+                                                    <a href="<?= $e($query($keepFilters)) ?>" class="btn btn--tonal btn--sm" data-filter-link>Wyczyść wyszukiwanie</a>
+                                                <?php endif; ?>
+                                                <a href="/collection" class="btn btn--primary btn--sm" data-filter-link>Pokaż wszystkie okazy</a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 <?php else: ?>
                                     <ul class="dash-list" data-trees>

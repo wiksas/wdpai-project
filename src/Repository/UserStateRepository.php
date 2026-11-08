@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Repository;
 
 /**
- * Stan aplikacji zapisywany osobno dla każdego użytkownika (podlania, odhaczone zadania,
- * własne zabiegi, dziennik, przeczytane powiadomienia) w `storage/state/user-{id}.json`.
- * Rozwiązanie tymczasowe do czasu dodania bazy danych; po jej dodaniu wystarczy podmienić tę klasę.
+ * Stan aplikacji per użytkownik w `storage/state/user-{id}.json`.
+ * Rozwiązanie tymczasowe do czasu przeniesienia do bazy.
  *
  * @phpstan-type State array{
  *     notificationsRead: list<string>,
@@ -27,6 +26,8 @@ final class UserStateRepository
         'journal' => [],
         'photos' => [],
         'scans' => [],
+        'customTrees' => [],
+        'removedTrees' => [],
     ];
 
     private readonly string $directory;

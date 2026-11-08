@@ -129,7 +129,7 @@ class AppController
     }
 
     /**
-     * Renderuje sam partial (bez pełnej strony) — używane przez endpointy odświeżające fragmenty przez `fetch`.
+     * Renderuje sam partial (bez pełnej strony), używane przez endpointy odświeżające fragmenty przez `fetch`.
      *
      * @param array<string, mixed> $variables
      */
@@ -218,7 +218,6 @@ class AppController
         // Widok może podać `currentUser` sam (np. strona 503, gdy baza nie odpowiada i nie da się go odczytać).
         $user = array_key_exists('currentUser', $variables) ? $variables['currentUser'] : $this->auth()->currentUser();
 
-        // Każdy widok (nagłówek, panel boczny, formularze, toasty) dostaje dane wspólne dla całej aplikacji.
         $variables += [
             'currentUser' => $user,
             'csrfToken' => $this->csrf()->token(),
@@ -253,6 +252,21 @@ class AppController
             'errorCode' => 503,
             'errorTitle' => 'Baza danych chwilowo nie odpowiada',
             'errorMessage' => 'Nie możemy teraz odczytać kont ani zapisać zmian. Spróbuj ponownie za chwilę.',
+        ]);
+    }
+
+    /**
+     * Strona 500 dla nieobsłużonego błędu. Nie odpytuje bazy ani sesji, bo to one mogą być przyczyną.
+     */
+    public function serverError(): void
+    {
+        http_response_code(500);
+        $this->render('not-found', [
+            'pageTitle' => 'Błąd serwera | KOMOREBI',
+            'currentUser' => null,
+            'errorCode' => 500,
+            'errorTitle' => 'Coś poszło nie tak po naszej stronie',
+            'errorMessage' => 'Nie udało się dokończyć tej operacji. Spróbuj ponownie za chwilę.',
         ]);
     }
 }

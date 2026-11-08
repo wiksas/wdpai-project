@@ -1,10 +1,5 @@
-/* ==========================================================================
-   KOLEKCJA (/collection)
-   Zadanie ekranu: zdecydować, które drzewko potrzebuje zabiegu teraz, i od razu go zapisać.
-   Dlatego na górze stoi lista „Wymaga zabiegu teraz” (najpilniejsze drzewko większe),
-   pod nią pełna lista okazów jako wiersze (stan i wilgotność obok nazwy), a z boku
-   harmonogram i dziennik. Karty leżą płasko: tło lowest + linia divider (DESIGN.md).
-   ========================================================================== */
+/* Kolekcja (/collection): na górze „Wymaga zabiegu teraz”, pod nią lista okazów, z boku harmonogram i dziennik.
+   Karty leżą płasko: tło lowest + linia divider (DESIGN.md). */
 
 .dash {
     display: flex;
@@ -12,9 +7,7 @@
     gap: 32px;
 }
 
-/* --------------------------------------------------------------------------
-   Nagłówek: tytuł i jedno zdanie o stanie kolekcji (liczby z danych aplikacji)
-   -------------------------------------------------------------------------- */
+/* Nagłówek */
 .dash-head {
     display: flex;
     flex-direction: column;
@@ -45,9 +38,12 @@
     text-decoration-color: currentColor;
 }
 
-/* --------------------------------------------------------------------------
-   Układ: treść + kolumna boczna
-   -------------------------------------------------------------------------- */
+.dash-head__add {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+}
+
+/* Układ: treść + kolumna boczna */
 .dash-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 320px;
@@ -67,9 +63,7 @@
     line-height: 1.25;
 }
 
-/* --------------------------------------------------------------------------
-   Wymaga zabiegu teraz (punkt skupienia ekranu)
-   -------------------------------------------------------------------------- */
+/* Wymaga zabiegu teraz (punkt skupienia ekranu) */
 .dash-due {
     display: flex;
     flex-direction: column;
@@ -217,9 +211,7 @@
     --spin: var(--c-on-tertiary);
 }
 
-/* --------------------------------------------------------------------------
-   Wszystkie okazy: szukanie, filtry, lista wierszy
-   -------------------------------------------------------------------------- */
+/* Wszystkie okazy: szukanie, filtry, lista wierszy */
 .dash-trees {
     display: flex;
     flex-direction: column;
@@ -395,9 +387,7 @@
     grid-column: 1 / -1;
 }
 
-/* --------------------------------------------------------------------------
-   Kolumna boczna: harmonogram i dziennik
-   -------------------------------------------------------------------------- */
+/* Kolumna boczna: harmonogram i dziennik */
 .dash-side {
     display: flex;
     flex-direction: column;
@@ -515,9 +505,7 @@
     overflow-wrap: anywhere;
 }
 
-/* --------------------------------------------------------------------------
-   Stany puste: przyczyna + następny krok
-   -------------------------------------------------------------------------- */
+/* Stany puste: przyczyna + następny krok */
 .dash-empty {
     display: flex;
     flex-direction: column;
@@ -559,9 +547,7 @@
     border-radius: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Responsywność
-   -------------------------------------------------------------------------- */
+/* Responsywność */
 @media (max-width: 1240px) {
     .dash-layout {
         grid-template-columns: minmax(0, 1fr);
@@ -663,10 +649,7 @@
     }
 }
 
-/* --------------------------------------------------------------------------
-   Odsłanianie przy przewijaniu: wiersze i panele boczne wjeżdżają po kolei,
-   prowadząc wzrok w dół listy (MOTION 2, bez pętli).
-   -------------------------------------------------------------------------- */
+/* Odsłanianie przy przewijaniu: wiersze i panele boczne wjeżdżają po kolei, bez pętli */
 @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
         .dash-row,
