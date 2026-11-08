@@ -1,7 +1,7 @@
 <?php
 /**
  * Lista ostatnich skanów użytkownika. Wymaga: $scans (najnowsze pierwsze).
- * Odświeżana przez clinic.js po zapisie skanu (podmiana [data-scans-list]).
+ * Odświeżana przez clinic.js po zapisie skanu (podmiana [data-scans-list]). Opcjonalnie: $treeNames (id => nazwa okazu).
  */
 use App\Support\PolishDate;
 
@@ -23,6 +23,9 @@ $scanParts = ['leaves' => 'Liście i igły', 'bark' => 'Kora i pień', 'roots' =
                             <span class="clinic-scans__meta">
                                 <?= $scanEscape($scanParts[$scan['part'] ?? ''] ?? 'Zdjęcie') ?>, <?= $scanEscape(PolishDate::ago((int) $scan['at'])) ?>
                             </span>
+                            <?php if (isset($scan['treeId'], ($treeNames ?? [])[(int) $scan['treeId']])): ?>
+                                <span class="clinic-scans__tree"><span class="ms" aria-hidden="true">spa</span><?= $scanEscape($treeNames[(int) $scan['treeId']]) ?></span>
+                            <?php endif; ?>
                             <?php if ((int) $scan['vitality'] > 0): ?>
                                 <span class="clinic-scans__score clinic-scans__score--<?= $scanEscape($scanLevel) ?>"><?= $scanDiagnosis !== null ? 'Kondycja' : 'Indeks barwy' ?> <?= (int) $scan['vitality'] ?>/100, <?= $scanEscape($scanLevels[$scanLevel] ?? '') ?></span>
                             <?php endif; ?>

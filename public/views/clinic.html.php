@@ -143,6 +143,16 @@ $clinicFaq = [
                                 <input type="hidden" name="vitality" value="0" data-scan-vitality>
                                 <input type="hidden" name="title" value="" data-scan-title>
                                 <input type="hidden" name="analysis" value="" data-scan-analysis>
+                                <div class="field clinic-upload__tree">
+                                    <label class="field__label" for="clinic-tree">Okaz z kolekcji</label>
+                                    <select class="select" id="clinic-tree" name="tree" data-scan-tree>
+                                        <option value="">Bez przypisania</option>
+                                        <?php foreach ($trees as $tree): ?>
+                                            <option value="<?= (int) $tree['id'] ?>" data-name="<?= htmlspecialchars((string) $tree['name'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) $tree['name'], ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars((string) $tree['species'], ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <p class="clinic-upload__hint">Skan pojawi się na karcie wybranego okazu i zostanie porównany z jego poprzednim skanem. Kroki dodane do harmonogramu też trafią do tego okazu.</p>
+                                </div>
                                 <button type="submit" class="btn btn--primary clinic-upload__save">
                                     <span class="ms" aria-hidden="true">save</span>
                                     Zapisz skan

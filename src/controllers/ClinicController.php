@@ -29,6 +29,7 @@ class ClinicController extends AppController
         $species = is_string($species) && in_array($species, ['conifer', 'deciduous'], true) ? $species : 'all';
 
         $allScans = $this->states()->get($user['id'])['scans'];
+        $trees = $this->collection()->all($user['id']);
 
         $this->render('clinic', [
             'pageTitle' => 'Klinika | KOMOREBI',
@@ -37,6 +38,8 @@ class ClinicController extends AppController
             'scanCount' => count($allScans),
             'chat' => $this->states()->get($user['id'])['chat'],
             'archiveFilter' => $species,
+            'trees' => $trees,
+            'treeNames' => array_column($trees, 'name', 'id'),
         ]);
     }
 
@@ -94,6 +97,27 @@ class ClinicController extends AppController
             $title = mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 90);
         }
 
+        // Okaz z kolekcji (opcjonalny): skan trafia też na jego kartę, a ocena jest porównana z poprzednim skanem tego okazu.
+        $tree = null;
+        $treeField = $_POST['tree'] ?? '';
+        if (is_string($treeField) && $treeField !== '') {
+            $tree = ctype_digit($treeField) ? $this->collection()->find($user['id'], (int) $treeField) : null;
+            if ($tree === null) {
+                $storage->delete($user['id'], $file);
+                $this->respond('Wybrany okaz nie istnieje w Twojej kolekcji.', '/clinic', [], false, 422);
+            }
+        }
+
+        $now = PolishDate::now()->getTimestamp();
+        if ($tree !== null && $analysis !== null && $analysis['plantVisible']) {
+            foreach (array_reverse($this->states()->get($user['id'])['scans']) as $candidate) {
+                if ((int) ($candidate['treeId'] ?? 0) === $tree['id'] && ($candidate['diagnosis']['plantVisible'] ?? false) === true) {
+                    $analysis['progress'] = PlantVision::progress($candidate['diagnosis'], $analysis, (int) ($candidate['photoAt'] ?? $candidate['at']));
+                    break;
+                }
+            }
+        }
+
         $scan = [
             'id' => bin2hex(random_bytes(6)),
             'file' => $file,
@@ -102,12 +126,16 @@ class ClinicController extends AppController
             'vitality' => max(0, min(100, $vitality)),
             'title' => $title !== '' ? $title : 'Zdjęcie bez analizy',
             'diagnosis' => $analysis,
-            'at' => PolishDate::now()->getTimestamp(),
+            'at' => $now,
         ];
+        if ($tree !== null) {
+            $scan['treeId'] = $tree['id'];
+        }
 
         (new ScanHistory($this->states(), $storage))->add($user['id'], $scan);
 
-        $this->respond('Zapisano skan w historii.', '/clinic', ['scan' => ['id' => $scan['id'], 'url' => '/media/' . $file]]);
+        $message = $tree !== null ? 'Zapisano skan i przypisano go do okazu: ' . $tree['name'] . '.' : 'Zapisano skan w historii.';
+        $this->respond($message, $tree !== null ? '/collection/' . $tree['id'] . '#passport-scan' : '/clinic', ['scan' => ['id' => $scan['id'], 'url' => '/media/' . $file]]);
     }
 
     // Obsługa trasy: POST /clinic/ask: odpowiedź konsultanta na pytanie (pole `q` lub `faq`); rozmowa zapisuje się na koncie

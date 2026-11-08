@@ -239,6 +239,11 @@
         button.disabled = true;
         const body = new FormData();
         current.analysis.actions.forEach((step) => body.append('steps[]', step));
+        const treeSelect = form.querySelector('[data-scan-tree]');
+        if (treeSelect?.value) {
+            body.set('tree', treeSelect.value);
+            body.set('label', treeSelect.selectedOptions[0].dataset.name ?? '');
+        }
         const result = await K.request('/clinic/protocol', { method: 'POST', body });
 
         if (!result.ok) {
