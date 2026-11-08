@@ -1,8 +1,6 @@
 /**
- * KOMOREBI — rdzeń JavaScriptu (bez bibliotek, progressive enhancement).
- * Każda funkcja działa też bez JS (zwykłe linki i formularze); skrypt dodaje płynność:
- * zapisy przez fetch, toasty, odświeżanie fragmentów stron i panel powiadomień.
- * Skrypty stron (schedule.js, collection.js…) korzystają z `window.Komorebi`.
+ * KOMOREBI: rdzeń JavaScriptu (bez bibliotek, progressive enhancement).
+ * Wszystko działa też bez JS; skrypt dodaje fetch, toasty i odświeżanie fragmentów.
  */
 (() => {
     'use strict';
@@ -13,8 +11,8 @@
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     /**
-     * Wysyła żądanie z nagłówkami aplikacji. Zwraca `{ ok, status, data }`;
-     * przy wygasłej sesji przekierowuje na logowanie, przy braku sieci pokazuje toast.
+     * Wysyła żądanie z nagłówkami aplikacji; zwraca `{ ok, status, data }`.
+     * Wygasła sesja przekierowuje na logowanie, brak sieci pokazuje toast.
      */
     async function request(url, { method = 'GET', body = null } = {}) {
         try {
@@ -43,7 +41,6 @@
         }
     }
 
-    /** Wysyła formularz (FormData) pod jego `action`. */
     function post(form, extra = {}) {
         const body = new FormData(form);
         Object.entries(extra).forEach(([key, value]) => body.set(key, value));
@@ -51,7 +48,6 @@
         return request(form.getAttribute('action'), { method: 'POST', body });
     }
 
-    /** Pobiera stronę HTML i zwraca sparsowany dokument (do podmiany fragmentów). */
     async function fetchDocument(url) {
         const response = await fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } });
 
@@ -63,10 +59,7 @@
         return new DOMParser().parseFromString(await response.text(), 'text/html');
     }
 
-    /**
-     * Podmienia fragmenty bieżącej strony fragmentami z `nextDoc` (po selektorach).
-     * Zwraca liczbę podmienionych elementów.
-     */
+    /** Podmienia fragmenty strony z `nextDoc` (po selektorach); zwraca liczbę podmian. */
     function swap(nextDoc, selectors) {
         let count = 0;
         selectors.forEach((selector) => {
@@ -81,7 +74,7 @@
         return count;
     }
 
-    /** Uruchamia animację CSS przez dodanie klasy; zwraca obietnicę zakończenia (lub od razu, gdy ruch jest ograniczony). */
+    /** Uruchamia animację CSS przez klasę; przy ograniczonym ruchu kończy od razu. */
     function play(element, className) {
         if (!element) {
             return Promise.resolve();
@@ -105,7 +98,7 @@
         });
     }
 
-    /* ---------------------------------------------------------------- Toasty */
+    // Toasty
     const toasts = () => doc.querySelector('[data-toasts]');
 
     function toast(message, type = 'success') {
@@ -139,7 +132,7 @@
 
     doc.querySelectorAll('[data-toasts] .toast').forEach((element) => dismissLater(element, 4600));
 
-    /* ---------------------------------------------------------- Powiadomienia */
+    // Powiadomienia
     const notif = () => doc.querySelector('[data-notif]');
 
     function applyUnread(count) {
@@ -231,14 +224,40 @@
         }
 
         const items = all ? doc.querySelectorAll('.notif__item.is-unread') : [form.closest('.notif__item')];
-        items.forEach((item) => {
-            item?.classList.remove('is-unread');
-            item?.querySelector('.notif__dot')?.setAttribute('disabled', '');
-        });
+        items.forEach(markItemRead);
         applyUnread(result.data.unread ?? 0);
     });
 
-    /* --------------------------------------------------------- Pokaż hasło */
+    function markItemRead(item) {
+        item?.classList.remove('is-unread');
+        item?.querySelector('.notif__dot')?.setAttribute('disabled', '');
+    }
+
+    // Klik w powiadomienie zapisuje odczyt w tle; keepalive pozwala żądaniu dokończyć się mimo przejścia na inną stronę.
+    function markOnOpen(event) {
+        const link = event.target.closest?.('.notif__body');
+        const item = link?.closest('.notif__item.is-unread');
+        const form = item?.querySelector('[data-notif-read]');
+        if (!form || (event.type === 'auxclick' && event.button !== 1)) {
+            return;
+        }
+
+        fetch(form.getAttribute('action'), {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin',
+            keepalive: true,
+            headers: { 'X-Requested-With': 'fetch', 'X-CSRF-Token': csrf(), Accept: 'application/json' },
+        }).catch(() => {});
+
+        markItemRead(item);
+        applyUnread(doc.querySelectorAll('.notif__item.is-unread').length);
+    }
+
+    doc.addEventListener('click', markOnOpen);
+    doc.addEventListener('auxclick', markOnOpen);
+
+    // Pokaż hasło
     doc.addEventListener('click', (event) => {
         const button = event.target.closest('.auth-input__action');
         if (!button) {
@@ -261,7 +280,6 @@
         input.focus();
     });
 
-    /* ------------------------------------------------------ Błędy formularzy */
     // Po nieudanym wysłaniu fokus trafia na listę błędów: czytnik ekranu ją odczyta, a widok przewinie się do niej.
     doc.querySelector('[data-error-summary]')?.focus();
 
@@ -285,8 +303,8 @@
     doc.addEventListener('change', clearFieldError);
 
     /**
-     * Zmniejsza zdjęcie przed wysłaniem (maks. `maxSide` px, JPEG) — telefony robią zdjęcia po kilka MB,
-     * a serwer przyjmuje do 2 MB. Zwraca Blob; przy błędzie dekodowania oryginalny plik.
+     * Zmniejsza zdjęcie przed wysłaniem (maks. `maxSide` px, JPEG): serwer przyjmuje do 2 MB.
+     * Przy błędzie dekodowania zwraca oryginalny plik.
      */
     async function resizeImage(file, maxSide = 1600, quality = 0.86) {
         if (!file.type.startsWith('image/')) {
@@ -308,7 +326,7 @@
         }
     }
 
-    /* ----------------------------------------------------------------- Motyw */
+    // Motyw
     const root = doc.documentElement;
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
     const effectiveTheme = () => (['light', 'dark'].includes(root.dataset.theme) ? root.dataset.theme : (systemDark.matches ? 'dark' : 'light'));
