@@ -215,6 +215,11 @@ final class CollectionService
             if (is_string($tree['photoFile'] ?? null)) {
                 $files[] = $tree['photoFile'];
             }
+            foreach ($state['scans'] as $scan) {
+                if ((int) ($scan['treeId'] ?? 0) === $treeId && is_string($scan['file'] ?? null)) {
+                    $files[] = $scan['file'];
+                }
+            }
 
             if ($treeId >= self::FIRST_CUSTOM_ID) {
                 $state['customTrees'] = array_values(array_filter($state['customTrees'], static fn (array $t): bool => $t['id'] !== $treeId));
@@ -223,6 +228,7 @@ final class CollectionService
             }
             unset($state['care'][(string) $treeId]);
             $state['photos'] = array_values(array_filter($state['photos'], static fn (array $photo): bool => (int) ($photo['treeId'] ?? 0) !== $treeId));
+            $state['scans'] = array_values(array_filter($state['scans'], static fn (array $scan): bool => (int) ($scan['treeId'] ?? 0) !== $treeId));
 
             $result = ['tree' => $tree, 'files' => $files];
 

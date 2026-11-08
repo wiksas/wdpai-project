@@ -85,6 +85,21 @@ final class MediaStorage
     }
 
     /**
+     * Kopiuje zapisany plik użytkownika pod nową, losową nazwą (skan ma własny plik, więc usunięcie zdjęcia go nie psuje).
+     */
+    public function copy(int $userId, string $name): ?string
+    {
+        $source = $this->path($userId, $name);
+        if ($source === null) {
+            return null;
+        }
+
+        $copy = bin2hex(random_bytes(12)) . '.' . pathinfo($name, PATHINFO_EXTENSION);
+
+        return @copy($source, $this->directory($userId) . '/' . $copy) ? $copy : null;
+    }
+
+    /**
      * @param array<string, mixed> $file
      * @return array{path: string, mime: string}
      */

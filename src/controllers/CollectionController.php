@@ -5,6 +5,9 @@ namespace App\Controllers;
 use App\Repository\TreeRepository;
 use App\Service\CollectionService;
 use App\Service\MediaStorage;
+use App\Service\PlantVision;
+use App\Service\ScanHistory;
+use App\Service\VisionException;
 use App\Support\PolishDate;
 
 class CollectionController extends AppController
@@ -60,12 +63,19 @@ class CollectionController extends AppController
             return;
         }
 
+        $state = $this->states()->get($user['id']);
+        $treeScans = array_values(array_reverse(array_filter(
+            $state['scans'],
+            static fn (array $scan): bool => (int) ($scan['treeId'] ?? 0) === $tree['id'],
+        )));
+
         $this->render('specimen', [
             'pageTitle' => $tree['name'] . ': karta okazu | KOMOREBI',
             'activeNav' => 'collection',
             'tree' => $tree,
+            'treeScans' => $treeScans,
             'photos' => array_values(array_reverse(array_filter(
-                $this->states()->get($user['id'])['photos'],
+                $state['photos'],
                 static fn (array $photo): bool => (int) ($photo['treeId'] ?? 0) === $tree['id'],
             ))),
         ]);
@@ -156,20 +166,7 @@ class CollectionController extends AppController
             $this->respond($exception->getMessage(), $back, [], false, 422);
         }
 
-        $caption = mb_substr(trim((string) ($_POST['caption'] ?? '')), 0, 80);
-        $entry = [
-            'id' => bin2hex(random_bytes(6)),
-            'treeId' => $tree['id'],
-            'file' => $file,
-            'caption' => $caption,
-            'at' => PolishDate::now()->getTimestamp(),
-        ];
-
-        $this->states()->update($user['id'], static function (array $state) use ($entry): array {
-            $state['photos'][] = $entry;
-
-            return $state;
-        });
+        $entry = $this->savePhoto($user['id'], $tree['id'], $file, PolishDate::now()->getTimestamp(), mb_substr(trim((string) ($_POST['caption'] ?? '')), 0, 80));
 
         $this->respond('Dodano zdjęcie do karty: ' . $tree['name'] . '.', $back, ['photo' => ['id' => $entry['id'], 'url' => '/media/' . $file]]);
     }
@@ -204,6 +201,107 @@ class CollectionController extends AppController
 
         (new MediaStorage())->delete($user['id'], $file);
         $this->respond('Usunięto zdjęcie.', $back);
+    }
+
+    // Obsługa trasy: POST /collection/{id}/scan, skan kondycji okazu: nowe zdjęcie (`photo`) albo zapisane (`photo_id`)
+    public function scan(string $id): void
+    {
+        $user = $this->requireLogin();
+        $this->requireCsrf();
+
+        $tree = ctype_digit($id) ? $this->collection()->find($user['id'], (int) $id) : null;
+        if ($tree === null) {
+            $this->respond('Nie znaleziono okazu.', '/collection', [], false, 404);
+        }
+
+        $back = '/collection/' . $tree['id'] . '#passport-scan';
+        $state = $this->states()->get($user['id']);
+        $storage = new MediaStorage();
+        $now = PolishDate::now()->getTimestamp();
+
+        $photoId = is_string($_POST['photo_id'] ?? null) ? $_POST['photo_id'] : '';
+        if ($photoId !== '') {
+            $photo = null;
+            foreach ($state['photos'] as $candidate) {
+                if (($candidate['id'] ?? '') === $photoId && (int) ($candidate['treeId'] ?? 0) === $tree['id']) {
+                    $photo = $candidate;
+                }
+            }
+            if ($photo === null) {
+                $this->respond('Nie znaleziono zdjęcia.', $back, [], false, 404);
+            }
+            $source = (string) $photo['file'];
+            $photoAt = (int) ($photo['at'] ?? $now);
+        } else {
+            if (count($state['photos']) >= self::MAX_PHOTOS) {
+                $this->respond('Osiągnięto limit zdjęć. Usuń niepotrzebne, aby dodać nowe.', $back, [], false, 422);
+            }
+            try {
+                $source = $storage->store($user['id'], $_FILES['photo'] ?? []);
+            } catch (\InvalidArgumentException $exception) {
+                $this->respond($exception->getMessage(), $back, [], false, 422);
+            }
+            $photoAt = $now;
+            $this->savePhoto($user['id'], $tree['id'], $source, $now);
+        }
+
+        $path = (string) $storage->path($user['id'], $source);
+        try {
+            $analysis = PlantVision::fromEnvironment()->analyze($path, 'leaves');
+        } catch (VisionException $exception) {
+            $this->respond($exception->getMessage() . ($photoId === '' ? ' Zdjęcie zostało zapisane w karcie okazu.' : ''), $back, [], false, 503);
+        }
+
+        // Poprzedni skan tego okazu: punkt odniesienia dla postępów.
+        $previous = null;
+        foreach (array_reverse($state['scans']) as $candidate) {
+            if ((int) ($candidate['treeId'] ?? 0) === $tree['id'] && ($candidate['diagnosis']['plantVisible'] ?? false) === true) {
+                $previous = $candidate;
+                break;
+            }
+        }
+        $diagnosis = $analysis;
+        if ($analysis['plantVisible'] && $previous !== null) {
+            $diagnosis['progress'] = PlantVision::progress($previous['diagnosis'], $analysis, (int) ($previous['photoAt'] ?? $previous['at']));
+        }
+
+        $copy = $storage->copy($user['id'], $source);
+        if ($copy === null) {
+            throw new \RuntimeException('Nie można skopiować zdjęcia do historii skanów.');
+        }
+
+        $scan = [
+            'id' => bin2hex(random_bytes(6)),
+            'treeId' => $tree['id'],
+            'file' => $copy,
+            'part' => 'leaves',
+            'level' => $analysis['plantVisible'] ? $analysis['condition'] : 'watch',
+            'vitality' => $analysis['plantVisible'] ? $analysis['vitality'] : 0,
+            'title' => $analysis['plantVisible'] ? PlantVision::CAUSES[$analysis['cause']] : 'Nie widać drzewka na zdjęciu',
+            'diagnosis' => $diagnosis,
+            'at' => $now,
+            'photoAt' => $photoAt,
+        ];
+        (new ScanHistory($this->states(), $storage))->add($user['id'], $scan);
+
+        $this->respond('Oceniono okaz: ' . $tree['name'] . '.', $back, ['scan' => $scan['id']]);
+    }
+
+    /**
+     * Dopisuje zdjęcie do karty okazu.
+     *
+     * @return array<string, mixed> zapisany wpis
+     */
+    private function savePhoto(int $userId, int $treeId, string $file, int $at, string $caption = ''): array
+    {
+        $entry = ['id' => bin2hex(random_bytes(6)), 'treeId' => $treeId, 'file' => $file, 'caption' => $caption, 'at' => $at];
+        $this->states()->update($userId, static function (array $state) use ($entry): array {
+            $state['photos'][] = $entry;
+
+            return $state;
+        });
+
+        return $entry;
     }
 
     // Obsługa trasy: GET /collection/new, formularz dodawania własnego drzewka

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Support\PolishDate;
+
 /**
  * Ocena kondycji drzewka ze zdjęcia. Model wizyjny w Ollama (usługa `ollama`) odpowiada tylko „tak/nie” na konkretne
  * pytania o to, co widać (barwa, struktura liści, podłoże, nalot…). Przyczynę (przesuszenie, przelanie, szkodniki…)
@@ -297,6 +299,47 @@ final class PlantVision
             'observations' => self::list($raw['observations'] ?? [], 6, 160),
             'actions' => self::list($raw['actions'] ?? [], 5, 80),
             'verify' => self::text($raw['verify'] ?? '', 220),
+        ];
+    }
+
+    /**
+     * Postęp okazu względem poprzedniego skanu: zmiana wskaźnika kondycji i objawów. Oba zdjęcia ocenia ten sam zestaw
+     * pytań niezależnie, bo bezpośrednie porównanie dwóch zdjęć przez model zawsze faworyzowało drugie (także dla identycznych).
+     * Wynik jest ostrożny: „poprawa” albo „pogorszenie” wymaga zgodnych sygnałów, a drobne różnice to szum modelu.
+     *
+     * @param Analysis $previous
+     * @param Analysis $current
+     * @return array{status: string, label: string, text: string, previousAt: int, previousVitality: int, vitalityDelta: int}
+     */
+    public static function progress(array $previous, array $current, int $previousAt): array
+    {
+        $delta = $current['vitality'] - $previous['vitality'];
+        $resolved = array_values(array_diff($previous['observations'], $current['observations']));
+        $appeared = array_values(array_diff($current['observations'], $previous['observations']));
+
+        $score = (int) ($delta >= 15) + (int) ($delta >= 8) - (int) ($delta <= -15) - (int) ($delta <= -8)
+            + max(-1, min(1, count($resolved) - count($appeared)));
+        $status = $score >= 2 ? 'improved' : ($score <= -2 ? 'worse' : 'unchanged');
+
+        $parts = ['Poprzedni skan: ' . PolishDate::dayMonthYear(PolishDate::now()->setTimestamp($previousAt)) . ' (' . PolishDate::ago($previousAt) . ').'];
+        $parts[] = 'Wskaźnik kondycji ' . $previous['vitality'] . ' → ' . $current['vitality'] . '/100.';
+        if ($previous['cause'] !== $current['cause']) {
+            $parts[] = 'Wcześniej: ' . mb_strtolower(self::CAUSES[$previous['cause']]) . ', teraz: ' . mb_strtolower(self::CAUSES[$current['cause']]) . '.';
+        }
+        if ($resolved !== []) {
+            $parts[] = 'Ustąpiło: ' . mb_strtolower(implode('; ', array_slice($resolved, 0, 2))) . '.';
+        }
+        if ($appeared !== []) {
+            $parts[] = 'Nowe objawy: ' . mb_strtolower(implode('; ', array_slice($appeared, 0, 2))) . '.';
+        }
+
+        return [
+            'status' => $status,
+            'label' => ['improved' => 'Poprawa', 'worse' => 'Pogorszenie', 'unchanged' => 'Bez wyraźnych zmian'][$status],
+            'text' => implode(' ', $parts),
+            'previousAt' => $previousAt,
+            'previousVitality' => $previous['vitality'],
+            'vitalityDelta' => $delta,
         ];
     }
 

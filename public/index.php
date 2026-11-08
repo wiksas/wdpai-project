@@ -35,6 +35,7 @@ Routing::post('collection', 'CollectionController', 'store');
 Routing::get('collection/{id}', 'CollectionController', 'show');
 Routing::post('collection/{id}/care', 'CollectionController', 'care');
 Routing::post('collection/{id}/delete', 'CollectionController', 'destroy');
+Routing::post('collection/{id}/scan', 'CollectionController', 'scan');
 Routing::post('collection/{id}/photos', 'CollectionController', 'addPhoto');
 Routing::post('collection/{id}/photos/delete', 'CollectionController', 'deletePhoto');
 Routing::get('media/{name}', 'MediaController', 'show');

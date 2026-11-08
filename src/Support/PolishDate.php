@@ -79,6 +79,12 @@ final class PolishDate
         return (int) $date->format('j') . ' ' . self::monthGenitive($date);
     }
 
+    /** „4 maja 2026” */
+    public static function dayMonthYear(DateTimeImmutable $date): string
+    {
+        return self::dayMonth($date) . ' ' . $date->format('Y');
+    }
+
     /** „Niedziela, 4 maja” */
     public static function full(DateTimeImmutable $date): string
     {

@@ -9,6 +9,7 @@ use App\Service\ClinicKnowledge;
 use App\Service\MediaStorage;
 use App\Service\OllamaClient;
 use App\Service\PlantVision;
+use App\Service\ScanHistory;
 use App\Service\VisionException;
 use App\Support\PolishDate;
 
@@ -16,7 +17,6 @@ class ClinicController extends AppController
 {
     private const MAX_CHAT = 40;
     private const CHAT_CONTEXT = 8;
-    private const MAX_SCANS = 30;
     private const MAX_CUSTOM_TASKS = 100;
     private const PARTS = ['leaves', 'bark', 'roots', 'wiring'];
     private const LEVELS = ['good', 'watch', 'warning', 'critical'];
@@ -105,19 +105,7 @@ class ClinicController extends AppController
             'at' => PolishDate::now()->getTimestamp(),
         ];
 
-        $removed = [];
-        $this->states()->update($user['id'], static function (array $state) use ($scan, &$removed): array {
-            $state['scans'][] = $scan;
-            while (count($state['scans']) > self::MAX_SCANS) {
-                $removed[] = array_shift($state['scans'])['file'] ?? '';
-            }
-
-            return $state;
-        });
-
-        foreach ($removed as $old) {
-            $storage->delete($user['id'], (string) $old);
-        }
+        (new ScanHistory($this->states(), $storage))->add($user['id'], $scan);
 
         $this->respond('Zapisano skan w historii.', '/clinic', ['scan' => ['id' => $scan['id'], 'url' => '/media/' . $file]]);
     }
@@ -157,7 +145,7 @@ class ClinicController extends AppController
         $this->redirect('/clinic#clinic-consultant');
     }
 
-    // Obsługa trasy: POST /clinic/protocol: dodaj kroki protokołu ratunkowego do harmonogramu (dziś)
+    // Obsługa trasy: POST /clinic/protocol: dodaj kroki (protokołu ratunkowego albo oceny skanu) do harmonogramu na dziś
     public function protocol(): void
     {
         $user = $this->requireLogin();
@@ -169,20 +157,23 @@ class ClinicController extends AppController
         ), static fn (string $step): bool => mb_strlen($step) >= 3));
 
         if ($steps === []) {
-            $this->respond('Brak kroków protokołu do dodania.', '/clinic', [], false, 422);
+            $this->respond('Brak kroków do dodania.', '/clinic', [], false, 422);
         }
 
+        // `label` (nazwa okazu) zastępuje „Protokół”; `scan` oznacza skan jako dodany do harmonogramu.
+        $label = mb_substr(trim(is_string($_POST['label'] ?? null) ? $_POST['label'] : ''), 0, 40);
+        $scanId = is_string($_POST['scan'] ?? null) ? $_POST['scan'] : '';
         $today = PolishDate::today()->format('Y-m-d');
         $added = 0;
-        $this->states()->update($user['id'], static function (array $state) use ($steps, $today, &$added): array {
+        $this->states()->update($user['id'], static function (array $state) use ($steps, $label, $scanId, $today, &$added): array {
             foreach ($steps as $index => $step) {
                 if (count($state['customTasks']) >= self::MAX_CUSTOM_TASKS) {
                     break;
                 }
                 $state['customTasks'][] = [
                     'id' => bin2hex(random_bytes(6)),
-                    'title' => 'Protokół: ' . $step,
-                    'note' => 'Krok ' . ($index + 1) . ' protokołu ratunkowego z Kliniki.',
+                    'title' => mb_substr(($label !== '' ? $label : 'Protokół') . ': ' . $step, 0, 120),
+                    'note' => 'Krok ' . ($index + 1) . ($label !== '' ? ' z oceny skanu zdjęcia.' : ' protokołu ratunkowego z Kliniki.'),
                     'time' => 'Cały dzień',
                     'type' => 'care',
                     'date' => $today,
@@ -190,11 +181,20 @@ class ClinicController extends AppController
                 $added++;
             }
 
+            if ($scanId !== '' && $added > 0) {
+                foreach ($state['scans'] as &$scan) {
+                    if (($scan['id'] ?? '') === $scanId) {
+                        $scan['scheduled'] = true;
+                    }
+                }
+                unset($scan);
+            }
+
             return $state;
         });
 
         $this->respond(
-            'Dodano ' . $added . ' ' . PolishDate::plural($added, 'krok', 'kroki', 'kroków') . ' protokołu do harmonogramu na dziś.',
+            'Dodano ' . $added . ' ' . PolishDate::plural($added, 'krok', 'kroki', 'kroków') . ' do harmonogramu na dziś.',
             '/schedule',
             ['added' => $added, 'href' => '/schedule'],
         );

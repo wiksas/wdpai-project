@@ -1,5 +1,5 @@
 /**
- * Karta okazu: dodawanie i usuwanie zdjęć (ze zmniejszeniem przed wysyłką), drukowanie, udostępnianie.
+ * Karta okazu: zdjęcia (dodawanie ze zmniejszeniem, usuwanie), skan kondycji z krokami do harmonogramu, drukowanie, udostępnianie.
  * Zabiegi (podlanie) obsługuje collection.js. Wymaga app.js (`window.Komorebi`).
  */
 (() => {
@@ -71,6 +71,96 @@
 
         K.toast(result.data.message, 'info');
         await refreshPhotos();
+    });
+
+    // Skan kondycji: nowe zdjęcie (wybór pliku od razu skanuje) albo zdjęcie już dodane do karty
+    async function refreshScan() {
+        try {
+            const next = await K.fetchDocument(location.pathname);
+            K.swap(next, ['[data-passport-scan]', '[data-photos]']);
+            K.play(doc.querySelector('[data-passport-scan] .passport-scan__result'), 'fx-in');
+        } catch {
+            location.reload();
+        }
+    }
+
+    function setScanning(section, on) {
+        section?.classList.toggle('is-scanning', on);
+        section?.querySelectorAll('[data-scan-form] button, [data-scan-form] label').forEach((control) => {
+            control.toggleAttribute('disabled', on);
+            control.classList.toggle('is-busy', on);
+        });
+        const status = section?.querySelector('[data-scan-status]');
+        if (status) {
+            status.hidden = !on;
+        }
+    }
+
+    doc.addEventListener('change', (event) => {
+        const input = event.target.closest?.('[data-scan-input]');
+        if (input?.files?.length) {
+            input.form.requestSubmit();
+        }
+    });
+
+    doc.addEventListener('submit', async (event) => {
+        const form = event.target.closest('[data-scan-form]');
+        if (!form) {
+            return;
+        }
+        event.preventDefault();
+
+        const body = new FormData(form);
+        if (event.submitter?.name === 'photo_id') {
+            body.set('photo_id', event.submitter.value);
+        }
+        const file = body.get('photo');
+        if (body.get('photo_id')) {
+            body.delete('photo');
+        } else if (file instanceof File && file.size > 0) {
+            body.set('photo', await K.resizeImage(file), 'photo.jpg');
+        } else {
+            K.toast('Wybierz zdjęcie do zeskanowania.', 'error');
+            return;
+        }
+
+        const section = doc.querySelector('[data-passport-scan]');
+        setScanning(section, true);
+        doc.querySelector('[data-scan-status]')?.scrollIntoView({ block: 'nearest', behavior: K.reduceMotion ? 'auto' : 'smooth' });
+        const result = await K.request(form.getAttribute('action'), { method: 'POST', body });
+
+        if (!result.ok) {
+            setScanning(section, false);
+            K.toast(result.data.message ?? 'Nie udało się zeskanować zdjęcia. Spróbuj ponownie.', 'error');
+            if (body.get('photo')) {
+                await refreshScan();
+            }
+            return;
+        }
+
+        K.toast(result.data.message, 'success');
+        await refreshScan();
+        doc.querySelector('[data-passport-scan] .passport-scan__result')?.scrollIntoView({ block: 'nearest', behavior: K.reduceMotion ? 'auto' : 'smooth' });
+    });
+
+    doc.addEventListener('submit', async (event) => {
+        const form = event.target.closest('[data-scan-schedule]');
+        if (!form) {
+            return;
+        }
+        event.preventDefault();
+
+        const button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        const result = await K.post(form);
+
+        if (!result.ok) {
+            button.disabled = false;
+            K.toast(result.data.message ?? 'Nie udało się dodać kroków. Spróbuj ponownie.', 'error');
+            return;
+        }
+        K.toast(result.data.message, 'success');
+        await refreshScan();
     });
 
     // Drukowanie i udostępnianie

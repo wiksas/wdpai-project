@@ -212,6 +212,8 @@ $term = static function (string $value) use ($e, $termKanji): string {
                             <?php endif; ?>
                         </section>
 
+                        <?php include __DIR__ . '/partials/passport-scan.html.php'; ?>
+
                         <section class="passport-photos" aria-labelledby="passport-photos-title" data-photos>
                             <header class="passport-section-header">
                                 <h2 class="passport-section-header__title" id="passport-photos-title">Twoje zdjęcia</h2>
@@ -228,8 +230,17 @@ $term = static function (string $value) use ($e, $termKanji): string {
                                         <li class="passport-photos__item">
                                             <a href="/media/<?= $e($photo['file']) ?>" target="_blank" rel="noopener" class="passport-photos__link">
                                                 <img src="/media/<?= $e($photo['file']) ?>" alt="<?= $e($photo['caption'] !== '' ? $photo['caption'] : 'Zdjęcie okazu ' . $tree['name']) ?>" width="240" height="240" loading="lazy">
-                                                <span class="passport-photos__date"><?= $e(\App\Support\PolishDate::dayMonth(\App\Support\PolishDate::now()->setTimestamp((int) $photo['at']))) ?></span>
+                                                <?php $photoMoment = \App\Support\PolishDate::now()->setTimestamp((int) $photo['at']); ?>
+                                                <span class="passport-photos__date">
+                                                    <time datetime="<?= $e($photoMoment->format('c')) ?>"><?= $e(\App\Support\PolishDate::dayMonthYear($photoMoment)) ?></time>
+                                                    <span><?= $e($photoMoment->format('H:i')) ?></span>
+                                                </span>
                                             </a>
+                                            <form action="<?= $treeUrl ?>/scan" method="POST" class="passport-photos__scan" data-scan-form>
+                                                <?php include __DIR__ . '/partials/csrf.html.php'; ?>
+                                                <input type="hidden" name="photo_id" value="<?= $e($photo['id']) ?>">
+                                                <button type="submit" aria-label="Skanuj to zdjęcie" title="Skanuj to zdjęcie"><span class="ms" aria-hidden="true">center_focus_strong</span></button>
+                                            </form>
                                             <form action="<?= $treeUrl ?>/photos/delete" method="POST" class="passport-photos__remove" data-photo-delete>
                                                 <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                                 <input type="hidden" name="photo" value="<?= $e($photo['id']) ?>">
