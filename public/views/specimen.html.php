@@ -120,6 +120,9 @@ $term = static function (string $value) use ($e, $termKanji): string {
                                         <span class="passport-meter__bar" style="--value: <?= $e($tree['moisture']) ?>%"></span>
                                     </div>
                                     <p class="passport-metric__text">Ostatnie podlanie: <?= $e($tree['lastWatering']) ?></p>
+                                    <?php if (isset($tree['sensor'])): ?>
+                                        <p class="passport-metric__text">Wilgotność z czujnika, odczyt <a href="#passport-sensor">z <?= $e(\App\Support\PolishDate::now()->setTimestamp($tree['sensor']['at'])->format('H:i')) ?></a>.</p>
+                                    <?php endif; ?>
                                     <form class="passport-water" action="<?= $treeUrl ?>/care" method="POST" data-care-form>
                                         <?php include __DIR__ . '/partials/csrf.html.php'; ?>
                                         <input type="hidden" name="type" value="water">
@@ -215,6 +218,8 @@ $term = static function (string $value) use ($e, $termKanji): string {
                         </section>
 
                         <?php include __DIR__ . '/partials/passport-scan.html.php'; ?>
+
+                        <?php include __DIR__ . '/partials/passport-sensor.html.php'; ?>
 
                         <section class="passport-photos" aria-labelledby="passport-photos-title" data-photos>
                             <header class="passport-section-header">

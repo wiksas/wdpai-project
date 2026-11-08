@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Repository\SensorRepository;
 use App\Repository\TreeRepository;
 use App\Service\CollectionService;
 use App\Service\MediaStorage;
@@ -75,6 +76,9 @@ class CollectionController extends AppController
             'tree' => $tree,
             'treeScans' => $treeScans,
             'treeSchedule' => $this->schedule()->forTree($user['id'], $tree['id'], $state),
+            'sensor' => (new SensorRepository())->forTree($user['id'], $tree['id']),
+            'sensorToken' => $this->session()->pull('sensor_token_' . $tree['id']),
+            'sensorEndpoint' => ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/api/sensor/readings',
             'photos' => array_values(array_reverse(array_filter(
                 $state['photos'],
                 static fn (array $photo): bool => (int) ($photo['treeId'] ?? 0) === $tree['id'],

@@ -143,7 +143,7 @@ final class ScheduleService
      * @param array<string, mixed> $state
      * @return list<array{date: string, label: string, isToday: bool, tasks: list<array<string, mixed>>}>
      */
-    public function forTree(int $userId, int $treeId, array $state, int $days = 14): array
+    public function forTree(int $userId, int $treeId, array $state, int $days = 7): array
     {
         $today = PolishDate::today();
         $groups = [];

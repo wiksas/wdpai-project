@@ -5,18 +5,21 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\AppController;
 use App\Routing;
 
-// Sesja logowania: ciasteczko niedostępne dla JS i niewysyłane w żądaniach między witrynami.
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'httponly' => true,
-    'samesite' => 'Lax',
-]);
-session_start();
-
 $path = trim($_SERVER['REQUEST_URI'], '/');
 $path = (string) parse_url($path, PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// Sesja logowania: ciasteczko niedostępne dla JS i niewysyłane w żądaniach między witrynami.
+// Urządzenia (`api/…`) uwierzytelnia token, więc nie zakładamy im sesji, które by tylko zalegały na dysku.
+if (!str_starts_with($path, 'api/')) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
 
 Routing::get('', 'DefaultController', 'index');
 
@@ -36,6 +39,10 @@ Routing::get('collection/{id}', 'CollectionController', 'show');
 Routing::post('collection/{id}/care', 'CollectionController', 'care');
 Routing::post('collection/{id}/delete', 'CollectionController', 'destroy');
 Routing::post('collection/{id}/scan', 'CollectionController', 'scan');
+Routing::post('collection/{id}/sensor', 'SensorController', 'issue');
+Routing::post('collection/{id}/sensor/delete', 'SensorController', 'remove');
+Routing::post('collection/{id}/sensor/calibrate', 'SensorController', 'calibrate');
+Routing::post('api/sensor/readings', 'SensorController', 'ingest');
 Routing::post('collection/{id}/photos', 'CollectionController', 'addPhoto');
 Routing::post('collection/{id}/photos/delete', 'CollectionController', 'deletePhoto');
 Routing::get('media/{name}', 'MediaController', 'show');

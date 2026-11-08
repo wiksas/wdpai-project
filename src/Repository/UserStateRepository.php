@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use PDOException;
-
 /**
  * Stan aplikacji per konto w tabeli `user_state` (JSONB, `docker/db/04-user-state.sql`): kolekcja, zabiegi, skany,
  * zdjęcia, dziennik, rozmowa z konsultantem. Przetrwa restart i przebudowę kontenerów, bo leży w wolumenie bazy.
@@ -25,8 +23,6 @@ final class UserStateRepository
         'removedTrees' => [],
         'chat' => [],
     ];
-
-    private const UNDEFINED_TABLE = '42P01';
 
     private readonly string $legacyDirectory;
     private readonly string $migrationFile;
@@ -129,26 +125,9 @@ final class UserStateRepository
         }
     }
 
-    /**
-     * Wykonuje operację; gdy tabeli jeszcze nie ma (baza sprzed migracji 04), zakłada ją i powtarza raz.
-     *
-     * @template T
-     * @param callable(): T $operation
-     * @return T
-     */
     private function withTable(callable $operation): mixed
     {
-        try {
-            return $operation();
-        } catch (PDOException $exception) {
-            if (($exception->errorInfo[0] ?? '') !== self::UNDEFINED_TABLE) {
-                throw $exception;
-            }
-
-            Database::connection()->exec((string) file_get_contents($this->migrationFile));
-
-            return $operation();
-        }
+        return Database::withMigration($this->migrationFile, $operation);
     }
 
     /**

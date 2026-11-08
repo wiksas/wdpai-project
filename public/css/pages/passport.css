@@ -910,6 +910,175 @@
     display: none;
 }
 
+/* Czujnik wilgotności: token i odczyty w prostych, płaskich blokach. */
+.passport-sensor__lead {
+    margin-top: 0.5rem;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--c-on-surface-variant);
+}
+
+.passport-sensor__add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.passport-sensor__add .field {
+    flex: 1 1 220px;
+}
+
+.passport-sensor__optional {
+    font-weight: 400;
+    color: var(--c-outline);
+}
+
+.passport-sensor__token {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--c-tertiary-soft);
+    border: 1px solid var(--c-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.passport-sensor__token-title {
+    font-weight: 600;
+    color: var(--c-tertiary);
+}
+
+.passport-sensor__code,
+.passport-sensor__curl {
+    padding: 0.5rem 0.75rem;
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--c-on-surface);
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-sm);
+    overflow-wrap: anywhere;
+}
+
+.passport-sensor__curl {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.passport-sensor__hint {
+    margin-top: 0.5rem;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--c-on-surface-variant);
+}
+
+.passport-sensor__hint code {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.passport-sensor__status {
+    margin-top: 1rem;
+    font-size: 15px;
+    color: var(--c-on-surface);
+}
+
+.passport-sensor__calibrate {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.passport-sensor__readings {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: var(--c-on-surface-variant);
+    border: 1px solid var(--c-divider);
+    border-radius: var(--radius-md);
+}
+
+.passport-sensor__readings li {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 0.875rem;
+}
+
+.passport-sensor__readings li + li {
+    border-top: 1px solid var(--c-divider);
+}
+
+.passport-sensor__readings li span:first-child {
+    flex: 1;
+}
+
+.passport-sensor__readings li span:nth-child(2) {
+    font-weight: 600;
+    color: var(--c-on-surface);
+}
+
+.passport-sensor__manage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem 1rem;
+    margin-top: 1rem;
+}
+
+.passport-sensor__remove summary {
+    display: inline-flex;
+    cursor: pointer;
+    list-style: none;
+}
+
+.passport-sensor__remove summary::-webkit-details-marker {
+    display: none;
+}
+
+.passport-sensor__remove form {
+    margin-top: 0.5rem;
+}
+
+.passport-sensor__buy {
+    margin-top: 1.25rem;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--c-on-surface-variant);
+}
+
+.passport-sensor__buy summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--c-primary);
+}
+
+.passport-sensor__buy ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+    padding-left: 1.125rem;
+    list-style: disc;
+}
+
+.passport-sensor__buy strong {
+    color: var(--c-on-surface);
+}
+
+@media print {
+    .passport-sensor {
+        display: none;
+    }
+}
+
 /* Skan kondycji okazu: przyczyna jest punktem skupienia, pod nią postępy, dowody ze zdjęcia i kroki. */
 .passport-scan__lead {
     margin-top: 0.5rem;

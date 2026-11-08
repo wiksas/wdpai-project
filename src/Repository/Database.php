@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use PDO;
+use PDOException;
 
 /**
  * Połączenie PDO z PostgreSQL, dane dostępowe ze zmiennych środowiskowych (`.env`).
@@ -12,6 +13,8 @@ use PDO;
  */
 final class Database
 {
+    private const UNDEFINED_TABLE = '42P01';
+
     private static ?PDO $connection = null;
 
     public static function connection(): PDO
@@ -32,6 +35,28 @@ final class Database
         }
 
         return self::$connection;
+    }
+
+    /**
+     * Wykonuje operację; gdy brakuje tabeli (baza sprzed migracji), wykonuje plik migracji i powtarza operację raz.
+     *
+     * @template T
+     * @param callable(): T $operation
+     * @return T
+     */
+    public static function withMigration(string $migrationFile, callable $operation): mixed
+    {
+        try {
+            return $operation();
+        } catch (PDOException $exception) {
+            if (($exception->errorInfo[0] ?? '') !== self::UNDEFINED_TABLE) {
+                throw $exception;
+            }
+
+            self::connection()->exec((string) file_get_contents($migrationFile));
+
+            return $operation();
+        }
     }
 
     private static function env(string $name, ?string $default = null): string

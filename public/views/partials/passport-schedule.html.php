@@ -1,6 +1,6 @@
 <?php
 /**
- * Harmonogram okazu na najbliższe 14 dni: zadania z reguł pielęgnacji i dodane ze skanów, z odhaczaniem.
+ * Harmonogram okazu na najbliższe 7 dni: zadania z reguł pielęgnacji i dodane ze skanów, z odhaczaniem.
  * Wymaga: $tree, $treeUrl, $treeSchedule (dni z zadaniami), $e. Odświeżana przez specimen.js ([data-tree-schedule]).
  */
 use App\Service\ScheduleService;
@@ -15,9 +15,9 @@ $taskCount = array_sum(array_map(static fn (array $day): int => count($day['task
     </header>
 
     <?php if ($treeSchedule === []): ?>
-        <p class="passport-empty">Na najbliższe 14 dni nie ma zadań dla tego okazu. Kroki ze skanu dodasz tu przyciskiem „Dodaj kroki do harmonogramu”.</p>
+        <p class="passport-empty">Na najbliższe 7 dni nie ma zadań dla tego okazu. Kroki ze skanu dodasz tu przyciskiem „Dodaj kroki do harmonogramu”.</p>
     <?php else: ?>
-        <p class="passport-schedule__lead"><?= $taskCount ?> <?= $e(\App\Support\PolishDate::plural($taskCount, 'zadanie', 'zadania', 'zadań')) ?> w ciągu 14 dni.</p>
+        <p class="passport-schedule__lead"><?= $taskCount ?> <?= $e(\App\Support\PolishDate::plural($taskCount, 'zadanie', 'zadania', 'zadań')) ?> w ciągu 7 dni.</p>
         <?php foreach ($treeSchedule as $day): ?>
             <div class="passport-schedule__day">
                 <h3 class="passport-schedule__date<?= $day['isToday'] ? ' is-today' : '' ?>">

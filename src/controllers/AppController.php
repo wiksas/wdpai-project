@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Repository\Database;
 use App\Repository\EmailVerificationRepository;
+use App\Repository\SensorRepository;
 use App\Repository\TreeRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserStateRepository;
@@ -67,7 +68,7 @@ class AppController
 
     protected function collection(): CollectionService
     {
-        return $this->collection ??= new CollectionService(new TreeRepository(), $this->states());
+        return $this->collection ??= new CollectionService(new TreeRepository(), $this->states(), new SensorRepository());
     }
 
     protected function schedule(): ScheduleService

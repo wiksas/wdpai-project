@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\SensorRepository;
 use App\Repository\TreeRepository;
 use App\Repository\UserStateRepository;
 use App\Support\PolishDate;
@@ -21,9 +22,15 @@ final class CollectionService
     /** Wilgotność bryły po podlaniu. */
     private const WATERED_MOISTURE = 88;
 
+    /** Odczyt starszy niż 12 godzin przestaje wpływać na stan okazu (czujnik mógł się rozładować). */
+    private const SENSOR_FRESH_SECONDS = 12 * 3600;
+    private const SENSOR_OK = 40;
+    private const SENSOR_CRITICAL = 25;
+
     public function __construct(
         private readonly TreeRepository $trees,
         private readonly UserStateRepository $states,
+        private readonly SensorRepository $sensors,
     ) {
     }
 
@@ -35,7 +42,9 @@ final class CollectionService
         $state = $this->states->get($userId);
         $now = PolishDate::now();
 
-        return array_map(fn (array $tree): array => $this->applyState($tree, $state, $now), $this->owned($state));
+        $sensors = $this->sensors->latestForUser($userId);
+
+        return array_map(fn (array $tree): array => $this->applyState($tree, $state, $now, $sensors[$tree['id']] ?? null), $this->owned($state));
     }
 
     /**
@@ -46,7 +55,7 @@ final class CollectionService
         $state = $this->states->get($userId);
         $tree = $this->ownedById($state, $id);
 
-        return $tree === null ? null : $this->applyState($tree, $state, PolishDate::now());
+        return $tree === null ? null : $this->applyState($tree, $state, PolishDate::now(), $this->sensors->latestForUser($userId)[$id] ?? null);
     }
 
     /**
@@ -167,7 +176,7 @@ final class CollectionService
             return $state;
         });
 
-        return $this->applyState($tree, $state, PolishDate::now());
+        return $this->applyState($tree, $state, PolishDate::now(), $this->sensors->latestForUser($userId)[$treeId] ?? null);
     }
 
     /**
@@ -235,6 +244,10 @@ final class CollectionService
             return $state;
         });
 
+        if ($result !== null) {
+            $this->sensors->delete($userId, $treeId);
+        }
+
         return $result;
     }
 
@@ -273,7 +286,7 @@ final class CollectionService
      * @param array<string, mixed> $state
      * @return array<string, mixed>
      */
-    private function applyState(array $tree, array $state, DateTimeImmutable $now): array
+    private function applyState(array $tree, array $state, DateTimeImmutable $now, ?array $sensor = null): array
     {
         $tree['done'] = null;
         $care = $state['care'][(string) $tree['id']] ?? [];
@@ -308,8 +321,56 @@ final class CollectionService
             $tree['status'] = 'ideal';
             $tree['statusLabel'] = 'Skorygowano';
         }
+        if ($sensor !== null && $sensor['percent'] !== null && $now->getTimestamp() - $sensor['at'] <= self::SENSOR_FRESH_SECONDS) {
+            $tree = $this->applySensor($tree, $sensor['percent'], $sensor);
+        }
 
         $tree['_date'] = $today;
+
+        return $tree;
+    }
+
+    /**
+     * Odczyt z czujnika zastępuje wartość demonstracyjną: wilgotność, etykietę i (poza okazami do formowania) status
+     * z alertem, więc niska wilgotność trafia też do listy „Wymaga zabiegu”, powiadomień i harmonogramu.
+     *
+     * @param array<string, mixed> $tree
+     * @param array{raw: int, percent: ?int, at: int} $sensor
+     * @return array<string, mixed>
+     */
+    private function applySensor(array $tree, int $percent, array $sensor): array
+    {
+        $tree['sensor'] = $sensor;
+        $tree['moisture'] = $percent;
+        $tree['moistureLabel'] = $percent >= self::SENSOR_OK ? 'Optymalna' : ($percent >= self::SENSOR_CRITICAL ? 'Niska' : 'Krytyczna');
+
+        if ($tree['status'] === 'shaping') {
+            return $tree;
+        }
+
+        if ($percent < self::SENSOR_CRITICAL) {
+            $tree['status'] = 'critical';
+            $tree['statusLabel'] = 'Wymaga podlania';
+            $tree['alert'] = ['title' => 'Czujnik: bardzo sucho', 'text' => 'Odczyt ' . $percent . '% w podłożu. Podlej drzewko i sprawdź, czy woda dociera do korzeni.'];
+            $tree['action'] = 'Zapisz podlanie';
+            $tree['actionType'] = 'water';
+        } elseif ($percent < self::SENSOR_OK) {
+            $tree['status'] = 'attention';
+            $tree['statusLabel'] = 'Wymaga działania';
+            $tree['alert'] = ['title' => 'Czujnik: podłoże wysycha', 'text' => 'Odczyt ' . $percent . '% w podłożu. Zaplanuj podlanie na dziś.'];
+            $tree['action'] = 'Zapisz podlanie';
+            $tree['actionType'] = 'water';
+        } elseif ($tree['actionType'] === 'water') {
+            $tree['status'] = 'ideal';
+            $tree['statusLabel'] = 'Idealny';
+            $tree['vitality'] = [
+                'label' => $tree['vitality']['label'],
+                'value' => 'Prawidłowy',
+                'description' => 'Czujnik pokazuje dobrze nawodnione podłoże.',
+            ];
+            $tree['alert'] = null;
+            $tree['action'] = null;
+        }
 
         return $tree;
     }
