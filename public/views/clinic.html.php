@@ -70,13 +70,13 @@ $clinicFaq = [
                 <header class="clinic-head">
                     <p class="eyebrow">Klinika</p>
                     <h1 class="clinic-head__title">Co dolega drzewku?</h1>
-                    <p class="clinic-head__lead">Wgraj zbliżenie igieł lub liści: przeglądarka policzy udział zieleni, żółci i suszu na zdjęciu i zapisze wynik w historii. Pytania o objawy i zabiegi zadasz konsultantowi, który odpowiada z bazy porad pielęgnacyjnych.</p>
+                    <p class="clinic-head__lead">Wgraj zdjęcie drzewka: model wizyjny przygląda się mu i podpowiada, czy drzewko usycha, czy jest przelane albo ma inny kłopot, oraz co zrobić. Wynik trafia do historii. Pytania o objawy i zabiegi zadasz konsultantowi, który odpowiada z bazy porad pielęgnacyjnych.</p>
                 </header>
 
                 <div class="clinic-work">
                     <section class="clinic-card clinic-scanner" aria-labelledby="clinic-scanner-title">
                         <h2 class="clinic-card__title" id="clinic-scanner-title">Skaner zdjęcia</h2>
-                        <p class="clinic-card__note">Analiza barwy, nie rozpoznanie choroby: wynik podpowiada, czy warto obejrzeć drzewko z bliska.</p>
+                        <p class="clinic-card__note">Model ocenia to, co widać na zdjęciu, i podaje pewność wyniku. To podpowiedź, nie diagnoza: przy niskiej pewności sprawdź podłoże palcem.</p>
 
                         <form class="clinic-scanner__form" action="/clinic/scans" method="post" enctype="multipart/form-data" data-scan-form>
                             <?php include __DIR__ . '/partials/csrf.html.php'; ?>
@@ -107,7 +107,7 @@ $clinicFaq = [
                                 <label class="clinic-upload__zone" for="clinic-photo" data-dropzone>
                                     <span class="ms clinic-upload__icon" aria-hidden="true">add_photo_alternate</span>
                                     <span class="clinic-upload__title">Wybierz zdjęcie albo upuść je tutaj</span>
-                                    <span class="clinic-upload__text">Zbliżenie w świetle dziennym, najlepiej bez donicy i tła w kadrze. JPG, PNG lub WebP; duże zdjęcia zmniejszamy przed wysłaniem.</span>
+                                    <span class="clinic-upload__text">Światło dzienne, ostre zbliżenie. Przy pytaniu o podlewanie złap w kadr liście lub igły razem z wierzchem podłoża. JPG, PNG lub WebP; duże zdjęcia zmniejszamy przed wysłaniem.</span>
                                 </label>
 
                                 <figure class="clinic-preview" data-scan-preview hidden>
@@ -118,9 +118,31 @@ $clinicFaq = [
                                     <figcaption class="clinic-preview__caption" data-scan-summary aria-live="polite"></figcaption>
                                 </figure>
 
+                                <section class="clinic-result" data-scan-result aria-labelledby="clinic-result-cause" hidden>
+                                    <p class="clinic-result__confidence" data-result-confidence></p>
+                                    <h3 class="clinic-result__cause" id="clinic-result-cause" data-result-cause></h3>
+                                    <p class="clinic-result__summary" data-result-summary></p>
+                                    <div class="clinic-result__cols">
+                                        <div>
+                                            <h4 class="clinic-result__heading">Co widać na zdjęciu</h4>
+                                            <ul class="clinic-result__list" data-result-observations></ul>
+                                        </div>
+                                        <div>
+                                            <h4 class="clinic-result__heading">Co zrobić</h4>
+                                            <ol class="clinic-result__list clinic-result__list--steps" data-result-actions></ol>
+                                        </div>
+                                    </div>
+                                    <p class="clinic-result__verify" data-result-verify-row><strong>Jak to sprawdzić:</strong> <span data-result-verify></span></p>
+                                    <button type="button" class="btn btn--tonal clinic-result__schedule" data-result-schedule>
+                                        <span class="ms" aria-hidden="true">event_available</span>
+                                        <span data-result-schedule-label>Dodaj kroki do harmonogramu</span>
+                                    </button>
+                                </section>
+
                                 <input type="hidden" name="level" value="watch" data-scan-level>
                                 <input type="hidden" name="vitality" value="0" data-scan-vitality>
                                 <input type="hidden" name="title" value="" data-scan-title>
+                                <input type="hidden" name="analysis" value="" data-scan-analysis>
                                 <button type="submit" class="btn btn--primary clinic-upload__save">
                                     <span class="ms" aria-hidden="true">save</span>
                                     Zapisz skan

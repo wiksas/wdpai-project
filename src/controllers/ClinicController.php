@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Service\ClinicKnowledge;
 use App\Service\MediaStorage;
+use App\Service\PlantVision;
+use App\Service\VisionException;
 use App\Support\PolishDate;
 
 class ClinicController extends AppController
@@ -33,7 +35,28 @@ class ClinicController extends AppController
         ]);
     }
 
-    // Obsługa trasy: POST /clinic/scans: zapisz skan (zdjęcie + wynik analizy barwy policzony w przeglądarce)
+    // Obsługa trasy: POST /clinic/analyze: model wizyjny ogląda zdjęcie i zwraca rozpoznanie; nic nie zapisuje
+    public function analyze(): void
+    {
+        $this->requireLogin();
+        $this->requireCsrf();
+
+        try {
+            $path = (new MediaStorage())->validateUpload($_FILES['photo'] ?? []);
+        } catch (\InvalidArgumentException $exception) {
+            $this->respond($exception->getMessage(), '/clinic', [], false, 422);
+        }
+
+        try {
+            $analysis = PlantVision::fromEnvironment()->analyze($path, $this->scanPart());
+        } catch (VisionException $exception) {
+            $this->respond($exception->getMessage(), '/clinic', ['fallback' => true], false, 503);
+        }
+
+        $this->respond('Zdjęcie ocenione.', '/clinic', ['analysis' => $analysis + $this->analysisLabels($analysis)]);
+    }
+
+    // Obsługa trasy: POST /clinic/scans: zapisz skan (zdjęcie + rozpoznanie modelu; bez JS model ocenia zdjęcie dopiero tutaj)
     public function scan(): void
     {
         $user = $this->requireLogin();
@@ -46,16 +69,34 @@ class ClinicController extends AppController
             $this->respond($exception->getMessage(), '/clinic', [], false, 422);
         }
 
-        $part = (string) ($_POST['part'] ?? 'leaves');
-        $level = (string) ($_POST['level'] ?? 'watch');
-        $title = mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 90);
+        $part = $this->scanPart();
+        $analysis = $this->submittedAnalysis();
+        if ($analysis === null && !$this->isAjax()) {
+            try {
+                $analysis = PlantVision::fromEnvironment()->analyze((string) $storage->path($user['id'], $file), $part);
+            } catch (VisionException) {
+                $analysis = null;
+            }
+        }
+
+        if ($analysis !== null) {
+            $level = $analysis['plantVisible'] ? $analysis['condition'] : 'watch';
+            $vitality = $analysis['plantVisible'] ? $analysis['vitality'] : 0;
+            $title = $analysis['plantVisible'] ? PlantVision::CAUSES[$analysis['cause']] : 'Nie widać drzewka na zdjęciu';
+        } else {
+            $level = (string) ($_POST['level'] ?? 'watch');
+            $vitality = (int) ($_POST['vitality'] ?? 0);
+            $title = mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 90);
+        }
+
         $scan = [
             'id' => bin2hex(random_bytes(6)),
             'file' => $file,
-            'part' => in_array($part, self::PARTS, true) ? $part : 'leaves',
+            'part' => $part,
             'level' => in_array($level, self::LEVELS, true) ? $level : 'watch',
-            'vitality' => max(0, min(100, (int) ($_POST['vitality'] ?? 0))),
-            'title' => $title !== '' ? $title : 'Zdjęcie bez analizy barwy',
+            'vitality' => max(0, min(100, $vitality)),
+            'title' => $title !== '' ? $title : 'Zdjęcie bez analizy',
+            'diagnosis' => $analysis,
             'at' => PolishDate::now()->getTimestamp(),
         ];
 
@@ -138,5 +179,37 @@ class ClinicController extends AppController
             '/schedule',
             ['added' => $added, 'href' => '/schedule'],
         );
+    }
+
+    private function scanPart(): string
+    {
+        $part = (string) ($_POST['part'] ?? 'leaves');
+
+        return in_array($part, self::PARTS, true) ? $part : 'leaves';
+    }
+
+    /**
+     * Rozpoznanie przysłane z formularza (wynik wcześniejszego /clinic/analyze), znormalizowane jak odpowiedź modelu.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function submittedAnalysis(): ?array
+    {
+        $json = $_POST['analysis'] ?? '';
+        $raw = is_string($json) && $json !== '' && strlen($json) <= 8000 ? json_decode($json, true) : null;
+
+        return is_array($raw) ? PlantVision::normalize($raw) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $analysis
+     * @return array{causeLabel: string, confidenceLabel: string}
+     */
+    private function analysisLabels(array $analysis): array
+    {
+        return [
+            'causeLabel' => PlantVision::CAUSES[$analysis['cause']],
+            'confidenceLabel' => PlantVision::CONFIDENCE[$analysis['confidence']],
+        ];
     }
 }

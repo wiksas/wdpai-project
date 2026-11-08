@@ -49,6 +49,9 @@
       MAIL_PORT: 1025
       MAIL_FROM: ${MAIL_FROM:-no-reply@komorebi.local}
       MAIL_PREVIEW_URL: http://localhost:${MAILPIT_PORT:-8025}
+      # Skaner zdjęć: model wizyjny w usłudze `ollama` (pierwsze użycie wymaga `ollama pull`).
+      OLLAMA_URL: http://ollama:11434
+      VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
     depends_on:
       - db
       - mailpit
@@ -61,6 +64,13 @@
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
       - pg-network
 

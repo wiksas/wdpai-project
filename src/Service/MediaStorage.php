@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 /**
- * Zdjęcia wgrywane przez użytkowników (karta okazu, skaner Kliniki).
- * Pliki trafiają do `storage/uploads/{userId}/` — poza `public/` — i są serwowane wyłącznie
- * właścicielowi przez `GET /media/{nazwa}`. Typ pliku weryfikujemy po zawartości (finfo), a nie po rozszerzeniu.
+ * Zdjęcia użytkowników trafiają do `storage/uploads/{userId}/` (poza `public/`) i są serwowane tylko właścicielowi
+ * przez `GET /media/{nazwa}`. Typ pliku weryfikujemy po zawartości (finfo), nie po rozszerzeniu.
  */
 final class MediaStorage
 {
@@ -23,37 +22,23 @@ final class MediaStorage
     }
 
     /**
+     * Sprawdza wgrany plik ze `$_FILES` bez zapisywania go. Zwraca ścieżkę pliku tymczasowego albo rzuca wyjątek z komunikatem dla użytkownika.
+     *
+     * @param array<string, mixed> $file element `$_FILES['pole']`
+     */
+    public function validateUpload(array $file): string
+    {
+        return $this->validate($file)['path'];
+    }
+
+    /**
      * Zapisuje wgrany plik ze `$_FILES`. Zwraca nazwę pliku (np. `a1b2…c3.jpg`) albo rzuca wyjątek z komunikatem dla użytkownika.
      *
      * @param array<string, mixed> $file element `$_FILES['pole']`
      */
     public function store(int $userId, array $file): string
     {
-        $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
-        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
-            throw new \InvalidArgumentException('Zdjęcie jest zbyt duże (maks. 2 MB).');
-        }
-
-        if ($error !== UPLOAD_ERR_OK || !is_uploaded_file((string) ($file['tmp_name'] ?? ''))) {
-            throw new \InvalidArgumentException('Nie udało się odebrać pliku. Wybierz zdjęcie i spróbuj ponownie.');
-        }
-
-        $size = (int) ($file['size'] ?? 0);
-        if ($size <= 0 || $size > self::MAX_BYTES) {
-            throw new \InvalidArgumentException('Zdjęcie jest zbyt duże (maks. 2 MB).');
-        }
-
-        $path = (string) $file['tmp_name'];
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
-        $info = @getimagesize($path);
-
-        if (!is_string($mime) || !isset(self::TYPES[$mime]) || $info === false) {
-            throw new \InvalidArgumentException('Dozwolone są tylko zdjęcia JPG, PNG lub WebP.');
-        }
-
-        if ($info[0] > self::MAX_SIDE || $info[1] > self::MAX_SIDE) {
-            throw new \InvalidArgumentException('Zdjęcie ma zbyt dużą rozdzielczość.');
-        }
+        ['path' => $path, 'mime' => $mime] = $this->validate($file);
 
         $directory = $this->directory($userId);
         if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
@@ -97,6 +82,41 @@ final class MediaStorage
         if ($path !== null) {
             @unlink($path);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $file
+     * @return array{path: string, mime: string}
+     */
+    private function validate(array $file): array
+    {
+        $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+            throw new \InvalidArgumentException('Zdjęcie jest zbyt duże (maks. 2 MB).');
+        }
+
+        if ($error !== UPLOAD_ERR_OK || !is_uploaded_file((string) ($file['tmp_name'] ?? ''))) {
+            throw new \InvalidArgumentException('Nie udało się odebrać pliku. Wybierz zdjęcie i spróbuj ponownie.');
+        }
+
+        $size = (int) ($file['size'] ?? 0);
+        if ($size <= 0 || $size > self::MAX_BYTES) {
+            throw new \InvalidArgumentException('Zdjęcie jest zbyt duże (maks. 2 MB).');
+        }
+
+        $path = (string) $file['tmp_name'];
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
+        $info = @getimagesize($path);
+
+        if (!is_string($mime) || !isset(self::TYPES[$mime]) || $info === false) {
+            throw new \InvalidArgumentException('Dozwolone są tylko zdjęcia JPG, PNG lub WebP.');
+        }
+
+        if ($info[0] > self::MAX_SIDE || $info[1] > self::MAX_SIDE) {
+            throw new \InvalidArgumentException('Zdjęcie ma zbyt dużą rozdzielczość.');
+        }
+
+        return ['path' => $path, 'mime' => $mime];
     }
 
     private function directory(int $userId): string

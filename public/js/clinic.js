@@ -1,7 +1,6 @@
 /**
- * Klinika: podgląd zdjęcia z animacją skanowania i analizą barwy (w przeglądarce), zapis skanu,
- * czat z bazą wiedzy (dopasowanie słów kluczowych po stronie serwera), protokół do harmonogramu, filtr gatunków.
- * Wymaga app.js (`window.Komorebi`). Bez JS wszystkie formularze i filtr działają przez zwykły POST/GET.
+ * Klinika: skaner zdjęcia (ocena modelu wizyjnego, awaryjnie analiza barwy), zapis skanu, czat z bazą wiedzy, protokół, filtr gatunków.
+ * Wymaga app.js (`window.Komorebi`); bez JS formularze i filtr działają przez zwykły POST/GET.
  */
 (() => {
     'use strict';
@@ -19,7 +18,7 @@
         critical: { label: 'stan krytyczny', title: 'Przeważają tkanki suche lub żółte' },
     };
 
-    /** Klasyfikuje piksele zdjęcia (zieleń / żółć / brąz-susz) na pomniejszonej kopii. To analiza barwy, nie diagnoza. */
+    /** Zapasowa analiza barwy (zieleń / żółć / brąz-susz) na pomniejszonej kopii, używana tylko gdy model wizyjny jest niedostępny. */
     function analyze(img) {
         const size = 72;
         const canvas = doc.createElement('canvas');
@@ -72,14 +71,54 @@
         });
     }
 
-    // --- Wybór zdjęcia: podgląd + skanowanie + analiza ------------------------------------------------
+    // Wybór zdjęcia: podgląd, ocena modelu wizyjnego (albo analiza barwy, gdy model jest niedostępny)
     const form = doc.querySelector('[data-scan-form]');
     const fileInput = doc.querySelector('[data-scan-input]');
+    const resultPanel = doc.querySelector('[data-scan-result]');
     // JS sprawdza wybór zdjęcia sam (także upuszczonego), więc natywne `required` blokowałoby wysyłkę.
     if (fileInput) {
         fileInput.required = false;
     }
-    let current = null; // { blob, analysis }
+    let current = null; // { blob, analysis } po zakończonej ocenie
+    let lastFile = null;
+    let attempt = 0; // numer ostatniego żądania: spóźniona odpowiedź dla starszego zdjęcia jest pomijana
+
+    function resetResult() {
+        if (resultPanel) {
+            resultPanel.hidden = true;
+        }
+        const field = form?.querySelector('[data-scan-analysis]');
+        if (field) {
+            field.value = '';
+        }
+    }
+
+    function fillList(selector, items) {
+        const list = resultPanel.querySelector(selector);
+        list.replaceChildren(...items.map((text) => {
+            const item = doc.createElement('li');
+            item.textContent = text;
+            return item;
+        }));
+    }
+
+    function showResult(analysis) {
+        resultPanel.dataset.level = analysis.condition;
+        resultPanel.querySelector('[data-result-confidence]').textContent = `Pewność wyniku: ${analysis.confidenceLabel}`;
+        resultPanel.querySelector('[data-result-cause]').textContent = analysis.causeLabel;
+        resultPanel.querySelector('[data-result-summary]').textContent = analysis.summary;
+        fillList('[data-result-observations]', analysis.observations);
+        fillList('[data-result-actions]', analysis.actions);
+        resultPanel.querySelector('[data-result-verify]').textContent = analysis.verify;
+        resultPanel.querySelector('[data-result-verify-row]').hidden = analysis.verify === '';
+
+        const schedule = resultPanel.querySelector('[data-result-schedule]');
+        schedule.disabled = false;
+        schedule.classList.remove('is-done');
+        schedule.querySelector('[data-result-schedule-label]').textContent = 'Dodaj kroki do harmonogramu';
+        resultPanel.hidden = false;
+        K.play(resultPanel, 'fx-in');
+    }
 
     async function handleFile(file) {
         if (!file || !form) {
@@ -103,9 +142,12 @@
             return;
         }
 
-        const analysis = analyze(loaded.img);
+        lastFile = file;
+        const run = ++attempt;
+        const colour = analyze(loaded.img);
         current = null;
         button.disabled = true;
+        resetResult();
 
         const img = preview.querySelector('[data-scan-preview-img]');
         if (img.dataset.url) {
@@ -116,20 +158,47 @@
         preview.hidden = false;
         delete preview.dataset.level;
         preview.classList.add('is-scanning');
-        summary.textContent = 'Liczę barwy na zdjęciu…';
+        summary.textContent = 'Model przygląda się drzewku…';
 
-        await K.sleep(K.reduceMotion ? 150 : 1400);
-
+        const body = new FormData();
+        body.set('photo', loaded.blob, 'scan.jpg');
+        body.set('part', form.querySelector('input[name="part"]:checked')?.value ?? 'leaves');
+        const [response] = await Promise.all([K.request('/clinic/analyze', { method: 'POST', body }), K.sleep(K.reduceMotion ? 0 : 600)]);
+        if (run !== attempt) {
+            return;
+        }
         preview.classList.remove('is-scanning');
-        preview.dataset.level = analysis.noPlant ? 'none' : analysis.level;
-        summary.textContent = analysis.noPlant
-            ? `${analysis.title}. Zrób zbliżenie na igły lub liście, żeby wypełniały większość kadru.`
-            : `Indeks barwy ${analysis.vitality}/100, ${LEVELS[analysis.level].label}. ${analysis.title}.`;
 
-        form.querySelector('[data-scan-level]').value = analysis.level;
-        form.querySelector('[data-scan-vitality]').value = String(analysis.vitality);
-        form.querySelector('[data-scan-title]').value = analysis.title;
-        current = { blob: loaded.blob, analysis };
+        if (response.ok && response.data.analysis) {
+            const analysis = response.data.analysis;
+            preview.dataset.level = analysis.plantVisible ? analysis.condition : 'none';
+            summary.textContent = analysis.plantVisible
+                ? `Wskaźnik kondycji ${analysis.vitality}/100, ${LEVELS[analysis.condition].label}.`
+                : `${analysis.summary} ${analysis.actions[0] ?? ''}`.trim();
+            if (analysis.plantVisible) {
+                showResult(analysis);
+            }
+            form.querySelector('[data-scan-analysis]').value = JSON.stringify(analysis);
+            current = { blob: loaded.blob, analysis: analysis.plantVisible ? analysis : null };
+            button.disabled = false;
+            return;
+        }
+
+        if (response.status === 422) {
+            K.toast(response.data.message ?? 'Nie udało się odczytać zdjęcia.', 'error');
+            summary.textContent = response.data.message ?? 'Nie udało się odczytać zdjęcia.';
+            return;
+        }
+
+        // Model wizyjny niedostępny: zostaje prosta analiza barwy policzona w przeglądarce.
+        preview.dataset.level = colour.noPlant ? 'none' : colour.level;
+        summary.textContent = colour.noPlant
+            ? `${response.data.message ?? 'Analiza zdjęcia jest niedostępna.'} ${colour.title}. Zrób zbliżenie na igły lub liście, żeby wypełniały większość kadru.`
+            : `${response.data.message ?? 'Analiza zdjęcia jest niedostępna.'} Pokazuję tylko indeks barwy: ${colour.vitality}/100, ${LEVELS[colour.level].label}.`;
+        form.querySelector('[data-scan-level]').value = colour.level;
+        form.querySelector('[data-scan-vitality]').value = String(colour.vitality);
+        form.querySelector('[data-scan-title]').value = colour.title;
+        current = { blob: loaded.blob, analysis: null };
         button.disabled = false;
     }
 
@@ -155,10 +224,33 @@
     doc.addEventListener('change', (event) => {
         if (event.target === fileInput) {
             handleFile(fileInput.files?.[0]);
+        } else if (event.target.matches?.('.clinic-part__input') && lastFile) {
+            handleFile(lastFile);
         }
     });
 
-    // Upuszczanie pliku na strefę uploadu
+    // Kroki z oceny trafiają do harmonogramu na dziś tym samym endpointem co protokół ratunkowy.
+    doc.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-result-schedule]');
+        if (!button || !current?.analysis) {
+            return;
+        }
+
+        button.disabled = true;
+        const body = new FormData();
+        current.analysis.actions.forEach((step) => body.append('steps[]', step));
+        const result = await K.request('/clinic/protocol', { method: 'POST', body });
+
+        if (!result.ok) {
+            button.disabled = false;
+            K.toast(result.data.message ?? 'Nie udało się dodać kroków. Spróbuj ponownie.', 'error');
+            return;
+        }
+        K.toast(result.data.message, 'success');
+        button.classList.add('is-done');
+        button.querySelector('[data-result-schedule-label]').textContent = 'Dodano do harmonogramu';
+    });
+
     doc.addEventListener('dragover', (event) => {
         const zone = event.target.closest?.('[data-dropzone]');
         if (zone) {
@@ -201,11 +293,13 @@
         }
         K.toast(result.data.message, 'success');
         current = null;
+        lastFile = null;
         fileInput.value = '';
+        resetResult();
         await refreshScans();
     });
 
-    // --- Czat z bazą wiedzy ---------------------------------------------------------------------------
+    // Czat z bazą wiedzy
     const thread = doc.querySelector('[data-chat-thread]');
 
     function addMessage({ text, meta, user = false }) {
@@ -277,7 +371,7 @@
         }
     });
 
-    // --- Protokół ratunkowy → harmonogram -------------------------------------------------------------
+    // Protokół ratunkowy do harmonogramu
     doc.addEventListener('submit', async (event) => {
         const protocolForm = event.target.closest('[data-protocol-form]');
         if (!protocolForm) {
@@ -305,7 +399,7 @@
         link.focus();
     });
 
-    // --- Filtr gatunków (bez przeładowania) -----------------------------------------------------------
+    // Filtr gatunków
     doc.addEventListener('click', (event) => {
         const filter = event.target.closest('[data-archive-filter]');
         if (!filter) {
