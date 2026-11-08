@@ -169,6 +169,8 @@ $term = static function (string $value) use ($e, $termKanji): string {
                             </p>
                         </section>
 
+                        <?php include __DIR__ . '/partials/passport-schedule.html.php'; ?>
+
                         <section class="passport-history" aria-labelledby="passport-history-title">
                             <header class="passport-section-header">
                                 <h2 class="passport-section-header__title" id="passport-history-title">Historia zabiegów</h2>

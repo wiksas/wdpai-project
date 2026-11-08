@@ -163,9 +163,10 @@ class ClinicController extends AppController
         // `label` (nazwa okazu) zastępuje „Protokół”; `scan` oznacza skan jako dodany do harmonogramu.
         $label = mb_substr(trim(is_string($_POST['label'] ?? null) ? $_POST['label'] : ''), 0, 40);
         $scanId = is_string($_POST['scan'] ?? null) ? $_POST['scan'] : '';
+        $treeId = is_string($_POST['tree'] ?? null) && ctype_digit($_POST['tree']) ? (int) $_POST['tree'] : null;
         $today = PolishDate::today()->format('Y-m-d');
         $added = 0;
-        $this->states()->update($user['id'], static function (array $state) use ($steps, $label, $scanId, $today, &$added): array {
+        $this->states()->update($user['id'], static function (array $state) use ($steps, $label, $scanId, $treeId, $today, &$added): array {
             foreach ($steps as $index => $step) {
                 if (count($state['customTasks']) >= self::MAX_CUSTOM_TASKS) {
                     break;
@@ -177,6 +178,7 @@ class ClinicController extends AppController
                     'time' => 'Cały dzień',
                     'type' => 'care',
                     'date' => $today,
+                    'treeId' => $treeId,
                 ];
                 $added++;
             }

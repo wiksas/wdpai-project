@@ -116,7 +116,7 @@ final class ScheduleService
                 'time' => (string) ($custom['time'] ?? 'Cały dzień'),
                 'title' => (string) $custom['title'],
                 'text' => (string) ($custom['note'] ?? ''),
-                'treeId' => null,
+                'treeId' => isset($custom['treeId']) ? (int) $custom['treeId'] : null,
                 'meta' => 'Własny zabieg',
                 'note' => '',
                 'custom' => true,
@@ -135,6 +135,38 @@ final class ScheduleService
         unset($task);
 
         return $tasks;
+    }
+
+    /**
+     * Zadania jednego okazu na najbliższe dni (od dziś), pogrupowane po dniach; dni bez zadań są pomijane.
+     *
+     * @param array<string, mixed> $state
+     * @return list<array{date: string, label: string, isToday: bool, tasks: list<array<string, mixed>>}>
+     */
+    public function forTree(int $userId, int $treeId, array $state, int $days = 14): array
+    {
+        $today = PolishDate::today();
+        $groups = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $date = $today->add(new DateInterval('P' . $i . 'D'));
+            $tasks = array_values(array_filter(
+                $this->tasksFor($userId, $date, $state),
+                static fn (array $task): bool => ($task['treeId'] ?? null) === $treeId,
+            ));
+            if ($tasks === []) {
+                continue;
+            }
+
+            $groups[] = [
+                'date' => $date->format('Y-m-d'),
+                'label' => $i === 0 ? 'Dziś' : ($i === 1 ? 'Jutro' : PolishDate::full($date)),
+                'isToday' => $i === 0,
+                'tasks' => $tasks,
+            ];
+        }
+
+        return $groups;
     }
 
     /**

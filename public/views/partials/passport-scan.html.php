@@ -100,6 +100,7 @@ $progressIcons = ['improved' => 'trending_up', 'worse' => 'trending_down', 'unch
                             <?php include __DIR__ . '/csrf.html.php'; ?>
                             <input type="hidden" name="label" value="<?= $e($tree['name']) ?>">
                             <input type="hidden" name="scan" value="<?= $e($latest['id']) ?>">
+                            <input type="hidden" name="tree" value="<?= (int) $tree['id'] ?>">
                             <input type="hidden" name="_back" value="<?= $treeUrl ?>#passport-scan">
                             <?php foreach ($d['actions'] as $action): ?>
                                 <input type="hidden" name="steps[]" value="<?= $e($action) ?>">

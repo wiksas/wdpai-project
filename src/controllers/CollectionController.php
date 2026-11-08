@@ -74,6 +74,7 @@ class CollectionController extends AppController
             'activeNav' => 'collection',
             'tree' => $tree,
             'treeScans' => $treeScans,
+            'treeSchedule' => $this->schedule()->forTree($user['id'], $tree['id'], $state),
             'photos' => array_values(array_reverse(array_filter(
                 $state['photos'],
                 static fn (array $photo): bool => (int) ($photo['treeId'] ?? 0) === $tree['id'],

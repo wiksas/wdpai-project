@@ -1,5 +1,5 @@
 /**
- * Karta okazu: zdjęcia (dodawanie ze zmniejszeniem, usuwanie), skan kondycji z krokami do harmonogramu, drukowanie, udostępnianie.
+ * Karta okazu: zdjęcia (dodawanie ze zmniejszeniem, usuwanie), skan kondycji, harmonogram okazu (odhaczanie), drukowanie, udostępnianie.
  * Zabiegi (podlanie) obsługuje collection.js. Wymaga app.js (`window.Komorebi`).
  */
 (() => {
@@ -73,11 +73,41 @@
         await refreshPhotos();
     });
 
+    // Harmonogram okazu: odhaczanie zadania zapisuje od razu, a odświeżenie sekcji pokazuje stan z serwera
+    async function refreshSchedule() {
+        try {
+            const next = await K.fetchDocument(location.pathname);
+            K.swap(next, ['[data-tree-schedule]']);
+        } catch {
+            location.reload();
+        }
+    }
+
+    doc.addEventListener('change', (event) => {
+        if (event.target.matches?.('.passport-schedule__check')) {
+            event.target.form.requestSubmit();
+        }
+    });
+
+    doc.addEventListener('submit', async (event) => {
+        const form = event.target.closest('[data-tree-task]');
+        if (!form) {
+            return;
+        }
+        event.preventDefault();
+
+        const result = await K.post(form);
+        if (!result.ok) {
+            K.toast(result.data.message ?? 'Nie udało się zapisać zadania.', 'error');
+        }
+        await refreshSchedule();
+    });
+
     // Skan kondycji: nowe zdjęcie (wybór pliku od razu skanuje) albo zdjęcie już dodane do karty
     async function refreshScan() {
         try {
             const next = await K.fetchDocument(location.pathname);
-            K.swap(next, ['[data-passport-scan]', '[data-photos]']);
+            K.swap(next, ['[data-passport-scan]', '[data-photos]', '[data-tree-schedule]']);
             K.play(doc.querySelector('[data-passport-scan] .passport-scan__result'), 'fx-in');
         } catch {
             location.reload();
