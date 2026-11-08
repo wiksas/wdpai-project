@@ -54,7 +54,7 @@ $techniques = [
                 <header class="studio-hero" aria-labelledby="studio-title">
                     <p class="eyebrow">Formowanie, cięcie i drutowanie</p>
                     <h1 class="studio-hero__title" id="studio-title">Studio formowania <span class="term studio-hero__term">Zōkei <span lang="ja">造形</span></span></h1>
-                    <p class="studio-hero__lead">Zasady pięciu klasycznych stylów, kalendarz zabiegów dla gatunku, dobór drutu i próbne cięcie na rysunku drzewka, zanim sięgniesz po nożyce.</p>
+                    <p class="studio-hero__lead">Pięć klasycznych stylów z rysunkami drzewek, kalendarz zabiegów dla gatunku, dobór drutu i próbne cięcie na rysunku, zanim sięgniesz po nożyce.</p>
                     <nav class="studio-jump" aria-label="Narzędzia na tej stronie">
                         <a href="#studio-styles-title">Style</a>
                         <a href="#studio-calendar-title">Kalendarz zabiegów</a>
@@ -67,7 +67,7 @@ $techniques = [
                 <section class="studio-section" aria-labelledby="studio-styles-title">
                     <header class="studio-head">
                         <h2 class="studio-head__title" id="studio-styles-title">Pięć stylów klasycznych</h2>
-                        <p class="studio-head__desc">Każdy styl opisuje, gdzie stoi wierzchołek względem nasady i jak rozkładają się gałęzie.</p>
+                        <p class="studio-head__desc">Wybierz styl, żeby zobaczyć rysunek drzewka z trójkątem korony, numerowane cechy i gatunki, które go znoszą.</p>
                     </header>
 
                     <ul class="studio-styles" aria-label="Style klasyczne">
@@ -84,8 +84,14 @@ $techniques = [
 
                     <article class="studio-detail" aria-labelledby="studio-detail-title">
                         <figure class="studio-detail__visual">
+                            <label class="studio-detail__toggle">
+                                <input type="checkbox" checked>
+                                Pokaż trójkąt korony i numery
+                            </label>
                             <?php include __DIR__ . '/partials/studio-diagram.html.php'; ?>
-                            <figcaption class="studio-detail__caption">Trójkąt korony: <?= $e($style['balance']) ?>. Linia przerywana to pion nad nasadą.</figcaption>
+                            <figcaption class="studio-detail__caption">
+                                Trójkąt korony: <?= $e($style['balance']) ?>. Linia przerywana to pion nad nasadą, a numery odpowiadają opisom obok. <?= $e($style['diagram']['note']) ?>
+                            </figcaption>
                         </figure>
 
                         <div class="studio-detail__info">
@@ -94,9 +100,9 @@ $techniques = [
                             <p class="studio-detail__text"><?= $e($style['text']) ?></p>
 
                             <dl class="studio-facts">
-                                <?php foreach ($style['metrics'] as $metric): ?>
+                                <?php foreach ($style['metrics'] as $index => $metric): ?>
                                     <div class="studio-facts__row">
-                                        <dt><?= $e($metric['label']) ?></dt>
+                                        <dt><span class="studio-facts__n" aria-hidden="true"><?= $index + 1 ?></span><?= $e($metric['label']) ?></dt>
                                         <dd><?= $e($metric['value']) ?></dd>
                                     </div>
                                 <?php endforeach; ?>
@@ -292,39 +298,17 @@ $techniques = [
                     <article class="studio-sim" aria-label="Próbne cięcie">
                         <div class="studio-sim__stage">
                             <svg class="studio-sim__tree" viewBox="24 48 520 510" role="img" aria-label="Rysunek drzewka z czterema numerowanymi gałęziami">
-                                <polygon class="studio-svg-pot" points="152,452 416,452 404,468 164,468"/>
-                                <rect class="studio-svg-pot-rim" x="130" y="441" width="308" height="9" rx="2"/>
-                                <path class="studio-svg-trunk" d="M258 396 C 262 420, 238 438, 206 446 L 362 446 C 330 438, 290 420, 278 396 Z"/>
-                                <path class="studio-svg-root" d="M262 404 L 208 444"/>
-                                <path class="studio-svg-root" d="M298 410 L 360 444"/>
-                                <path class="studio-svg-trunk" d="M272 164 C 271 200, 272 226, 266 252 C 256 276, 244 296, 244 330 C 244 360, 252 386, 260 402 L 276 402 C 280 380, 280 360, 282 330 C 284 300, 300 270, 300 232 C 300 200, 298 180, 298 164 Z"/>
-                                <g class="studio-sim__branch" data-branch="1">
-                                    <path class="studio-svg-limb" d="M250 350 C 210 350, 170 352, 136 354" stroke-width="8" pathLength="1"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf" cx="98" cy="358" rx="46" ry="17.6"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf-light" cx="112" cy="352" rx="34" ry="11"/>
-                                </g>
-                                <g class="studio-sim__branch" data-branch="2">
-                                    <path class="studio-svg-limb" d="M272 340 C 310 344, 350 350, 384 352" stroke-width="8" pathLength="1"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf" cx="418" cy="354" rx="41.6" ry="16"/>
-                                </g>
-                                <g class="studio-sim__branch" data-branch="3">
-                                    <path class="studio-svg-limb" d="M262 286 C 236 274, 210 264, 184 258" stroke-width="7" pathLength="1"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf-light" cx="157" cy="256" rx="32" ry="13.6"/>
-                                </g>
-                                <g class="studio-sim__branch" data-branch="4">
-                                    <path class="studio-svg-limb" d="M292 250 C 330 244, 360 238, 392 234" stroke-width="7" pathLength="1"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf" cx="428" cy="230" rx="44" ry="16"/>
-                                    <ellipse class="studio-sim__leaf studio-svg-leaf-light" cx="416" cy="226" rx="30" ry="10"/>
-                                </g>
-                                <ellipse class="studio-sim__leaf studio-svg-apex" cx="284" cy="148" rx="56" ry="17.6"/>
-                                <ellipse class="studio-sim__leaf studio-svg-apex-light" cx="294" cy="142" rx="42" ry="12.8"/>
-                                <line class="studio-svg-axis" x1="284" y1="130" x2="284" y2="448"/>
+                                <?= \App\Support\BonsaiArt::tree($simulator, 'simulator', true) ?>
+                                <line class="studio-svg-axis" x1="284" y1="120" x2="284" y2="438"/>
                                 <circle class="studio-svg-center" cx="284" cy="300" r="7" data-sim-center/>
                                 <g class="studio-sim__markers">
-                                    <g class="studio-sim__marker" data-branch-toggle="1" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 1: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="94.4" cy="358" r="36"/><circle cx="94.4" cy="358" r="14"/><text x="94.4" y="363">1</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="2" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 2: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="416" cy="352.8" r="36"/><circle cx="416" cy="352.8" r="14"/><text x="416" y="357.8">2</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="3" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 3: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="156" cy="256.8" r="36"/><circle cx="156" cy="256.8" r="14"/><text x="156" y="261.8">3</text></g>
-                                    <g class="studio-sim__marker" data-branch-toggle="4" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź 4: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="426.4" cy="229.6" r="36"/><circle cx="426.4" cy="229.6" r="14"/><text x="426.4" y="234.6">4</text></g>
+                                    <?php foreach ($simulator['branches'] as $branchIndex => $branch): ?>
+                                        <?php foreach ($simulator['pads'] as $pad): ?>
+                                            <?php if (($pad['branch'] ?? null) === $branchIndex): ?>
+                                                <g class="studio-sim__marker" data-branch-toggle="<?= (int) $branch['group'] ?>" role="button" tabindex="0" aria-pressed="false" aria-label="Gałąź <?= (int) $branch['group'] ?>: zaznacz do usunięcia"><circle class="studio-sim__hit" cx="<?= $pad['cx'] ?>" cy="<?= $pad['cy'] ?>" r="36"/><circle cx="<?= $pad['cx'] ?>" cy="<?= $pad['cy'] ?>" r="14"/><text x="<?= $pad['cx'] ?>" y="<?= $pad['cy'] + 5 ?>"><?= (int) $branch['group'] ?></text></g>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    <?php endforeach; ?>
                                 </g>
                             </svg>
                             <p class="studio-sim__hint">Kliknij numer gałęzi albo wybierz go klawiszem Tab i naciśnij Enter. Linia pionowa to oś pnia, kropka to środek masy korony.</p>

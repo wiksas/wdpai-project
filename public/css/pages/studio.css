@@ -200,10 +200,27 @@
     gap: 12px;
 }
 
+.studio-detail__toggle {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    min-height: 32px;
+    font-size: 14px;
+    color: var(--c-on-surface-variant);
+    cursor: pointer;
+}
+
+.studio-detail__toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--c-primary);
+}
+
 .studio-detail__diagram {
     width: 100%;
     height: auto;
-    aspect-ratio: 446 / 412;
+    aspect-ratio: 520 / 480;
     border-radius: var(--radius-md);
     background-color: var(--c-surface-low);
 }
@@ -252,7 +269,24 @@
 }
 
 .studio-facts dt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     color: var(--c-on-surface-variant);
+}
+
+.studio-facts__n {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-on-primary);
+    background-color: var(--c-primary);
+    border-radius: var(--radius-full);
 }
 
 .studio-facts dd {
@@ -307,55 +341,148 @@
     stroke-width: 1.5;
 }
 
-.studio-svg-trunk {
-    fill: var(--c-on-surface-variant);
+/* Rysunek drzewka: wypełnione kształty w barwach z natury (tokeny --c-bark…, --c-needle…, --c-pot…). */
+.studio-bark,
+.studio-limb,
+.studio-root {
+    fill: var(--c-bark);
 }
 
-.studio-svg-root,
-.studio-svg-limb {
+.studio-limb--back {
+    fill: color-mix(in srgb, var(--c-bark) 62%, var(--c-surface-low));
+}
+
+.studio-bark-shade {
     fill: none;
-    stroke: var(--c-on-surface-variant);
+    stroke: var(--c-bark-dark);
+    stroke-width: 5;
     stroke-linecap: round;
+    opacity: 0.5;
 }
 
-.studio-svg-root {
-    stroke-width: 6;
-}
-
-.studio-svg-back {
-    fill: var(--c-outline-variant);
-    stroke: var(--c-outline-variant);
-    stroke-linecap: round;
-}
-
-path.studio-svg-back {
+.studio-bark-light {
     fill: none;
+    stroke: var(--c-bark-light);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    opacity: 0.5;
 }
 
-.studio-svg-leaf {
-    fill: var(--c-secondary);
+.studio-bark-crack {
+    fill: none;
+    stroke: var(--c-bark-dark);
+    stroke-width: 1.2;
+    stroke-dasharray: 14 7 3 9;
+    opacity: 0.6;
 }
 
-.studio-svg-leaf-light {
-    fill: color-mix(in srgb, var(--c-secondary) 72%, var(--c-surface-lowest));
+.studio-bark-crack--b {
+    stroke-dasharray: 5 10 18 6;
 }
 
-.studio-svg-apex {
-    fill: var(--c-primary);
+.studio-ground-shadow {
+    fill: var(--c-bark-dark);
+    opacity: 0.22;
 }
 
-.studio-svg-apex-light {
-    fill: color-mix(in srgb, var(--c-primary) 78%, var(--c-surface-lowest));
+.studio-stand {
+    fill: var(--c-bark-dark);
 }
 
-.studio-svg-pot {
-    fill: var(--c-surface-highest);
-    stroke: var(--c-outline);
-    stroke-width: 1;
+.studio-stand--top {
+    fill: var(--c-bark);
 }
 
-.studio-svg-pot-rim {
-    fill: var(--c-outline);
+.studio-pot {
+    fill: var(--c-pot);
+}
+
+.studio-pot-shade {
+    fill: var(--c-pot-dark);
+    opacity: 0.55;
+}
+
+.studio-pot-rim {
+    fill: color-mix(in srgb, var(--c-pot) 78%, var(--c-bark-light));
+}
+
+.studio-pot-foot {
+    fill: var(--c-pot-dark);
+}
+
+.studio-pot-glint {
+    fill: none;
+    stroke: var(--c-bark-light);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.35;
+}
+
+.studio-soil {
+    fill: var(--c-soil);
+}
+
+.studio-moss {
+    fill: var(--c-moss);
+}
+
+.studio-moss--light {
+    fill: color-mix(in srgb, var(--c-moss) 65%, var(--c-needle-light));
+}
+
+.studio-pebble {
+    fill: var(--c-bark-light);
+    opacity: 0.7;
+}
+
+.studio-pad {
+    --pad-deep: var(--c-needle-deep);
+    --pad-mid: var(--c-needle);
+    --pad-light: var(--c-needle-light);
+}
+
+.studio-pad--apex {
+    --pad-mid: color-mix(in srgb, var(--c-needle) 78%, var(--c-needle-light));
+}
+
+.studio-pad--back {
+    --pad-deep: color-mix(in srgb, var(--c-needle-deep) 68%, var(--c-surface-low));
+    --pad-mid: color-mix(in srgb, var(--c-needle) 68%, var(--c-surface-low));
+    --pad-light: color-mix(in srgb, var(--c-needle-light) 68%, var(--c-surface-low));
+}
+
+.studio-pad__shadow {
+    fill: var(--c-bark-dark);
+    opacity: 0.25;
+}
+
+.studio-pad__deep {
+    fill: var(--pad-deep);
+}
+
+.studio-pad__mid {
+    fill: var(--pad-mid);
+}
+
+.studio-pad__light {
+    fill: var(--pad-light);
+    opacity: 0.85;
+}
+
+.studio-pad__tufts {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 1.3;
+}
+
+.studio-pad__tufts--dark {
+    stroke: var(--pad-deep);
+    opacity: 0.85;
+}
+
+.studio-pad__tufts--light {
+    stroke: var(--pad-light);
+    opacity: 0.9;
 }
 
 .studio-svg-wood {
@@ -395,18 +522,30 @@ path.studio-svg-back {
 
 .studio-diagram__triangle {
     fill: var(--c-secondary);
-    fill-opacity: 0.08;
-}
-
-.studio-diagram__triangle-edge {
-    fill: none;
+    fill-opacity: 0.1;
     stroke: var(--c-secondary);
-    stroke-width: 1;
-    stroke-dasharray: 3 3;
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+    stroke-linejoin: round;
 }
 
-.studio-diagram__branch {
-    stroke-dasharray: 1;
+/* Numery na rysunku odpowiadają numerom w opisie obok. */
+.studio-mark circle {
+    fill: var(--c-primary);
+    stroke: var(--c-surface-lowest);
+    stroke-width: 2.5;
+}
+
+.studio-mark text {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    text-anchor: middle;
+    fill: var(--c-on-primary);
+}
+
+.studio-detail__visual:has(.studio-detail__toggle input:not(:checked)) .studio-overlay {
+    display: none;
 }
 
 /* Kalendarz zabiegów */
@@ -838,29 +977,33 @@ path.studio-svg-back {
     color: var(--c-on-surface-variant);
 }
 
-.studio-sim__branch path,
-.studio-sim__branch ellipse {
-    transition: opacity 240ms ease, stroke var(--transition);
+.studio-sim__leaf {
+    fill: none;
+    stroke: none;
+    pointer-events: none;
 }
 
-.studio-sim__branch.is-cut ellipse {
-    opacity: 0.12;
+.studio-sim__branch .studio-pad,
+.studio-sim__branch .studio-limb {
+    transition: opacity 240ms ease, fill var(--transition);
 }
 
-.studio-sim__branch.is-cut path {
+.studio-sim__branch.is-cut .studio-pad {
+    opacity: 0.1;
+}
+
+.studio-sim__branch.is-cut .studio-limb {
     opacity: 0.35;
-    stroke-dasharray: 0.04 0.03;
 }
 
-/* Jin: usunięta gałąź zostaje jako jasne, martwe drewno bez liści. */
-.studio-sim__branch.is-jin ellipse {
+/* Jin: usunięta gałąź zostaje jako jasne, martwe drewno bez igieł. */
+.studio-sim__branch.is-jin .studio-pad {
     opacity: 0;
 }
 
-.studio-sim__branch.is-jin path {
+.studio-sim__branch.is-jin .studio-limb {
     opacity: 1;
-    stroke: var(--c-outline-variant);
-    stroke-dasharray: none;
+    fill: var(--c-bark-light);
 }
 
 .studio-svg-center {
@@ -1146,28 +1289,7 @@ path.studio-svg-back {
 }
 
 /* Ruch */
-/* Rysunek stylu rysuje się po wczytaniu: pokazuje kolejność budowy drzewa (pień, gałęzie, korona). */
 @media (prefers-reduced-motion: no-preference) {
-    .studio-diagram__branch {
-        animation: studio-draw 0.8s ease-out both;
-    }
-
-    .studio-diagram__foliage {
-        transform-box: fill-box;
-        transform-origin: center;
-        animation: studio-grow 0.5s ease-out 0.6s both;
-    }
-
-    @keyframes studio-draw {
-        from { stroke-dashoffset: 1; }
-        to { stroke-dashoffset: 0; }
-    }
-
-    @keyframes studio-grow {
-        from { opacity: 0; transform: scale(0.4); }
-        to { opacity: 1; transform: scale(1); }
-    }
-
     /* Odsłanianie przy przewijaniu prowadzi do kolejnego narzędzia. */
     @supports (animation-timeline: view()) {
         .studio-head,

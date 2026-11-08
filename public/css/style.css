@@ -45,6 +45,18 @@
     --c-on-band: light-dark(#ffffff, #e3e3dc);
     --c-on-band-variant: light-dark(#a9c7b5, #a9c7b5);
 
+    /* Rysunki drzewek w Studio: barwy z natury (kora, igły, donica, ziemia, mech), poza paletą interfejsu */
+    --c-bark: light-dark(#6a4c37, #a58d76);
+    --c-bark-dark: light-dark(#3d2a1d, #6b5848);
+    --c-bark-light: light-dark(#9a7456, #d2bfa6);
+    --c-needle-deep: light-dark(#2d4a35, #3a6444);
+    --c-needle: light-dark(#42704b, #5a9163);
+    --c-needle-light: light-dark(#6c9b69, #8fbb88);
+    --c-pot: light-dark(#8c5b40, #a46c4d);
+    --c-pot-dark: light-dark(#66402b, #7a4c34);
+    --c-soil: light-dark(#4b3b2d, #3a2e25);
+    --c-moss: light-dark(#5f8a4c, #6d9a58);
+
     /* Krój: Noto Serif z Zen Old Mincho dla kanji; Zen Kaku Gothic New to jeden głos dla tekstu i kanji. */
     --font-serif: "Noto Serif", "Zen Old Mincho", Georgia, "Times New Roman", serif;
     --font-sans: "Zen Kaku Gothic New", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

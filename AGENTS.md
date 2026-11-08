@@ -42,7 +42,7 @@ Aktualnie aplikacja obsluguje:
 │   ├── controllers/           # kontrolery aplikacji
 │   ├── Repository/            # repozytoria: Database (PDO), konta i stan uzytkownika w PostgreSQL, dane demonstracyjne okazow
 │   ├── Service/               # serwisy: Session, Csrf, Flash, AuthService, MediaStorage, Collection/Schedule/Notification/Clinic/Studio…
-│   ├── Support/               # klasy pomocnicze bez zaleznosci (PolishDate)
+│   ├── Support/               # klasy pomocnicze bez zaleznosci (PolishDate, BonsaiArt: rysunki drzewek w SVG ze specyfikacji)
 │   └── Routing.php            # rejestracja i obsluga tras
 ├── storage/                   # dane uruchomieniowe poza `public/` (state/, uploads/ — w .gitignore)
 ├── DESIGN.md                  # kierunek wizualny i powody decyzji projektowych

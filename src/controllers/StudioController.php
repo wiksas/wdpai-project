@@ -24,6 +24,7 @@ class StudioController extends AppController
             'activeNav' => 'studio',
             'styles' => $catalog->styles($styleId),
             'style' => $catalog->style($styleId),
+            'simulator' => $catalog->simulator(),
             'speciesTabs' => $catalog->speciesTabs($speciesId),
             'calendar' => $catalog->calendar($speciesId, $today),
             'monthName' => PolishDate::month($today),
