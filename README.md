@@ -11,10 +11,11 @@ Aplikacja webowa (czysty PHP 8.3, MVC bez frameworka) pomagająca opiekunom bons
 | Rejestracja | `/register` | gość | Założenie konta hodowcy (walidacja, hasło hashowane); konto aktywuje link wysłany e-mailem |
 | Potwierdzenie e-maila | `/verify-email` | wszyscy | „Sprawdź skrzynkę” po rejestracji, obsługa linku aktywacyjnego (24 h, jednorazowy), ponowna wysyłka (raz na minutę) |
 | Wylogowanie | `POST /logout` | zalogowany | Menu konta w nagłówku |
-| Moja Kolekcja | `/collection` | zalogowany | Panel kolekcji: filtry (iglaste/liściaste/do podlania) i wyszukiwarka na żywo, podlewanie, dziennik obserwacji, nadchodzące zabiegi |
-| Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia, podlanie z animowanym paskiem, galeria zdjęć (upload ze zmniejszaniem), druk i udostępnianie (404 dla nieznanego id) |
+| Moja Kolekcja | `/collection` | zalogowany | Panel kolekcji: filtry (iglaste/liściaste/do podlania) i wyszukiwarka na żywo, podlewanie, dziennik obserwacji, nadchodzące zabiegi, przycisk „Dodaj drzewko” (maks. 12 okazów) |
+| Nowe drzewko | `/collection/new` | zalogowany | Formularz własnego okazu: nazwa, gatunek, rodzaj, styl, wiek, donica i opcjonalne zdjęcie; błędy przy polach, działa bez JS |
+| Karta okazu | `/collection/{id}` | zalogowany | Paszport drzewka: status biologiczny, zalecenia, podlanie z animowanym paskiem, galeria zdjęć (upload ze zmniejszaniem), druk i udostępnianie, usuwanie z kolekcji z potwierdzeniem (404 dla nieznanego id) |
 | Studio Formowania | `/studio` | zalogowany | 5 stylów klasycznych i 4 gatunki (`?style=`, `?species=`), kalendarz zabiegów dla bieżącego miesiąca, kalkulator grubości drutu, wzorzec kąta owijania, symulator balansu korony z zapisem planu cięcia do harmonogramu |
-| Klinika | `/clinic` | zalogowany | Wgrywanie zdjęcia z animacją skanowania i analizą barwy w przeglądarce, historia skanów, konsultant odpowiadający z bazy wiedzy (dopasowanie słów kluczowych, nie model językowy), protokół ratunkowy → harmonogram, filtr archiwum |
+| Klinika | `/clinic` | zalogowany | Skaner zdjęcia: model wizyjny (Ollama) ogląda drzewko, rozpoznaje przesuszenie, przelanie, szkodniki lub niedobór składników, podaje pewność, co widać i co zrobić (kroki trafiają do harmonogramu); historia skanów, konsultant odpowiadający z bazy wiedzy (dopasowanie słów kluczowych, nie model językowy), protokół ratunkowy, filtr archiwum |
 | Harmonogram | `/schedule` | zalogowany | Tydzień ze strzałkami (animowane przesuwanie, gest przeciągnięcia, „Dziś”), zadania dnia z odhaczaniem, własne zabiegi, okna sezonowe (sekki) |
 | Powiadomienia | dzwonek w pasku górnym | zalogowany | Panel powiadomień liczonych z danych (podlewanie, zadania, okna sezonowe), oznaczanie jako przeczytane |
 | Motyw jasny/ciemny | przycisk w nagłówku i pasku górnym | wszyscy | Domyślnie zgodny z motywem ustawionym w systemie (zmienia się razem z nim). Przycisk wymusza motyw inny niż systemowy i zapisuje go w ciasteczku `theme` (`POST /theme`); powrót do motywu systemowego usuwa ciasteczko. Zmiana bez przeładowania z JS, formularzem bez JS |
@@ -48,6 +49,17 @@ docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < d
 ```
 
 `02-login-format.sql` nadaje kontom założonym przed dodaniem pola „Login” login z części adresu e-mail przed `@` (przy kolizji z numerem na końcu) i dodaje regułę formatu loginu. `03-email-verification.sql` dodaje potwierdzanie adresu e-mail; istniejące wtedy konta uznaje za potwierdzone.
+
+## Skaner zdjęć (Ollama)
+
+Skaner używa modelu wizyjnego z usługi `ollama` (domyślnie `qwen2.5vl:7b`, zmiana przez `VISION_MODEL` w `.env`). Model odpowiada tylko „tak/nie” na pytania o to, co widać na zdjęciu; przyczynę i zalecenia wyprowadza z tych odpowiedzi reguła w `App\Service\PlantVision`. Wynik jest podpowiedzią, nie diagnozą. Przy pierwszym uruchomieniu pobierz model (ok. 6 GB):
+
+```bash
+docker compose up -d ollama
+docker compose exec ollama ollama pull qwen2.5vl:7b
+```
+
+Usługa `ollama` rezerwuje GPU NVIDIA (analiza trwa kilka sekund); bez GPU usuń blok `deploy` z `docker-compose.yaml`, a analiza potrwa dłużej. Gdy Ollama nie działa lub brakuje modelu, skaner pokazuje samą analizę barwy z przeglądarki.
 
 ## Poczta i potwierdzanie konta
 

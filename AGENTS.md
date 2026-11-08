@@ -10,7 +10,7 @@ Aktualnie aplikacja obsluguje:
 
 - strone glowna pod `/` (publiczna),
 - logowanie, rejestracje i wylogowanie pod `/login`, `/register` i `/logout` (konto demonstracyjne `admin` / `admin`),
-- po zalogowaniu: panel kolekcji pod `/collection`, karte okazu pod `/collection/{id}` (dane z `App\Repository\TreeRepository`), studio formowania pod `/studio`, klinike pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
+- po zalogowaniu: panel kolekcji pod `/collection`, formularz wlasnego drzewka pod `/collection/new`, karte okazu pod `/collection/{id}` (przykladowe dane z `App\Repository\TreeRepository`, wlasne i usuniete okazy w stanie uzytkownika: `customTrees`, `removedTrees`; `CollectionService::add()`/`remove()`, limit `CAPACITY`), studio formowania pod `/studio`, klinike pod `/clinic` i harmonogram pod `/schedule`; gosc jest przekierowywany na `/login`,
 - motyw jasny/ciemny (przelacznik w naglowku i pasku gornym, `POST /theme`),
 - odpowiedz 404 dla nieznanych tras i nieistniejacych okazow.
 
@@ -143,6 +143,7 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 - **Stan uzytkownika** (odczytane powiadomienia, odhaczone zadania, wlasne zabiegi, podlewanie, dziennik, zdjecia, skany) zapisuje `App\Repository\UserStateRepository` w `storage/state/user-{id}.json` (blokada `flock`). Nowe pole dodaj do `UserStateRepository::DEFAULTS`.
 - **Zdjecia:** wgrywa je `App\Service\MediaStorage` (kontrola MIME przez `finfo`, limit 2 MB i 6000 px, losowe nazwy) do `storage/uploads/{userId}/`. Pliki sa serwowane tylko wlascicielowi przez `GET /media/{name}` (`MediaController`); `storage/` nie jest publiczne.
 - **Serwisy domenowe:** `CollectionService` (stan drzewek po zabiegach), `ScheduleService` (zadania generowane regulami + wlasne), `NotificationService` (powiadomienia liczone z danych, ID zawieraja date/status), `ClinicKnowledge` (baza wiedzy konsultanta — dopasowanie slow kluczowych, nie model jezykowy), `StudioCatalog` (style i kalendarze gatunkow), `Support\PolishDate` (polskie daty).
+- **Skaner zdjec (Klinika):** `App\Service\PlantVision` pokazuje zdjecie modelowi wizyjnemu w Ollama (`OLLAMA_URL`, `VISION_MODEL`) i zbiera odpowiedzi tak/nie na stale pytania; przyczyne (przesuszenie, przelanie, szkodniki…), powage, pewnosc i polskie zalecenia wyprowadza regula `diagnose()`, nie model. `POST /clinic/analyze` tylko ocenia (nic nie zapisuje), `POST /clinic/scans` zapisuje skan z ocena z formularza (`analysis`, normalizowana przez `PlantVision::normalize()`); bez JS ocene robi dopiero `scan()`. Przy `VisionException` JS wraca do analizy barwy z przegladarki. Nginx ma `fastcgi_read_timeout 180s` pod wolna analize.
 
 ## JavaScript
 
