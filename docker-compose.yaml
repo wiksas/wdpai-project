@@ -61,19 +61,14 @@
     networks:
       - pg-network
 
+  # Bez GPU Ollama liczy na procesorze (działa na każdym komputerze, analiza zdjęcia trwa dłużej).
+  # Karta NVIDIA: dołącz docker-compose.gpu.yaml (COMPOSE_FILE w .env, opis w README).
   ollama:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     networks:
       - pg-network
 

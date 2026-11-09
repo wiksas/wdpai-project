@@ -1,0 +1,13 @@
+# Rezerwacja karty NVIDIA dla Ollamy. Dołączana tylko na komputerze z GPU, np. w .env:
+#   COMPOSE_PATH_SEPARATOR=:
+#   COMPOSE_FILE=docker-compose.yaml:docker-compose.gpu.yaml
+# albo jednorazowo: docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up -d
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

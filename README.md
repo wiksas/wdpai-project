@@ -42,7 +42,7 @@ cd wdpai-project
 docker compose up --build -d server php db mailpit
 ```
 
-Aplikacja: `http://localhost:8080`, skrzynka z mailami aktywacyjnymi: `http://localhost:8025`. Baza przy pierwszym starcie sama wykonuje `docker/db/*.sql` i zakłada konto demonstracyjne. Podgląd bazy: pgAdmin (`docker compose up -d pgadmin-wdpai`, potem `http://localhost:5050`, `admin@example.com` / `admin`) albo `docker compose exec db psql -U wdpai_user -d wdpai_db`. Usługi są wymienione z nazwy, bo samo `docker compose up` uruchamia też `ollama`, która wymaga GPU NVIDIA (patrz niżej).
+Aplikacja: `http://localhost:8080`, skrzynka z mailami aktywacyjnymi: `http://localhost:8025`. Baza przy pierwszym starcie sama wykonuje `docker/db/*.sql` i zakłada konto demonstracyjne. Podgląd bazy: pgAdmin (`docker compose up -d pgadmin-wdpai`, potem `http://localhost:5050`, `admin@example.com` / `admin`) albo `docker compose exec db psql -U wdpai_user -d wdpai_db`. Usługi są wymienione z nazwy, żeby nie pobierać Ollamy (kilka GB), gdy skaner nie jest potrzebny; samo `docker compose up -d` uruchamia wszystko, także na komputerze bez karty graficznej.
 
 Plik `.env` jest opcjonalny: `docker-compose.yaml` ma wartości domyślne dla wszystkich zmiennych (baza `wdpai_db`, użytkownik `wdpai_user`, hasło `wdpai_password`, porty 8080/5433/8025/5050). Żeby coś zmienić (np. zajęty port albo inne hasło), skopiuj wzór `cp .env.example .env` i popraw wartości; `.env` nie trafia do repozytorium. Hasło bazy działa tylko przy pierwszym starcie pustego wolumenu `pg-data`, później zmiana w `.env` wymaga `docker compose down -v` (usuwa dane). Zmieniając `APP_PORT`, zmień też `APP_URL`, bo inaczej linki w mailach poprowadzą pod stary port.
 
@@ -78,7 +78,14 @@ docker compose exec ollama ollama pull qwen2.5vl:7b
 docker compose exec ollama ollama pull gemma3:4b
 ```
 
-Usługa `ollama` rezerwuje GPU NVIDIA (analiza trwa kilka sekund); bez GPU usuń blok `deploy` z `docker-compose.yaml`, a analiza potrwa dłużej. Gdy Ollama nie działa lub brakuje modelu, skaner pokazuje samą analizę barwy z przeglądarki.
+Bez dodatkowej konfiguracji Ollama liczy na procesorze, więc działa na każdym komputerze, ale analiza zdjęcia trwa znacznie dłużej (Nginx czeka na nią do 180 s, `fastcgi_read_timeout`). Na komputerze z kartą NVIDIA (sterownik i NVIDIA Container Toolkit; Docker Desktop na Windows ma go w WSL 2) dopisz do `.env`:
+
+```bash
+COMPOSE_PATH_SEPARATOR=:
+COMPOSE_FILE=docker-compose.yaml:docker-compose.gpu.yaml
+```
+
+Wtedy każde `docker compose …` dołącza `docker-compose.gpu.yaml`, który rezerwuje GPU dla Ollamy (analiza trwa kilka sekund). Bez karty NVIDIA tych linii nie dodawaj: start kończy się błędem `nvidia-container-cli: initialization error`. Gdy Ollama nie działa lub brakuje modelu, skaner pokazuje samą analizę barwy z przeglądarki.
 
 Konsultant w Klinice rozmawia innym modelem (`CHAT_MODEL`, domyślnie `gemma3:4b`, ok. 3 GB): zna kolekcję i ostatni skan użytkownika, pamięta rozmowę (zapis na koncie) i opiera się na poradach z `ClinicKnowledge`. Na karcie 8 GB oba modele nie mieszczą się naraz, więc przy przełączaniu między zdjęciem a rozmową pierwsza odpowiedź trwa kilkanaście sekund dłużej.
 
