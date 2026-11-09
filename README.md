@@ -39,11 +39,12 @@ Na nowym urządzeniu potrzebne są tylko Git i Docker (Docker Desktop albo Docke
 ```bash
 git clone https://github.com/wiksas/wdpai-project.git
 cd wdpai-project
-cp .env.example .env
 docker compose up --build -d server php db mailpit
 ```
 
-Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`), skrzynka z mailami aktywacyjnymi: `http://localhost:8025`. Dane dostępowe bazy (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) pochodzą z `.env` (wzór w `.env.example`, działa bez zmian). Baza przy pierwszym starcie sama wykonuje `docker/db/*.sql` i zakłada konto demonstracyjne. Podgląd bazy: pgAdmin (`docker compose up -d pgadmin-wdpai`, potem `http://localhost:5050`) albo `docker compose exec db psql -U wdpai_user -d wdpai_db`. Usługi są wymienione z nazwy, bo samo `docker compose up` uruchamia też `ollama`, która wymaga GPU NVIDIA (patrz niżej).
+Aplikacja: `http://localhost:8080`, skrzynka z mailami aktywacyjnymi: `http://localhost:8025`. Baza przy pierwszym starcie sama wykonuje `docker/db/*.sql` i zakłada konto demonstracyjne. Podgląd bazy: pgAdmin (`docker compose up -d pgadmin-wdpai`, potem `http://localhost:5050`, `admin@example.com` / `admin`) albo `docker compose exec db psql -U wdpai_user -d wdpai_db`. Usługi są wymienione z nazwy, bo samo `docker compose up` uruchamia też `ollama`, która wymaga GPU NVIDIA (patrz niżej).
+
+Plik `.env` jest opcjonalny: `docker-compose.yaml` ma wartości domyślne dla wszystkich zmiennych (baza `wdpai_db`, użytkownik `wdpai_user`, hasło `wdpai_password`, porty 8080/5433/8025/5050). Żeby coś zmienić (np. zajęty port albo inne hasło), skopiuj wzór `cp .env.example .env` i popraw wartości; `.env` nie trafia do repozytorium. Hasło bazy działa tylko przy pierwszym starcie pustego wolumenu `pg-data`, później zmiana w `.env` wymaga `docker compose down -v` (usuwa dane). Zmieniając `APP_PORT`, zmień też `APP_URL`, bo inaczej linki w mailach poprowadzą pod stary port.
 
 Autoloader Composera (`vendor/`) jest w repozytorium, więc po sklonowaniu nic nie trzeba instalować. Projekt nie ma zewnętrznych zależności, a autoloader to zwykłe PSR-4, więc nowe klasy w `src/` ładują się bez przebudowy. Po zmianie mapowania w `composer.json` wygeneruj go ponownie i zacommituj:
 
