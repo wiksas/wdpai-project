@@ -16,7 +16,7 @@ $scanParts = ['leaves' => 'Liście i igły', 'bark' => 'Kora i pień', 'roots' =
                 <?php $scanLevel = (string) ($scan['level'] ?? 'watch'); ?>
                 <?php $scanDiagnosis = is_array($scan['diagnosis'] ?? null) ? $scan['diagnosis'] : null; ?>
                 <li>
-                    <a href="/media/<?= $scanEscape($scan['file']) ?>" target="_blank" rel="noopener" class="clinic-scans__item">
+                    <a href="/clinic/scans/<?= $scanEscape($scan['id']) ?>" class="clinic-scans__item">
                         <img class="clinic-scans__thumb" src="/media/<?= $scanEscape($scan['file']) ?>" alt="" width="56" height="56" loading="lazy">
                         <span class="clinic-scans__text">
                             <span class="clinic-scans__title"><?= $scanEscape($scan['title']) ?></span>
@@ -30,20 +30,9 @@ $scanParts = ['leaves' => 'Liście i igły', 'bark' => 'Kora i pień', 'roots' =
                                 <span class="clinic-scans__score clinic-scans__score--<?= $scanEscape($scanLevel) ?>"><?= $scanDiagnosis !== null ? 'Kondycja' : 'Indeks barwy' ?> <?= (int) $scan['vitality'] ?>/100, <?= $scanEscape($scanLevels[$scanLevel] ?? '') ?></span>
                             <?php endif; ?>
                         </span>
-                        <span class="visually-hidden">(otwiera zdjęcie w nowej karcie)</span>
-                        <span class="ms clinic-scans__open" aria-hidden="true">open_in_new</span>
+                        <span class="visually-hidden">(pokaż wynik skanu)</span>
+                        <span class="ms clinic-scans__open" aria-hidden="true">chevron_right</span>
                     </a>
-                    <?php if ($scanDiagnosis !== null && ($scanDiagnosis['plantVisible'] ?? false)): ?>
-                        <details class="clinic-scans__more">
-                            <summary>Ocena i zalecenia, pewność <?= $scanEscape(\App\Service\PlantVision::CONFIDENCE[$scanDiagnosis['confidence'] ?? 'low'] ?? 'niska') ?></summary>
-                            <p><?= $scanEscape($scanDiagnosis['summary'] ?? '') ?></p>
-                            <ul>
-                                <?php foreach (($scanDiagnosis['actions'] ?? []) as $scanAction): ?>
-                                    <li><?= $scanEscape($scanAction) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </details>
-                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>

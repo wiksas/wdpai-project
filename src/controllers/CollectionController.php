@@ -251,8 +251,9 @@ class CollectionController extends AppController
         }
 
         $path = (string) $storage->path($user['id'], $source);
+        $note = PlantVision::cleanNote($_POST['note'] ?? '');
         try {
-            $analysis = PlantVision::fromEnvironment()->analyze($path, 'leaves');
+            $analysis = PlantVision::fromEnvironment()->analyze($path, 'leaves', $note);
         } catch (VisionException $exception) {
             $this->respond($exception->getMessage() . ($photoId === '' ? ' Zdjęcie zostało zapisane w karcie okazu.' : ''), $back, [], false, 503);
         }
@@ -286,6 +287,7 @@ class CollectionController extends AppController
             'diagnosis' => $diagnosis,
             'at' => $now,
             'photoAt' => $photoAt,
+            'note' => $note,
         ];
         (new ScanHistory($this->states(), $storage))->add($user['id'], $scan);
 

@@ -23,6 +23,10 @@ $progressIcons = ['improved' => 'trending_up', 'worse' => 'trending_down', 'unch
 
     <form class="passport-scan__form" action="<?= $treeUrl ?>/scan" method="POST" enctype="multipart/form-data" data-scan-form>
         <?php include __DIR__ . '/csrf.html.php'; ?>
+        <div class="field passport-scan__note">
+            <label class="field__label" for="passport-scan-note">Co się ostatnio działo z drzewkiem? (opcjonalnie)</label>
+            <textarea class="textarea" id="passport-scan-note" name="note" rows="3" maxlength="500" placeholder="Np. od tygodnia nie podlewałem, miesiąc temu było przesadzane"></textarea>
+        </div>
         <label class="btn passport-upload__label" for="passport-scan-photo">
             <span class="ms" aria-hidden="true">center_focus_strong</span>
             Skanuj nowe zdjęcie

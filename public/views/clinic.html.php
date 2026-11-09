@@ -102,6 +102,12 @@ $clinicFaq = [
                                 </div>
                             </fieldset>
 
+                            <div class="field clinic-scanner__note">
+                                <label class="field__label" for="clinic-note">Co się ostatnio działo z drzewkiem? (opcjonalnie)</label>
+                                <textarea class="textarea" id="clinic-note" name="note" rows="3" maxlength="500" placeholder="Np. od tygodnia nie podlewałem, stoi na południowym parapecie, miesiąc temu było przesadzane" data-scan-note></textarea>
+                                <p class="clinic-upload__hint">Opis pomaga wybrać przyczynę i zalecenia. Po zmianie opisu zdjęcie zostanie ocenione ponownie.</p>
+                            </div>
+
                             <div class="clinic-upload">
                                 <input class="visually-hidden" type="file" id="clinic-photo" name="photo" accept="image/jpeg,image/png,image/webp" data-scan-input required>
                                 <label class="clinic-upload__zone" for="clinic-photo" data-dropzone>
@@ -131,6 +137,10 @@ $clinicFaq = [
                                             <h4 class="clinic-result__heading">Co zrobić</h4>
                                             <ol class="clinic-result__list clinic-result__list--steps" data-result-actions></ol>
                                         </div>
+                                    </div>
+                                    <div data-result-note-row hidden>
+                                        <h4 class="clinic-result__heading">Co dodał Twój opis</h4>
+                                        <ul class="clinic-result__list" data-result-note-hints></ul>
                                     </div>
                                     <p class="clinic-result__verify" data-result-verify-row><strong>Jak to sprawdzić:</strong> <span data-result-verify></span></p>
                                     <button type="button" class="btn btn--tonal clinic-result__schedule" data-result-schedule>

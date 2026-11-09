@@ -56,7 +56,7 @@ class ClinicController extends AppController
         }
 
         try {
-            $analysis = PlantVision::fromEnvironment()->analyze($path, $this->scanPart());
+            $analysis = PlantVision::fromEnvironment()->analyze($path, $this->scanPart(), $this->submittedNote());
         } catch (VisionException $exception) {
             $this->respond($exception->getMessage(), '/clinic', ['fallback' => true], false, 503);
         }
@@ -81,7 +81,7 @@ class ClinicController extends AppController
         $analysis = $this->submittedAnalysis();
         if ($analysis === null && !$this->isAjax()) {
             try {
-                $analysis = PlantVision::fromEnvironment()->analyze((string) $storage->path($user['id'], $file), $part);
+                $analysis = PlantVision::fromEnvironment()->analyze((string) $storage->path($user['id'], $file), $part, $this->submittedNote());
             } catch (VisionException) {
                 $analysis = null;
             }
@@ -109,6 +109,7 @@ class ClinicController extends AppController
         }
 
         $now = PolishDate::now()->getTimestamp();
+        $note = $this->submittedNote();
         if ($tree !== null && $analysis !== null && $analysis['plantVisible']) {
             foreach (array_reverse($this->states()->get($user['id'])['scans']) as $candidate) {
                 if ((int) ($candidate['treeId'] ?? 0) === $tree['id'] && ($candidate['diagnosis']['plantVisible'] ?? false) === true) {
@@ -127,6 +128,7 @@ class ClinicController extends AppController
             'title' => $title !== '' ? $title : 'Zdjęcie bez analizy',
             'diagnosis' => $analysis,
             'at' => $now,
+            'note' => $note,
         ];
         if ($tree !== null) {
             $scan['treeId'] = $tree['id'];
@@ -230,6 +232,119 @@ class ClinicController extends AppController
         );
     }
 
+    // Obsługa trasy z parametrem: GET /clinic/scans/{id}, wynik skanu ze zdjęciem (lupa), ponowna ocena i usuwanie
+    public function show(string $id): void
+    {
+        $user = $this->requireLogin();
+        $scan = $this->findScan($user['id'], $id);
+
+        if ($scan === null) {
+            http_response_code(404);
+            $this->render('not-found', [
+                'pageTitle' => 'Nie znaleziono skanu | KOMOREBI',
+                'errorMessage' => 'Skan o podanym identyfikatorze nie istnieje.',
+            ]);
+            return;
+        }
+
+        $tree = isset($scan['treeId']) ? $this->collection()->find($user['id'], (int) $scan['treeId']) : null;
+
+        $this->render('clinic-scan', [
+            'pageTitle' => 'Skan: ' . $scan['title'] . ' | KOMOREBI',
+            'activeNav' => 'clinic',
+            'scan' => $scan,
+            'tree' => $tree,
+            'maxNote' => PlantVision::MAX_NOTE,
+        ]);
+    }
+
+    // Obsługa trasy: POST /clinic/scans/{id}/reassess, ponowna ocena tego samego zdjęcia (opcjonalnie z nowym opisem `note`)
+    public function reassess(string $id): void
+    {
+        $user = $this->requireLogin();
+        $this->requireCsrf();
+
+        $back = '/clinic/scans/' . $id;
+        $scan = $this->findScan($user['id'], $id);
+        if ($scan === null) {
+            $this->respond('Nie znaleziono skanu.', '/clinic', [], false, 404);
+        }
+
+        $path = (new MediaStorage())->path($user['id'], (string) ($scan['file'] ?? ''));
+        if ($path === null) {
+            $this->respond('Zdjęcie tego skanu nie jest już dostępne.', $back, [], false, 404);
+        }
+
+        $note = $this->submittedNote();
+        $part = in_array($scan['part'] ?? '', self::PARTS, true) ? (string) $scan['part'] : 'leaves';
+        try {
+            $analysis = PlantVision::fromEnvironment()->analyze($path, $part, $note);
+        } catch (VisionException $exception) {
+            $this->respond($exception->getMessage(), $back, [], false, 503);
+        }
+
+        $now = PolishDate::now()->getTimestamp();
+        $treeId = (int) ($scan['treeId'] ?? 0);
+        $this->states()->update($user['id'], static function (array $state) use ($id, $analysis, $note, $now, $treeId): array {
+            $previous = null;
+            foreach ($state['scans'] as &$item) {
+                if (($item['id'] ?? '') !== $id) {
+                    if ($treeId !== 0 && (int) ($item['treeId'] ?? 0) === $treeId && ($item['diagnosis']['plantVisible'] ?? false) === true) {
+                        $previous = $item;
+                    }
+                    continue;
+                }
+
+                if ($previous !== null && $analysis['plantVisible']) {
+                    $analysis['progress'] = PlantVision::progress($previous['diagnosis'], $analysis, (int) ($previous['photoAt'] ?? $previous['at']));
+                }
+                $item['diagnosis'] = $analysis;
+                $item['level'] = $analysis['plantVisible'] ? $analysis['condition'] : 'watch';
+                $item['vitality'] = $analysis['plantVisible'] ? $analysis['vitality'] : 0;
+                $item['title'] = $analysis['plantVisible'] ? PlantVision::CAUSES[$analysis['cause']] : 'Nie widać drzewka na zdjęciu';
+                $item['note'] = $note;
+                $item['reassessedAt'] = $now;
+                unset($item['scheduled']);
+                break;
+            }
+            unset($item);
+
+            return $state;
+        });
+
+        $this->respond('Oceniono ponownie na podstawie tego samego zdjęcia.', $back, ['reassessed' => true]);
+    }
+
+    // Obsługa trasy: POST /clinic/scans/{id}/delete, usuń skan razem z jego zdjęciem
+    public function delete(string $id): void
+    {
+        $user = $this->requireLogin();
+        $this->requireCsrf();
+
+        $file = null;
+        $this->states()->update($user['id'], static function (array $state) use ($id, &$file): array {
+            $state['scans'] = array_values(array_filter($state['scans'], static function (array $scan) use ($id, &$file): bool {
+                if (($scan['id'] ?? '') !== $id) {
+                    return true;
+                }
+                $file = (string) ($scan['file'] ?? '');
+
+                return false;
+            }));
+
+            return $state;
+        });
+
+        if ($file === null) {
+            $this->respond('Nie znaleziono skanu.', '/clinic', [], false, 404);
+        }
+        if ($file !== '') {
+            (new MediaStorage())->delete($user['id'], $file);
+        }
+
+        $this->respond('Usunięto skan.', '/clinic', ['deleted' => true]);
+    }
+
     private function scanPart(): string
     {
         $part = (string) ($_POST['part'] ?? 'leaves');
@@ -248,6 +363,31 @@ class ClinicController extends AppController
         $raw = is_string($json) && $json !== '' && strlen($json) <= 8000 ? json_decode($json, true) : null;
 
         return is_array($raw) ? PlantVision::normalize($raw) : null;
+    }
+
+    /**
+     * Opis właściciela („co się ostatnio działo z drzewkiem”): zwykły tekst bez znaków sterujących, do 500 znaków.
+     */
+    private function submittedNote(): string
+    {
+        return PlantVision::cleanNote($_POST['note'] ?? '');
+    }
+
+    /**
+     * @return array<string, mixed>|null skan zalogowanego użytkownika o podanym id
+     */
+    private function findScan(int $userId, string $id): ?array
+    {
+        if ($id === '' || !ctype_xdigit($id)) {
+            return null;
+        }
+        foreach ($this->states()->get($userId)['scans'] as $scan) {
+            if (($scan['id'] ?? '') === $id) {
+                return $scan;
+            }
+        }
+
+        return null;
     }
 
     /**

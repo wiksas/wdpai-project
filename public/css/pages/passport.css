@@ -1559,3 +1559,7 @@ label.passport-upload__label:has(+ input:focus-visible) {
         grid-template-columns: 1fr;
     }
 }
+
+.passport-scan__note {
+    flex: 1 1 100%;
+}

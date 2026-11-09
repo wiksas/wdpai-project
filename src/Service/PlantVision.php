@@ -20,7 +20,8 @@ use App\Support\PolishDate;
  *     summary: string,
  *     observations: list<string>,
  *     actions: list<string>,
- *     verify: string
+ *     verify: string,
+ *     noteHints: list<string>
  * }
  */
 final class PlantVision
@@ -37,6 +38,7 @@ final class PlantVision
 
     public const CONDITIONS = ['good', 'watch', 'warning', 'critical'];
     public const CONFIDENCE = ['low' => 'niska', 'medium' => 'średnia', 'high' => 'wysoka'];
+    public const MAX_NOTE = 500;
 
     private const FOCUS = [
         'leaves' => 'the foliage or needles',
@@ -154,6 +156,59 @@ final class PlantVision
         'nutrients' => 'Objawy przypominają niedobór składników pokarmowych',
     ];
 
+    /**
+     * Wskazówki z opisu właściciela: wzorzec, punkty dla przyczyn, tekst pokazywany w ocenie i zalecenie.
+     * Wzorce są celowo wąskie; zaprzeczenie tuż przed trafieniem („nie przelewam”) je wyłącza.
+     */
+    private const NOTE_SIGNALS = [
+        ['/nie podlewa\w*|zapomnia\w+ (?:o )?podla\w+|dawno nie podla\w*|wyschn\w+|przeschn\w+|bardzo suche|suche podłoże/u', ['underwatering' => 2], 'Z opisu: drzewko mogło być podlewane za rzadko', null],
+        ['/przel[ae]\w+|zala\w+|zalewa\w*|stoi w wodzie|(?:codziennie|bardzo często|często) podlewa\w*|podlewa\w* (?:codziennie|bardzo często|często|co dzień)|mokre podłoże|stale mokre/u', ['overwatering' => 2], 'Z opisu: drzewko mogło być podlewane zbyt często', null],
+        ['/szkodnik\w*|mszyc\w*|przędzior\w*|pajęczyn\w*|tarczni\w*|mączni\w*|owad\w*|pleśń|pleśni\w*|grzyb\w*/u', ['pests_or_disease' => 2], 'Z opisu: zauważono ślady szkodników lub choroby', null],
+        ['/słońc\w*|poparz\w*|upał\w*|nasłonecznion\w*/u', ['light_or_heat' => 2], 'Z opisu: drzewko było narażone na słońce lub upał', null],
+        ['/(?:nie )?nawo[zż]\w*|chloroz\w*/u', ['nutrients' => 1], 'Z opisu: warto sprawdzić nawożenie', null],
+        ['/przesadz\w*/u', [], 'Z opisu: niedawne przesadzanie osłabia drzewko i może tłumaczyć objawy', 'Po przesadzaniu daj drzewku 2-3 tygodnie spokoju: półcień, bez nawozu i cięcia'],
+        ['/przestawi\w+|przenios\w+|nowe miejsce|zmian\w+ miejsca/u', [], 'Z opisu: zmiana miejsca bywa dla drzewka stresem', null],
+        ['/mróz\w*|przymrozk\w*|zimn\w+ noc\w*/u', [], 'Z opisu: chłód lub mróz mógł uszkodzić drzewko', null],
+    ];
+
+    /**
+     * @return array{points: array<string, int>, hints: list<string>, actions: list<string>}
+     */
+    private static function noteSignals(string $note): array
+    {
+        $result = ['points' => [], 'hints' => [], 'actions' => []];
+        $text = mb_strtolower(trim($note));
+        if ($text === '') {
+            return $result;
+        }
+
+        foreach (self::NOTE_SIGNALS as [$pattern, $points, $hint, $action]) {
+            if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE) < 1) {
+                continue;
+            }
+            $affirmed = false;
+            foreach ($matches[0] as [, $offset]) {
+                $before = mb_strcut($text, max(0, $offset - 24), min($offset, 24));
+                if (preg_match('/\bnie\s+(?:\w+\s+)?$/u', $before) !== 1) {
+                    $affirmed = true;
+                    break;
+                }
+            }
+            if (!$affirmed) {
+                continue;
+            }
+            $result['hints'][] = $hint;
+            foreach ($points as $cause => $value) {
+                $result['points'][$cause] = ($result['points'][$cause] ?? 0) + $value;
+            }
+            if ($action !== null) {
+                $result['actions'][] = $action;
+            }
+        }
+
+        return $result;
+    }
+
     public function __construct(private readonly OllamaClient $client)
     {
     }
@@ -168,7 +223,7 @@ final class PlantVision
      *
      * @return Analysis
      */
-    public function analyze(string $imagePath, string $part): array
+    public function analyze(string $imagePath, string $part, string $note = ''): array
     {
         $image = @file_get_contents($imagePath);
         if ($image === false || $image === '') {
@@ -187,16 +242,18 @@ final class PlantVision
             throw new VisionException('Model nie zwrócił czytelnego wyniku. Spróbuj z ostrzejszym zdjęciem.');
         }
 
-        return self::diagnose($answers);
+        return self::diagnose($answers, $note);
     }
 
     /**
-     * Zamienia odpowiedzi „tak/nie” na ocenę: przyczyna, powaga, pewność oraz polskie opisy i zalecenia.
+     * Zamienia odpowiedzi „tak/nie” i opis właściciela na ocenę: przyczyna, powaga, pewność oraz polskie opisy i zalecenia.
+     * Opis nie zmienia tego, co widać na zdjęciu: dodaje punkty przyczynom, które wymienia (np. „nie podlewałem od tygodnia”),
+     * więc rozstrzyga niejasny wynik, a zgodność z objawami na zdjęciu podnosi pewność.
      *
      * @param array<string, bool> $answers pytanie (klucz z QUESTIONS) => odpowiedź
      * @return Analysis
      */
-    public static function diagnose(array $answers): array
+    public static function diagnose(array $answers, string $note = ''): array
     {
         if (($answers['plant'] ?? false) !== true) {
             return [
@@ -209,6 +266,7 @@ final class PlantVision
                 'observations' => [],
                 'actions' => ['Zrób zbliżenie liści lub igieł w świetle dziennym i powtórz skan'],
                 'verify' => '',
+                'noteHints' => [],
             ];
         }
 
@@ -224,6 +282,12 @@ final class PlantVision
             foreach ($signal['p'] as $cause => $points) {
                 $scores[$cause] += $points;
             }
+        }
+
+        $photoScores = $scores;
+        $noteSignals = self::noteSignals($note);
+        foreach ($noteSignals['points'] as $cause => $points) {
+            $scores[$cause] += $points;
         }
 
         arsort($scores);
@@ -247,11 +311,15 @@ final class PlantVision
             $top >= 4 => 'medium',
             default => 'low',
         };
+        if (!$blurry && $confidence !== 'high' && ($photoScores[$cause] ?? 0) > 0 && ($noteSignals['points'][$cause] ?? 0) > 0) {
+            $confidence = $confidence === 'low' ? 'medium' : 'high';
+        }
 
         $observations = $found === []
             ? ['Liście lub igły są zielone i jędrne, bez przebarwień', 'Nie widać nalotu, plam ani szkodników']
             : array_slice($found, 0, 5);
         $actions = self::actions($cause, $answers);
+        array_splice($actions, 1, 0, $noteSignals['actions']);
         if ($blurry) {
             $observations[] = 'Zdjęcie jest nieostre, ciemne lub zbyt dalekie, więc wynik jest mniej pewny';
             $actions[] = 'Powtórz skan na ostrzejszym zdjęciu w świetle dziennym';
@@ -267,6 +335,7 @@ final class PlantVision
             'observations' => array_slice($observations, 0, 6),
             'actions' => array_slice($actions, 0, 5),
             'verify' => self::VERIFY[$cause],
+            'noteHints' => $noteSignals['hints'],
         ];
     }
 
@@ -299,6 +368,7 @@ final class PlantVision
             'observations' => self::list($raw['observations'] ?? [], 6, 160),
             'actions' => self::list($raw['actions'] ?? [], 5, 80),
             'verify' => self::text($raw['verify'] ?? '', 220),
+            'noteHints' => self::list($raw['noteHints'] ?? [], 6, 160),
         ];
     }
 
@@ -425,6 +495,14 @@ final class PlantVision
         );
 
         return self::SUMMARY[$cause] . ($reasons === [] ? '.' : ': ' . implode('; ', $reasons) . '.');
+    }
+
+    /**
+     * Opis właściciela z formularza: jedna linia zwykłego tekstu, do MAX_NOTE znaków.
+     */
+    public static function cleanNote(mixed $value): string
+    {
+        return self::text($value, self::MAX_NOTE);
     }
 
     private static function text(mixed $value, int $max): string

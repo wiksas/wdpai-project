@@ -111,6 +111,9 @@
         fillList('[data-result-actions]', analysis.actions);
         resultPanel.querySelector('[data-result-verify]').textContent = analysis.verify;
         resultPanel.querySelector('[data-result-verify-row]').hidden = analysis.verify === '';
+        const hints = analysis.noteHints ?? [];
+        resultPanel.querySelector('[data-result-note-row]').hidden = hints.length === 0;
+        fillList('[data-result-note-hints]', hints);
 
         const schedule = resultPanel.querySelector('[data-result-schedule]');
         schedule.disabled = false;
@@ -163,6 +166,7 @@
         const body = new FormData();
         body.set('photo', loaded.blob, 'scan.jpg');
         body.set('part', form.querySelector('input[name="part"]:checked')?.value ?? 'leaves');
+        body.set('note', form.querySelector('[data-scan-note]')?.value ?? '');
         const [response] = await Promise.all([K.request('/clinic/analyze', { method: 'POST', body }), K.sleep(K.reduceMotion ? 0 : 600)]);
         if (run !== attempt) {
             return;
@@ -224,7 +228,7 @@
     doc.addEventListener('change', (event) => {
         if (event.target === fileInput) {
             handleFile(fileInput.files?.[0]);
-        } else if (event.target.matches?.('.clinic-part__input') && lastFile) {
+        } else if (event.target.matches?.('.clinic-part__input, [data-scan-note]') && lastFile) {
             handleFile(lastFile);
         }
     });
@@ -300,6 +304,7 @@
         current = null;
         lastFile = null;
         fileInput.value = '';
+        form.querySelector('[data-scan-note]').value = '';
         resetResult();
         await refreshScans();
     });
