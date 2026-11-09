@@ -1,11 +1,3 @@
-<?php
-// Adres zasobu z wersją (czas modyfikacji pliku): przeglądarka pobiera CSS ponownie po każdej zmianie.
-$asset = static function (string $path): string {
-    $file = dirname(__DIR__, 2) . $path;
-
-    return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
-};
-?>
 <meta charset="UTF-8">
 <meta name="color-scheme" content="<?= in_array($theme ?? 'system', ['light', 'dark'], true) ? $theme : 'light dark' ?>">
 <meta name="csrf-token" content="<?= htmlspecialchars((string) ($csrfToken ?? ''), ENT_QUOTES, 'UTF-8') ?>">

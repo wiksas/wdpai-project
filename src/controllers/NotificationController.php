@@ -11,7 +11,7 @@ class NotificationController extends AppController
     {
         $user = $this->requireLogin();
 
-        $this->renderPartial('notifications', ['notifications' => $this->notifications()->forUser($user['id'])]);
+        $this->renderPartial('components/notifications', ['notifications' => $this->notifications()->forUser($user['id'])]);
     }
 
     // Obsługa trasy: POST /notifications/read — oznacz jedno powiadomienie (pole `id`) lub wszystkie jako przeczytane

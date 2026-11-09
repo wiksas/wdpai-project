@@ -37,7 +37,9 @@ Aktualnie aplikacja obsluguje:
 │   ├── js/                    # czysty JavaScript: app.js (wspolny) + skrypty stron
 │   ├── index.php              # front controller i definicje tras
 │   └── views/                 # szablony HTML renderowane przez kontrolery
-│       └── partials/          # wspolne fragmenty: head, naglowek, stopka, powloka aplikacji
+│       ├── layouts/           # uklady stron: app (po zalogowaniu), site (publiczne), auth (logowanie, rejestracja)
+│       ├── components/        # wspolne elementy ukladu: head, foot, sidebar, topbar, bottom-nav, site-header, site-footer, auth-panel, user-menu, theme-toggle, notifications
+│       └── partials/          # fragmenty konkretnych stron: csrf, passport-*, clinic-scans, studio-diagram
 ├── src/
 │   ├── controllers/           # kontrolery aplikacji
 │   ├── Repository/            # repozytoria: Database (PDO), konta i stan uzytkownika w PostgreSQL, dane demonstracyjne okazow
@@ -113,7 +115,9 @@ Po dodaniu lub przeniesieniu klas odswiez autoloader poleceniem `composer dump-a
 
 ### View
 
-Widoki znajduja sie w `public/views/` i maja nazwy `*.html.php`. `AppController::render()` przekazuje do nich dane jako zmienne przy uzyciu `extract(..., EXTR_SKIP)`.
+Widoki znajduja sie w `public/views/` i maja nazwy `*.html.php`. `AppController::render()` przekazuje do nich dane jako zmienne przy uzyciu `extract(..., EXTR_SKIP)` oraz `$asset()` (adres pliku z wersja).
+
+**Uklady:** widok zawiera tylko tresc strony. Na poczatku wybiera uklad i podaje jego dane: `$layout = 'app'|'site'|'auth'`, `$mainClass` (klasy `<main>`), `$pageStyles` (nazwy plikow z `css/pages` bez rozszerzenia) i `$pageScripts` (nazwy plikow z `js/`). `render()` zapisuje wyrenderowana tresc w `$content` i wstawia ja do `layouts/<uklad>.html.php`, ktory sklada `<head>`, panel boczny, pasek gorny, dolna nawigacje i skrypty z `components/`. Nie kopiuj `<!DOCTYPE>`, `<head>` ani panelu bocznego do nowego widoku. Zmienne dla komponentow (np. `$topbarBack`) ustawiaj w widoku przed koncem poczatkowego bloku PHP. Widok bez `$layout` jest pelna strona (zachowanie wsteczne).
 
 Widoki odpowiadaja za prezentacje. Dozwolone sa w nich proste instrukcje warunkowe i petle, ale nie logika biznesowa, dostep do bazy ani obsluga routingu.
 
@@ -133,12 +137,12 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 - Hasla hashuje wylacznie `AuthService` przez `password_hash(..., PASSWORD_ARGON2ID)`; w bazie jest tylko hash. Przy logowaniu `password_needs_rehash()` przelicza starsze hashe (np. bcrypt konta demonstracyjnego) i zapisuje `last_login_at`. Dla nieistniejacego konta `password_verify` liczy sie na atrapie, zeby czas odpowiedzi nie zdradzal, czy e-mail istnieje. Unikalnosc loginu i e-maila (bez wielkosci liter) pilnuje indeks w bazie, takze przy rownoczesnych rejestracjach.
 - Konto demonstracyjne `admin` / `admin` (id 1) wstawia schemat SQL (jako potwierdzone). Usun je przed wdrozeniem produkcyjnym.
 - **Potwierdzenie e-maila:** rejestracja nie loguje. `AuthController::store()` zaklada konto z `email_verified_at = NULL`, `EmailVerification::send()` wysyla link (`Mailer`, SMTP do Mailpit) i przekierowuje na `/verify-email` („Sprawdz skrzynke”, adres w sesji pod `VerificationController::PENDING_EMAIL`). `GET /verify-email?token=…` potwierdza adres i przenosi na `/login?login=…`; `POST /verify-email/resend` wysyla nowy link (CSRF, raz na minute, ta sama odpowiedz bez wzgledu na istnienie konta). Token: 32 losowe bajty, w bazie tylko SHA-256 (`email_verifications`, migracja `docker/db/03-email-verification.sql`), wazny 24 h, jednorazowy. `AuthService::attempt()` zwraca `LOGIN_OK`/`LOGIN_INVALID`/`LOGIN_UNVERIFIED` (ten ostatni dopiero po poprawnym hasle). Blad SMTP (`MailerException`) nie blokuje rejestracji: komunikat i ponowna wysylka.
-- Menu konta (`partials/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.
+- Menu konta (`components/user-menu.html.php`) i przyciski „Zaloguj sie / Zarejestruj sie” w naglowku zalezą od `$currentUser`; nie wstawiaj do widokow zdjec ani danych „na sztywno” zalogowanego uzytkownika.
 
 ## Zabezpieczenia formularzy i stan uzytkownika
 
-- **CSRF:** kazdy `POST` (w tym `fetch`) wymaga tokenu, z jednym wyjatkiem: `POST /api/sensor/readings` (patrz „Czujniki wilgotnosci”). Formularze HTML wstawiaja `<?php include __DIR__ . '/partials/csrf.html.php'; ?>` (pole `_csrf`), a `fetch` wysyla naglowek `X-CSRF-Token` (token jest w `<meta name="csrf-token">` z `partials/head.html.php`). Kontroler na poczatku akcji `POST` wywoluje `$this->requireCsrf()` (brak/zly token = 419). Nowa akcja `POST` bez tego wywolania jest bledem.
-- **Sesja:** do `$_SESSION` siega wylacznie `App\Service\Session` (oraz przez nia `AuthService`, `Csrf`, `Flash`). Komunikaty jednorazowe: `Flash` (`$this->flash()`), wyswietlane jako toasty (`partials/foot.html.php`).
+- **CSRF:** kazdy `POST` (w tym `fetch`) wymaga tokenu, z jednym wyjatkiem: `POST /api/sensor/readings` (patrz „Czujniki wilgotnosci”). Formularze HTML wstawiaja `<?php include __DIR__ . '/partials/csrf.html.php'; ?>` (pole `_csrf`), a `fetch` wysyla naglowek `X-CSRF-Token` (token jest w `<meta name="csrf-token">` z `components/head.html.php`). Kontroler na poczatku akcji `POST` wywoluje `$this->requireCsrf()` (brak/zly token = 419). Nowa akcja `POST` bez tego wywolania jest bledem.
+- **Sesja:** do `$_SESSION` siega wylacznie `App\Service\Session` (oraz przez nia `AuthService`, `Csrf`, `Flash`). Komunikaty jednorazowe: `Flash` (`$this->flash()`), wyswietlane jako toasty (`components/foot.html.php`).
 - **Odpowiedzi dla JS i bez JS:** akcje zapisujace koncza sie `$this->respond($message, $redirect, $extra, $ok, $status)` — dla zadan `fetch` (`X-Requested-With: fetch`) zwraca JSON `{ok, message, …}`, w pozostalych przypadkach ustawia flash i przekierowuje (z ochrona przed open redirect). Dzieki temu kazda funkcja dziala takze bez JavaScriptu.
 - **Stan uzytkownika** (odczytane powiadomienia, odhaczone zadania, wlasne zabiegi, wlasne i usuniete drzewka, podlewanie, dziennik, zdjecia, skany, rozmowa z konsultantem) zapisuje `App\Repository\UserStateRepository` na koncie, w tabeli `user_state` (JSONB, `docker/db/04-user-state.sql`, wiersz blokowany `FOR UPDATE` w transakcji), wiec przetrwa restart i przebudowe kontenerow (wolumen `pg-data`). Brak tabeli repozytorium zaklada samo; stary plik `storage/state/user-{id}.json` importuje przy pierwszym uzyciu konta i zmienia mu nazwe na `.migrated`. Nowe pole dodaj do `UserStateRepository::DEFAULTS`. Pliki zdjec zostaja w `storage/uploads/` (bind mount).
 - **Czujniki wilgotnosci:** `SensorController` + `SensorRepository` (tabele `sensors`, `sensor_readings`, `docker/db/05-sensors.sql`; repozytorium zaklada tabele samo przez `Database::withMigration()`). Jeden czujnik na okaz; w bazie tylko skrot SHA-256 tokenu (`kmr_…`), token widac raz po wystawieniu (klucz sesji `sensor_token_{id}`). **Wyjatek od CSRF:** `POST /api/sensor/readings` uwierzytelnia token urzadzenia (nie sesja i nie CSRF), dlatego `public/index.php` nie startuje sesji dla sciezek `api/`; odczyty najwyzej co 30 s (429). W bazie leza wartosci surowe, procenty liczy `SensorRepository::percent()` z kalibracji (suche = 0%, mokre = 100%). `CollectionService::applySensor()` nadpisuje wilgotnosc i status okazu swiezym odczytem (do 12 h). Poradnik zakupowy i szkic ESP32: `docs/czujnik-wilgotnosci.md`.
@@ -155,7 +159,7 @@ Kazda wartosc pochodzaca od uzytkownika lub z bazy musi byc escapowana w konteks
 Czysty JS bez bundlera i bibliotek, w `public/js/`, ladowany `defer` na koncu widoku (`<script src="<?= $asset('/js/x.js') ?>" defer>`). Zasady:
 
 - **Progresywne ulepszenie:** nawigacja, zapisy danych i filtry musza dzialac bez JS (linki, formularze, `?query`); JS tylko przechwytuje je, by zrobic to bez przeladowania. Wyjatek: czysto klienckie kalkulatory i symulatory (Studio, kalkulator ryzyka na stronie glownej) pokazuja bez JS wartosci domyslne.
-- `app.js` (ladowany wszedzie przez `partials/foot.html.php`) udostepnia `window.Komorebi`: `request`, `post`, `fetchDocument`, `swap`, `play`, `toast`, `sleep`, `reduceMotion`, `resizeImage`, panel powiadomien. Skrypty stron (`schedule.js`, `collection.js`, `specimen.js`, `clinic.js`, `studio.js`, `home.js`) z niego korzystaja i nie powtarzaja logiki.
+- `app.js` (ladowany wszedzie przez `components/foot.html.php`) udostepnia `window.Komorebi`: `request`, `post`, `fetchDocument`, `swap`, `play`, `toast`, `sleep`, `reduceMotion`, `resizeImage`, panel powiadomien. Skrypty stron (`schedule.js`, `collection.js`, `specimen.js`, `clinic.js`, `studio.js`, `home.js`) z niego korzystaja i nie powtarzaja logiki.
 - Szanuj `prefers-reduced-motion` (`K.reduceMotion`); nie uzywaj `confirm`/`alert` (blokuja strone) — uzywaj toastow.
 - Dane z serwera wstawiaj przez `textContent`, nie `innerHTML` (wyjatek: stale, wlasne stringi HTML).
 
@@ -181,7 +185,7 @@ Typowy porzadek prac:
 2. Dodaj albo rozszerz kontroler w `src/controllers/`.
 3. Dodaj model, repozytorium lub serwis, jesli funkcja zawiera logike biznesowa albo dostep do danych.
 4. Dodaj widok w `public/views/` i przekaz do niego tylko potrzebne dane.
-5. Dodaj lub zmien style: wspolne komponenty i tokeny w `public/css/style.css`, style konkretnej strony w `public/css/pages/<strona>.css` (linkowane w widoku po `partials/head.html.php`). Kolory tylko przez tokeny (patrz „Motyw jasny i ciemny”) i sprawdz wynik w obu motywach.
+5. Dodaj lub zmien style: wspolne komponenty i tokeny w `public/css/style.css`, style konkretnej strony w `public/css/pages/<strona>.css` (podawane w widoku przez `$pageStyles`). Kolory tylko przez tokeny (patrz „Motyw jasny i ciemny”) i sprawdz wynik w obu motywach.
 6. Sprawdz poprawna trase, dane wejsciowe, HTML oraz zachowanie dla bledow i 404.
 
 ### Animacje sterowane przewijaniem
@@ -210,8 +214,8 @@ Przejscia miedzy stronami to View Transitions API w trybie MPA (sekcja 20 `style
 
 - Tokeny kolorow w sekcji 1 `public/css/style.css` maja postac `light-dark(jasny, ciemny)`. `:root` ma `color-scheme: light dark`, wiec bez wyboru obowiazuje motyw systemu; `<html data-theme="light|dark">` wymusza motyw. Nie wpisuj literalow kolorow w CSS stron (wyjatek: bialy tekst i przyciemnienie na zdjeciu); nowy kolor dodaj jako token z obiema wartosciami.
 - `--c-primary` w ciemnym motywie staje sie jasna szalwia (z `--c-on-primary` ciemnym), wiec ciemna sekcja, ktora ma zostac ciemna w obu motywach, uzywa `--c-band`, `--c-band-raised`, `--c-on-band`, `--c-on-band-variant`. Tekst na terakocie: `--c-on-tertiary`.
-- Wybor zapisuje `ThemeController::update()` (`POST /theme`, pole `theme`: `light`/`dark`/`system`, CSRF): `light`/`dark` trafia do ciasteczka `theme` na rok, `system` usuwa ciasteczko i strona znow podaza za ustawieniem komputera. `AppController::render()` przekazuje do widokow `$theme` (`light`/`dark`/`system`) i `$currentPath`; kazdy widok ustawia `<html lang="pl" data-theme="...">`, a `partials/head.html.php` meta `color-scheme`.
-- Przelacznik to `partials/theme-toggle.html.php` (formularz z `_back`, dziala bez JS). `app.js` przechwytuje go, liczy motyw widoczny teraz (takze systemowy) i zmienia `data-theme` bez przeladowania (przenikanie View Transitions poza `prefers-reduced-motion`). Gdy nowy motyw jest taki sam jak systemowy, wysyla `system` zamiast go zapisywac, wiec drugie klikniecie przywraca sledzenie systemu (takze zmian na zywo). Nowa strona z wlasnym ukladem (jak logowanie) musi zawierac ten partial.
+- Wybor zapisuje `ThemeController::update()` (`POST /theme`, pole `theme`: `light`/`dark`/`system`, CSRF): `light`/`dark` trafia do ciasteczka `theme` na rok, `system` usuwa ciasteczko i strona znow podaza za ustawieniem komputera. `AppController::render()` przekazuje do widokow `$theme` (`light`/`dark`/`system`) i `$currentPath`; kazdy uklad ustawia `<html lang="pl" data-theme="...">`, a `components/head.html.php` meta `color-scheme`.
+- Przelacznik to `components/theme-toggle.html.php` (formularz z `_back`, dziala bez JS). `app.js` przechwytuje go, liczy motyw widoczny teraz (takze systemowy) i zmienia `data-theme` bez przeladowania (przenikanie View Transitions poza `prefers-reduced-motion`). Gdy nowy motyw jest taki sam jak systemowy, wysyla `system` zamiast go zapisywac, wiec drugie klikniecie przywraca sledzenie systemu (takze zmian na zywo). Nowy uklad ze stronami bez panelu aplikacji (jak `auth`) musi zawierac ten komponent.
 
 ## Uruchamianie projektu
 

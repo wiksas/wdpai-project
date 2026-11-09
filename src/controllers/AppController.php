@@ -130,7 +130,7 @@ class AppController
     }
 
     /**
-     * Renderuje sam partial (bez pełnej strony), używane przez endpointy odświeżające fragmenty przez `fetch`.
+     * Renderuje sam komponent lub partial (np. `components/notifications`) bez pełnej strony, dla endpointów odświeżających fragmenty przez `fetch`.
      *
      * @param array<string, mixed> $variables
      */
@@ -143,7 +143,7 @@ class AppController
         extract($variables, EXTR_SKIP);
 
         header('Content-Type: text/html; charset=UTF-8');
-        include __DIR__ . '/../../public/views/partials/' . $partial . '.html.php';
+        include __DIR__ . '/../../public/views/' . $partial . '.html.php';
         exit;
     }
 
@@ -227,6 +227,12 @@ class AppController
             'sidebarSummary' => $user !== null ? $this->collection()->summary($user['id']) : null,
             'theme' => $this->theme(),
             'currentPath' => (string) ($_SERVER['REQUEST_URI'] ?? '/'),
+            'asset' => static function (string $path): string {
+                $file = dirname(__DIR__, 2) . '/public' . $path;
+
+                // Wersja z czasu modyfikacji pliku: przeglądarka pobiera CSS i JS ponownie po każdej zmianie.
+                return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+            },
         ];
 
         if (file_exists($templatePath)) {
@@ -234,7 +240,19 @@ class AppController
 
             ob_start();
             include $templatePath;
-            $output = ob_get_clean();
+            $content = ob_get_clean();
+
+            // Widok wybiera układ zmienną `$layout` (public/views/layouts/<nazwa>.html.php); bez niej jest pełną stroną.
+            $layoutPath = isset($layout) && is_string($layout) && preg_match('/^[a-z-]+$/', $layout) === 1
+                ? __DIR__ . '/../../public/views/layouts/' . $layout . '.html.php'
+                : null;
+            if ($layoutPath !== null && file_exists($layoutPath)) {
+                ob_start();
+                include $layoutPath;
+                $output = ob_get_clean();
+            } else {
+                $output = $content;
+            }
         }
 
         echo $output;

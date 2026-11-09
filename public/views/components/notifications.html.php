@@ -17,7 +17,7 @@ $notifEscape = static fn (mixed $value): string => htmlspecialchars((string) $va
         <header class="notif__head">
             <h2 class="notif__title">Powiadomienia</h2>
             <form action="/notifications/read" method="POST" data-notif-read-all>
-                <?php include __DIR__ . '/csrf.html.php'; ?>
+                <?php include __DIR__ . '/../partials/csrf.html.php'; ?>
                 <input type="hidden" name="_back" value="<?= $notifEscape($_SERVER['REQUEST_URI'] ?? '/collection') ?>">
                 <button type="submit" class="notif__all"<?= $notifUnread === 0 ? ' disabled' : '' ?>>Oznacz wszystkie jako przeczytane</button>
             </form>
@@ -36,7 +36,7 @@ $notifEscape = static fn (mixed $value): string => htmlspecialchars((string) $va
                             <span class="notif__when"><?= $notifEscape($item['when']) ?></span>
                         </a>
                         <form action="/notifications/read" method="POST" class="notif__read" data-notif-read>
-                            <?php include __DIR__ . '/csrf.html.php'; ?>
+                            <?php include __DIR__ . '/../partials/csrf.html.php'; ?>
                             <input type="hidden" name="id" value="<?= $notifEscape($item['id']) ?>">
                             <input type="hidden" name="_back" value="<?= $notifEscape($_SERVER['REQUEST_URI'] ?? '/collection') ?>">
                             <button type="submit" class="notif__dot" aria-label="Oznacz jako przeczytane: <?= $notifEscape($item['title']) ?>"<?= $item['read'] ? ' disabled' : '' ?>></button>
