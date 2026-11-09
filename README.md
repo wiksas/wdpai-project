@@ -89,6 +89,17 @@ Wtedy każde `docker compose …` dołącza `docker-compose.gpu.yaml`, który re
 
 Konsultant w Klinice rozmawia innym modelem (`CHAT_MODEL`, domyślnie `gemma3:4b`, ok. 3 GB): zna kolekcję i ostatni skan użytkownika, pamięta rozmowę (zapis na koncie) i opiera się na poradach z `ClinicKnowledge`. Na karcie 8 GB oba modele nie mieszczą się naraz, więc przy przełączaniu między zdjęciem a rozmową pierwsza odpowiedź trwa kilkanaście sekund dłużej.
 
+### Ollama na innym komputerze
+
+Zapytania Kliniki (skaner i konsultant) mogą iść do Ollamy na innym komputerze, np. stacjonarnym z kartą graficzną, a laptop nie musi wtedy uruchamiać ani pobierać modeli. Na komputerze z Ollamą działa usługa `ollama` z tego repozytorium (`docker compose up -d ollama`, modele pobrane); port 11434 jest wystawiony na wszystkich interfejsach. Na laptopie dopisz do `.env` adres tego komputera i przeładuj kontener PHP:
+
+```bash
+OLLAMA_URL=http://100.73.95.84:11434
+docker compose up -d php
+```
+
+Adres z Tailscale (`100.x.x.x`) działa także poza domem i tylko dla urządzeń z Twojej sieci Tailscale; adres z sieci lokalnej (np. `192.168.1.100`) tylko w tej samej sieci. Ollama nie ma uwierzytelniania, więc nie wystawiaj portu 11434 do internetu (przekierowanie portu na routerze): każdy mógłby używać Twojej karty. Komputer z Ollamą musi być włączony; gdy nie odpowiada, skaner pokazuje analizę barwy, a konsultant odpowiada z bazy porad.
+
 ## Poczta i potwierdzanie konta
 
 Po rejestracji konto jest nieaktywne, dopóki użytkownik nie kliknie linku z e-maila; logowanie przed potwierdzeniem pokazuje komunikat i przycisk ponownej wysyłki. Link działa 24 godziny i jest jednorazowy, a w bazie (`email_verifications`) leży tylko skrót SHA-256 tokenu. Ponowna wysyłka unieważnia poprzedni link i nie zdradza, czy konto istnieje.

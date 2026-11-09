@@ -50,8 +50,9 @@
       MAIL_PORT: 1025
       MAIL_FROM: ${MAIL_FROM:-no-reply@komorebi.local}
       MAIL_PREVIEW_URL: http://localhost:${MAILPIT_PORT:-8025}
-      # Skaner zdjęć: model wizyjny w usłudze `ollama` (pierwsze użycie wymaga `ollama pull`).
-      OLLAMA_URL: http://ollama:11434
+      # Skaner zdjęć i konsultant: domyślnie usługa `ollama` z tego pliku (pierwsze użycie wymaga `ollama pull`).
+      # OLLAMA_URL w .env kieruje zapytania Kliniki do Ollamy na innym komputerze, np. z kartą graficzną.
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
       VISION_MODEL: ${VISION_MODEL:-qwen2.5vl:7b}
       # Konsultant w Klinice: osobny model do rozmowy (lepsza polszczyzna niż model wizyjny).
       CHAT_MODEL: ${CHAT_MODEL:-gemma3:4b}
