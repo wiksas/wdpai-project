@@ -1,37 +1,25 @@
 <?php
 /**
- * Znak KOMOREBI: bonsai w moyogi z trzema koronami, pniem i donicą, na tle skośnych smug światła (木漏れ日,
- * światło między liśćmi). Barwy to tokeny rysunków (`--c-bark*`, `--c-needle*`, `--c-pot*`, `--c-moss`), więc znak
- * zmienia się razem z motywem; reguły `.logo-*` leżą w sekcji 11 style.css. Opcjonalnie: `$logoClass` (klasa kafelka).
+ * Znak KOMOREBI: 木漏れ日 (światło między liśćmi) na bonsai w moyogi. Słońce zagląda między górną i prawą koronę,
+ * promienie widać tylko w prześwitach (korony i pień je zasłaniają), a liście przy słońcu jaśnieją jak pod światło.
+ * Barwy to tokeny rysunków (`--c-bark`, `--c-needle*`, `--c-pot`, `--c-sun`), więc znak zmienia się razem z motywem;
+ * reguły `.logo-*` leżą w sekcji 11 style.css. Opcjonalnie: `$logoClass` (klasa kafelka).
  */
+// Znak bywa kilka razy na stronie (np. pasek górny i panel boczny), a przycięcie ukrytego egzemplarza nie działa.
+$logoClip = 'logo-crowns-' . bin2hex(random_bytes(4));
+$logoCrowns = '<path d="M13.5 13C14 7 19.5 4.4 25.2 4.4C31 4.4 36 7 36.6 13C29 15.2 21 15.2 13.5 13Z"/>'
+    . '<path d="M26.8 23.6C27 19.6 31.4 17.4 35.8 17.4C40.2 17.4 44.4 19.6 44.6 23.6C38.6 25.2 32.8 25.2 26.8 23.6Z"/>'
+    . '<path d="M3.4 29.8C3.6 25.6 7.6 23.4 11.6 23.4C15.6 23.4 19.6 25.6 20.2 29.8C14.4 31.6 9 31.6 3.4 29.8Z"/>';
 ?>
 <span class="brand__mark<?= isset($logoClass) ? ' ' . htmlspecialchars((string) $logoClass, ENT_QUOTES, 'UTF-8') : '' ?>">
     <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false" class="brand__glyph">
-        <path class="logo-beam" d="M31 0H41L20 48H10Z"/>
-        <path class="logo-beam" d="M41 3H46L33 36H28Z"/>
-        <g transform="translate(3.4 3.2) scale(0.86)">
-        <path class="logo-bark-s" stroke-width="6.4" d="M23.4 37.4C23.4 32 18.6 31 20.4 26.4"/>
-        <path class="logo-bark-s" stroke-width="4.6" d="M20.4 26.4C22.4 22 29.8 23.4 27.4 16.2"/>
-        <path class="logo-bark-s" stroke-width="3" d="M27.4 16.2C26.8 14.4 26.6 13 26.8 11.6"/>
-        <path class="logo-bark-s" stroke-width="2" d="M20.8 28.6L15 28.6M28 20.6L33 20.2"/>
-        <path class="logo-bark-l" stroke-width="1" opacity=".75" d="M22 36C21.6 32 18 30.6 19.2 26.6C21.2 22.4 28 23 26 16.4"/>
-        <path class="logo-deep" d="M2 30.7A2.9 2.9 0 0 1 5.7 28.4A2.7 2.7 0 0 1 9.4 27.9A2.3 2.3 0 0 1 13 27.9A2.5 2.5 0 0 1 16.7 28.4A3.2 3.2 0 0 1 20.4 30.7A9.2 4.1 0 0 1 2 30.7Z"/>
-        <path class="logo-mid" d="M2.3 29.3A3.1 3.1 0 0 1 6.4 27.1A3 3 0 0 1 10.4 26.8A2.5 2.5 0 0 1 14.4 27.1A3.1 3.1 0 0 1 18.5 29.3A8.1 3.5 0 0 1 2.3 29.3Z"/>
-        <path class="logo-light" d="M4.3 26A2.2 2.2 0 0 1 7.4 24.7A2.3 2.3 0 0 1 10.5 24.7A2 2 0 0 1 13.5 26A4.6 1.8 0 0 1 4.3 26Z"/>
-        <ellipse class="logo-light" cx="12.8" cy="27.6" rx="1.4" ry="1" transform="rotate(-24 12.8 27.6)"/>
-        <path class="logo-deep" d="M28.8 22.1A3 3 0 0 1 32.6 19.8A2.8 2.8 0 0 1 36.3 19.3A2.3 2.3 0 0 1 40.1 19.3A2.6 2.6 0 0 1 43.8 19.8A3.2 3.2 0 0 1 47.6 22.1A9.4 4 0 0 1 28.8 22.1Z"/>
-        <path class="logo-mid" d="M29.1 20.6A3.2 3.2 0 0 1 33.3 18.5A3.1 3.1 0 0 1 37.4 18.2A2.6 2.6 0 0 1 41.5 18.5A3.2 3.2 0 0 1 45.7 20.6A8.3 3.4 0 0 1 29.1 20.6Z"/>
-        <path class="logo-light" d="M31.2 17.4A2.3 2.3 0 0 1 34.3 16.2A2.3 2.3 0 0 1 37.5 16.2A2.1 2.1 0 0 1 40.6 17.4A4.7 1.8 0 0 1 31.2 17.4Z"/>
-        <ellipse class="logo-light" cx="40.4" cy="19.4" rx="1.4" ry="1" transform="rotate(-24 40.4 19.4)"/>
-        <path class="logo-deep" d="M14.6 12A3.2 3.2 0 0 1 18.4 9.3A2.9 2.9 0 0 1 22.2 8.6A2.4 2.4 0 0 1 26 8.4A2.6 2.6 0 0 1 29.8 8.6A2.9 2.9 0 0 1 33.6 9.3A2.9 2.9 0 0 1 37.4 12A11.4 5.1 0 0 1 14.6 12Z"/>
-        <path class="logo-mid" d="M15.2 10.5A3.2 3.2 0 0 1 19.2 8A3 3 0 0 1 23.2 7.4A2.5 2.5 0 0 1 27.2 7.4A2.8 2.8 0 0 1 31.2 8A3.5 3.5 0 0 1 35.2 10.5A10 4.4 0 0 1 15.2 10.5Z"/>
-        <path class="logo-light" d="M17.6 6.2A2.8 2.8 0 0 1 21.4 4.7A2.8 2.8 0 0 1 25.2 4.7A2.5 2.5 0 0 1 29 6.2A5.7 2.3 0 0 1 17.6 6.2Z"/>
-        <ellipse class="logo-light" cx="28.8" cy="7.8" rx="1.7" ry="1.2" transform="rotate(-24 28.8 7.8)"/><ellipse class="logo-light" cx="22.4" cy="10.4" rx="1.2" ry="0.9" transform="rotate(-24 22.4 10.4)"/>
-        <path class="logo-pot" d="M13.2 38.4H34.8L33.2 45H14.8Z"/>
-        <path class="logo-pot-d" opacity=".55" d="M25.5 38.4H34.8L33.2 45H26.5Z"/>
-        <rect class="logo-rim" x="11.4" y="35.6" width="25.2" height="3.4" rx="1.2"/>
-        <path class="logo-moss" d="M13.4 35.7C16 34.2 19 35.2 21 35.4C24 34.4 28 35 31 35.2C32.4 35 34 35.2 34.6 35.7Z"/>
-        </g>
+        <clipPath id="<?= $logoClip ?>"><?= $logoCrowns ?></clipPath>
+        <path class="logo-ray" d="M35.3 16.4L11 26.7L9.9 23.8L35.2 16.1ZM35 15.3L12.7 16.9L12.6 14.9L35 15ZM38.3 11.4L37.2 -2.9L38.8 -3L38.6 11.4ZM40.2 11.8L46.4 -1.2L47.7 -0.6L40.4 11.9ZM41.5 12.8L51.4 5.4L52.3 6.7L41.7 13.1ZM42.2 14.6L50.5 13.7L50.6 14.6L42.2 14.9ZM42 16.3L49.8 19.4L49.3 20.4L41.8 16.6Z"/>
+        <circle class="logo-sun" cx="38.6" cy="15" r="2.6"/>
+        <path class="logo-bark" d="M20.6 36.6C20.6 32.6 15.6 31.6 17.3 26.6C18.7 22 25 22.6 24.6 17.6C24.4 15 24.6 13 25.4 11H27.8C27.6 13 27.8 15 28.4 17.4C29.6 23.6 23 24.6 22.4 27.6C21.8 30.6 26.8 32.6 26.8 36.6Z"/>
+        <g class="logo-crown"><?= $logoCrowns ?></g>
+        <circle class="logo-sunlit" clip-path="url(#<?= $logoClip ?>)" cx="38.6" cy="15" r="7.4"/>
+        <path class="logo-pot" d="M9.4 36.4H38.6V39.2H36.8L35.4 44.4H12.6L11.2 39.2H9.4Z"/>
     </svg>
 </span>
-<?php unset($logoClass); ?>
+<?php unset($logoClass, $logoClip, $logoCrowns); ?>

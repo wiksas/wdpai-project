@@ -56,6 +56,9 @@
     --c-pot-dark: light-dark(#66402b, #7a4c34);
     --c-soil: light-dark(#4b3b2d, #3a2e25);
     --c-moss: light-dark(#5f8a4c, #6d9a58);
+    /* Znak marki: słońce między liśćmi (木漏れ日) i liście pod światło */
+    --c-sun: light-dark(#e0a43a, #f0c062);
+    --c-needle-sunlit: light-dark(#7fa452, #9cc26a);
 
     /* Krój: Noto Serif z Zen Old Mincho dla kanji; Zen Kaku Gothic New to jeden głos dla tekstu i kanji. */
     --font-serif: "Noto Serif", "Zen Old Mincho", Georgia, "Times New Roman", serif;
@@ -793,48 +796,29 @@ input[type="range"],
 }
 
 /* Znak: barwy z tokenów rysunków (sekcja 1), więc korona, pień i donica zmieniają się razem z motywem. */
-.logo-beam {
-    fill: var(--c-needle-light);
-    opacity: 0.15;
+.logo-bark {
+    fill: var(--c-bark);
 }
 
-.logo-bark-s {
-    stroke: var(--c-bark);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.logo-bark-l {
-    stroke: var(--c-bark-light);
-    stroke-linecap: round;
-}
-
-.logo-deep {
-    fill: var(--c-needle-deep);
-}
-
-.logo-mid {
+.logo-crown {
     fill: var(--c-needle);
 }
 
-.logo-light {
-    fill: var(--c-needle-light);
+.logo-sunlit {
+    fill: var(--c-needle-sunlit);
+}
+
+.logo-sun {
+    fill: var(--c-sun);
+}
+
+.logo-ray {
+    fill: var(--c-sun);
+    opacity: 0.3;
 }
 
 .logo-pot {
     fill: var(--c-pot);
-}
-
-.logo-pot-d {
-    fill: var(--c-pot-dark);
-}
-
-.logo-rim {
-    fill: color-mix(in srgb, var(--c-pot) 72%, var(--c-bark-light));
-}
-
-.logo-moss {
-    fill: var(--c-moss);
 }
 
 .brand__text {
