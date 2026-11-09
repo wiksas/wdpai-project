@@ -10,7 +10,7 @@ $sidebarLinks = [
 ?>
 <aside class="app-sidebar" aria-label="Panel boczny">
     <a href="/" class="brand" aria-label="KOMOREBI, strona główna">
-        <span class="brand__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
+        <?php include __DIR__ . '/logo-mark.html.php'; ?>
         <span class="brand__text">
             <span class="brand__name">KOMOREBI</span>
             <span class="brand__tag"><span lang="ja">木漏れ日</span> · Bonsai</span>

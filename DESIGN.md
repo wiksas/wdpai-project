@@ -32,6 +32,13 @@ Dial: ENERGY 2 / RHYTHM 2 / MOTION 2. Strona glowna ma MOTION 3 (parallax warstw
 
 Termin japonski obok polskiego: romaji kursywa szeryfowa + kanji w Mincho (`.term`), np. `Moyogi 模様木`, `Shunbun 春分`. Uzywany tam, gdzie tresc naprawde ma japonska nazwe (style formowania, pory sekki, znak marki), nigdy jako ozdobnik bez znaczenia.
 
+## Znak marki
+
+- Znak to korona bonsai (kilka lobow jak przy formowaniu „chmur”), przez ktora przechodza skosne smugi swiatla, pien i plaska donica. Powod: 木漏れ日 to swiatlo miedzy liśćmi, wiec smugi sa otworami w koronie, a nie dodatkowym ornamentem.
+- Dwa kolory: tusz kafelka (`--c-primary`) i papier (`--c-on-primary`). Bez terakoty, bo akcent zostaje dla akcji i ostrzezen. Kafelek zmienia barwy razem z motywem, glif dziedziczy `currentColor`.
+- Zrodlo: `public/views/components/logo-mark.html.php` (kod SVG wpisany raz, wstawiany `include` w naglowkach, panelu bocznym, stopce i stronach logowania). Ikona karty przegladarki: `public/favicon.svg` (stale barwy tuszu i papieru, bo nie czyta tokenow).
+- Czytelnosc: znak ma ok. 29 px w kafelku 40 px; smugi maja grubosc co najmniej 2 jednostek siatki 48, zeby nie zlewaly sie w tej skali. Nie dodawaj mu cienia, poswiaty ani gradientu.
+
 ## Ksztalt i glebia
 
 - Promienie: 2 px przyciski i pola (ciete jak papier), 12 px karty i panele, pelne zaokraglenie tylko dla awatarow i przelacznikow. Powod: roznica promienia odroznia akcje od pojemnika.

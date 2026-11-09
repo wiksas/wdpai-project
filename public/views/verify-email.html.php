@@ -19,7 +19,7 @@ $content = [
 ?>
 <div class="auth-card__top">
     <a href="/" class="brand auth-logo" aria-label="KOMOREBI, strona główna">
-        <span class="brand__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
+        <?php include __DIR__ . '/components/logo-mark.html.php'; ?>
         <span class="brand__name">KOMOREBI</span>
     </a>
     <nav class="auth-tabs" aria-label="Wybór formularza">

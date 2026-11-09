@@ -6,7 +6,7 @@
 ?>
 <aside class="auth-panel" aria-labelledby="auth-panel-title">
     <a href="/" class="brand auth-panel__brand" aria-label="KOMOREBI, strona główna">
-        <span class="brand__mark auth-panel__mark"><span class="ms" aria-hidden="true">potted_plant</span></span>
+        <?php $logoClass = 'auth-panel__mark'; include __DIR__ . '/logo-mark.html.php'; ?>
         <span class="brand__name auth-panel__name">KOMOREBI</span>
     </a>
 
