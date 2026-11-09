@@ -34,10 +34,10 @@ Termin japonski obok polskiego: romaji kursywa szeryfowa + kanji w Mincho (`.ter
 
 ## Znak marki
 
-- Znak to korona bonsai (kilka lobow jak przy formowaniu „chmur”), przez ktora przechodza skosne smugi swiatla, pien i plaska donica. Powod: 木漏れ日 to swiatlo miedzy liśćmi, wiec smugi sa otworami w koronie, a nie dodatkowym ornamentem.
-- Dwa kolory: tusz kafelka (`--c-primary`) i papier (`--c-on-primary`). Bez terakoty, bo akcent zostaje dla akcji i ostrzezen. Kafelek zmienia barwy razem z motywem, glif dziedziczy `currentColor`.
-- Zrodlo: `public/views/components/logo-mark.html.php` (kod SVG wpisany raz, wstawiany `include` w naglowkach, panelu bocznym, stopce i stronach logowania). Ikona karty przegladarki: `public/favicon.svg` (stale barwy tuszu i papieru, bo nie czyta tokenow).
-- Czytelnosc: znak ma ok. 29 px w kafelku 40 px; smugi maja grubosc co najmniej 2 jednostek siatki 48, zeby nie zlewaly sie w tej skali. Nie dodawaj mu cienia, poswiaty ani gradientu.
+- Znak to maly bonsai w stylu moyogi: pien w ksztalcie litery S, trzy korony (szczyt, lewa i prawa), donica z mchem. Za nim leza dwie blade, skosne smugi swiatla. Powod: 木漏れ日 to swiatlo miedzy liściami, wiec brakuje tylko drzewka i swiatla, a nie dodatkowego ornamentu. Rysunek jest bliski ilustracjom w Studio, ale prostszy: trzy korony zamiast pelnego drzewa, wiekszy pien i donica, bez nebari i cieni na ziemi.
+- Barwy: tokeny rysunkow (`--c-bark*`, `--c-needle*`, `--c-pot*`, `--c-moss`), czyli ten sam wyjatek od palety co ilustracje, bo drzewko ma wygladac naturalnie. Kafelek ma papierowe tlo (`--c-surface-lowest`) z cienka linia, wiec zielen i terakota czytaja sie w obu motywach. Panel logowania jest ciemny w obu motywach, dlatego jego kafelek ma `color-scheme: light`.
+- Zrodlo: `public/views/components/logo-mark.html.php` (SVG wpisany raz, wstawiany `include` w naglowkach, panelu bocznym, stopce i stronach logowania), reguly `.logo-*` w sekcji 11 `style.css`. Ikona karty przegladarki `public/favicon.svg` ma te same ksztalty ze stalymi barwami wersji jasnej (nie czyta tokenow), wiec zmieniajac znak popraw oba pliki.
+- Czytelnosc: znak zajmuje caly kafelek 40 px z marginesem ok. 3 px; korony i donica sa duzymi, plaskimi bryłami, bo cienkie detale znikaja w tej skali. Nie dodawaj mu cienia, poswiaty ani gradientu.
 
 ## Ksztalt i glebia
 

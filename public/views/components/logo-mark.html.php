@@ -1,15 +1,37 @@
 <?php
 /**
- * Znak KOMOREBI: korona bonsai, przez którą przechodzą skośne smugi światła (木漏れ日, światło między liśćmi),
- * pień i donica. Kształt wypełnia `currentColor`, smugi są otworami w koronie, więc znak przyjmuje barwy kafelka
- * (`.brand__mark`) w obu motywach. Opcjonalnie: `$logoClass` (dodatkowa klasa kafelka).
+ * Znak KOMOREBI: bonsai w moyogi z trzema koronami, pniem i donicą, na tle skośnych smug światła (木漏れ日,
+ * światło między liśćmi). Barwy to tokeny rysunków (`--c-bark*`, `--c-needle*`, `--c-pot*`, `--c-moss`), więc znak
+ * zmienia się razem z motywem; reguły `.logo-*` leżą w sekcji 11 style.css. Opcjonalnie: `$logoClass` (klasa kafelka).
  */
 ?>
 <span class="brand__mark<?= isset($logoClass) ? ' ' . htmlspecialchars((string) $logoClass, ENT_QUOTES, 'UTF-8') : '' ?>">
-    <svg class="brand__glyph" viewBox="2 6 44 40" fill="currentColor" aria-hidden="true" focusable="false">
-        <path fill-rule="evenodd" d="M6 27C3 27 2.5 21 8 20C7 14 14 10 19 13C21 8 30 7 33 12C38 10 45 15 41 21C46 22 45 28 40 28C34 30 12 30 6 27ZM13.6 15.99L9.4 25.09A1.1 1.1 0 0 0 11.4 26.01L15.6 16.91A1.1 1.1 0 0 0 13.6 15.99ZM22.1 13.67L16.72 25.32A1.2 1.2 0 0 0 18.9 26.33L24.28 14.68A1.2 1.2 0 0 0 22.1 13.67ZM30.51 13.85L25.3 25.14A1.2 1.2 0 0 0 27.49 26.15L32.7 14.86A1.2 1.2 0 0 0 30.51 13.85ZM37.22 17.92L33.86 25.2A1.05 1.05 0 0 0 35.78 26.08L39.14 18.8A1.05 1.05 0 0 0 37.22 17.92Z"/>
-        <path d="M20.2 41C22 36.5 25.6 34.5 22.4 28H26.8C29.4 34 27 37.5 28.6 41Z"/>
-        <path d="M16.5 40.5H31.5L30 45H18Z"/>
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false" class="brand__glyph">
+        <path class="logo-beam" d="M31 0H41L20 48H10Z"/>
+        <path class="logo-beam" d="M41 3H46L33 36H28Z"/>
+        <g transform="translate(3.4 3.2) scale(0.86)">
+        <path class="logo-bark-s" stroke-width="6.4" d="M23.4 37.4C23.4 32 18.6 31 20.4 26.4"/>
+        <path class="logo-bark-s" stroke-width="4.6" d="M20.4 26.4C22.4 22 29.8 23.4 27.4 16.2"/>
+        <path class="logo-bark-s" stroke-width="3" d="M27.4 16.2C26.8 14.4 26.6 13 26.8 11.6"/>
+        <path class="logo-bark-s" stroke-width="2" d="M20.8 28.6L15 28.6M28 20.6L33 20.2"/>
+        <path class="logo-bark-l" stroke-width="1" opacity=".75" d="M22 36C21.6 32 18 30.6 19.2 26.6C21.2 22.4 28 23 26 16.4"/>
+        <path class="logo-deep" d="M2 30.7A2.9 2.9 0 0 1 5.7 28.4A2.7 2.7 0 0 1 9.4 27.9A2.3 2.3 0 0 1 13 27.9A2.5 2.5 0 0 1 16.7 28.4A3.2 3.2 0 0 1 20.4 30.7A9.2 4.1 0 0 1 2 30.7Z"/>
+        <path class="logo-mid" d="M2.3 29.3A3.1 3.1 0 0 1 6.4 27.1A3 3 0 0 1 10.4 26.8A2.5 2.5 0 0 1 14.4 27.1A3.1 3.1 0 0 1 18.5 29.3A8.1 3.5 0 0 1 2.3 29.3Z"/>
+        <path class="logo-light" d="M4.3 26A2.2 2.2 0 0 1 7.4 24.7A2.3 2.3 0 0 1 10.5 24.7A2 2 0 0 1 13.5 26A4.6 1.8 0 0 1 4.3 26Z"/>
+        <ellipse class="logo-light" cx="12.8" cy="27.6" rx="1.4" ry="1" transform="rotate(-24 12.8 27.6)"/>
+        <path class="logo-deep" d="M28.8 22.1A3 3 0 0 1 32.6 19.8A2.8 2.8 0 0 1 36.3 19.3A2.3 2.3 0 0 1 40.1 19.3A2.6 2.6 0 0 1 43.8 19.8A3.2 3.2 0 0 1 47.6 22.1A9.4 4 0 0 1 28.8 22.1Z"/>
+        <path class="logo-mid" d="M29.1 20.6A3.2 3.2 0 0 1 33.3 18.5A3.1 3.1 0 0 1 37.4 18.2A2.6 2.6 0 0 1 41.5 18.5A3.2 3.2 0 0 1 45.7 20.6A8.3 3.4 0 0 1 29.1 20.6Z"/>
+        <path class="logo-light" d="M31.2 17.4A2.3 2.3 0 0 1 34.3 16.2A2.3 2.3 0 0 1 37.5 16.2A2.1 2.1 0 0 1 40.6 17.4A4.7 1.8 0 0 1 31.2 17.4Z"/>
+        <ellipse class="logo-light" cx="40.4" cy="19.4" rx="1.4" ry="1" transform="rotate(-24 40.4 19.4)"/>
+        <path class="logo-deep" d="M14.6 12A3.2 3.2 0 0 1 18.4 9.3A2.9 2.9 0 0 1 22.2 8.6A2.4 2.4 0 0 1 26 8.4A2.6 2.6 0 0 1 29.8 8.6A2.9 2.9 0 0 1 33.6 9.3A2.9 2.9 0 0 1 37.4 12A11.4 5.1 0 0 1 14.6 12Z"/>
+        <path class="logo-mid" d="M15.2 10.5A3.2 3.2 0 0 1 19.2 8A3 3 0 0 1 23.2 7.4A2.5 2.5 0 0 1 27.2 7.4A2.8 2.8 0 0 1 31.2 8A3.5 3.5 0 0 1 35.2 10.5A10 4.4 0 0 1 15.2 10.5Z"/>
+        <path class="logo-light" d="M17.6 6.2A2.8 2.8 0 0 1 21.4 4.7A2.8 2.8 0 0 1 25.2 4.7A2.5 2.5 0 0 1 29 6.2A5.7 2.3 0 0 1 17.6 6.2Z"/>
+        <ellipse class="logo-light" cx="28.8" cy="7.8" rx="1.7" ry="1.2" transform="rotate(-24 28.8 7.8)"/><ellipse class="logo-light" cx="22.4" cy="10.4" rx="1.2" ry="0.9" transform="rotate(-24 22.4 10.4)"/>
+        <path class="logo-pot" d="M13.2 38.4H34.8L33.2 45H14.8Z"/>
+        <path class="logo-pot-d" opacity=".55" d="M25.5 38.4H34.8L33.2 45H26.5Z"/>
+        <rect class="logo-rim" x="11.4" y="35.6" width="25.2" height="3.4" rx="1.2"/>
+        <path class="logo-moss" d="M13.4 35.7C16 34.2 19 35.2 21 35.4C24 34.4 28 35 31 35.2C32.4 35 34 35.2 34.6 35.7Z"/>
+        </g>
     </svg>
 </span>
 <?php unset($logoClass); ?>

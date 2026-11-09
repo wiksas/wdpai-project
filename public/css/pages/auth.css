@@ -30,9 +30,9 @@
     color: var(--c-on-band);
 }
 
+/* Panel jest ciemny w obu motywach, więc kafelek znaku zawsze ma jasne tło (tokeny w wersji jasnej). */
 .auth-panel__mark {
-    color: var(--c-on-band);
-    background-color: var(--c-band-raised);
+    color-scheme: light;
 }
 
 .auth-panel__art {
