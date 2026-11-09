@@ -34,11 +34,22 @@ Konta są zapisywane w bazie PostgreSQL (usługa `db`, tabele `users` i `user_sp
 
 ## Uruchomienie
 
+Na nowym urządzeniu potrzebne są tylko Git i Docker (Docker Desktop albo Docker Engine z Compose); PHP, Composer, PostgreSQL i Nginx działają w kontenerach.
+
 ```bash
+git clone https://github.com/wiksas/wdpai-project.git
+cd wdpai-project
+cp .env.example .env
 docker compose up --build -d server php db mailpit
 ```
 
-Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`). Dane dostępowe bazy (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) pochodzą z `.env` (wzór w `.env.example`). Podgląd bazy: pgAdmin pod `http://localhost:5050` albo `docker compose exec db psql -U wdpai_user -d wdpai_db`.
+Aplikacja: `http://localhost:8080` (port z `APP_PORT` w `.env`), skrzynka z mailami aktywacyjnymi: `http://localhost:8025`. Dane dostępowe bazy (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`) pochodzą z `.env` (wzór w `.env.example`, działa bez zmian). Baza przy pierwszym starcie sama wykonuje `docker/db/*.sql` i zakłada konto demonstracyjne. Podgląd bazy: pgAdmin (`docker compose up -d pgadmin-wdpai`, potem `http://localhost:5050`) albo `docker compose exec db psql -U wdpai_user -d wdpai_db`. Usługi są wymienione z nazwy, bo samo `docker compose up` uruchamia też `ollama`, która wymaga GPU NVIDIA (patrz niżej).
+
+Autoloader Composera (`vendor/`) jest w repozytorium, więc po sklonowaniu nic nie trzeba instalować. Projekt nie ma zewnętrznych zależności, a autoloader to zwykłe PSR-4, więc nowe klasy w `src/` ładują się bez przebudowy. Po zmianie mapowania w `composer.json` wygeneruj go ponownie i zacommituj:
+
+```bash
+docker compose exec php composer dump-autoload
+```
 
 Jeśli wolumen bazy już istniał przed dodaniem schematu lub migracji, wykonaj pliki ręcznie w kolejności (są idempotentne):
 

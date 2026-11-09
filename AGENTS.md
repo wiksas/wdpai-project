@@ -235,11 +235,7 @@ docker compose exec php composer dump-autoload
 docker compose down
 ```
 
-Jesli katalog `vendor/` nie istnieje, zainstaluj zaleznosci/autoloader poleceniem:
-
-```bash
-docker compose run --rm php composer install
-```
+Autoloader Composera (`vendor/`) jest w repozytorium (projekt nie ma zewnetrznych zaleznosci), wiec po sklonowaniu nie trzeba nic instalowac. To zwykle PSR-4: nowe klasy w `src/` laduja sie bez przebudowy. Po zmianie mapowania w `composer.json` uruchom `docker compose exec php composer dump-autoload` i zacommituj zmiany w `vendor/`.
 
 ## Weryfikacja zmian
 
