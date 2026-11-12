@@ -181,12 +181,15 @@
         }
     }
 
-    // Zamknięcie dzwonka: klik poza panelem lub Escape (z powrotem do przycisku).
+    // Zamknięcie dzwonka i menu konta: klik poza panelem lub Escape (z powrotem do przycisku).
+    const openPanels = () => doc.querySelectorAll('[data-notif][open], .user-menu[open]');
+
     doc.addEventListener('click', (event) => {
-        const open = doc.querySelector('[data-notif][open]');
-        if (open && !open.contains(event.target)) {
-            open.removeAttribute('open');
-        }
+        openPanels().forEach((open) => {
+            if (!open.contains(event.target)) {
+                open.removeAttribute('open');
+            }
+        });
     });
 
     doc.addEventListener('keydown', (event) => {
@@ -194,11 +197,10 @@
             return;
         }
 
-        const open = doc.querySelector('[data-notif][open]');
-        if (open) {
+        openPanels().forEach((open) => {
             open.removeAttribute('open');
             open.querySelector('summary')?.focus();
-        }
+        });
     });
 
     // Otwarcie dzwonka zawsze pokazuje świeże dane.

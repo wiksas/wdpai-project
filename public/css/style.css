@@ -966,6 +966,28 @@ input[type="range"],
     border: 1px solid var(--c-divider);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    transform-origin: calc(100% - 20px) 0;
+}
+
+/* Otwarcie menu konta: panel wyrasta spod awatara, a pozycje wjeżdżają po kolei (jak panel powiadomień obok). */
+.user-menu[open] > .user-menu__panel {
+    animation: notif-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.user-menu[open] .user-menu__who,
+.user-menu[open] .user-menu__item {
+    animation: notif-item-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.user-menu[open] .user-menu__panel > a { animation-delay: 50ms; }
+.user-menu[open] .user-menu__panel > form .user-menu__item { animation-delay: 100ms; }
+
+.user-chip__chevron {
+    transition: transform var(--transition);
+}
+
+.user-menu[open] .user-chip__chevron {
+    transform: rotate(180deg);
 }
 
 .user-menu__who {
@@ -2345,8 +2367,15 @@ input[type="range"],
     .notif__badge,
     .notif__trigger > .ms,
     .notif[open] > .notif__panel,
-    .notif[open] .notif__item {
+    .notif[open] .notif__item,
+    .user-menu[open] > .user-menu__panel,
+    .user-menu[open] .user-menu__who,
+    .user-menu[open] .user-menu__item {
         animation: none;
+    }
+
+    .user-chip__chevron {
+        transition: none;
     }
 
     .toast {
