@@ -4,6 +4,7 @@ $layout = 'site';
 $mainClass = 'home container';
 $pageStyles = ['home'];
 $pageScripts = ['home'];
+$activeNav = 'home';
 ?>
 <section class="home-hero" aria-labelledby="home-hero-title">
     <div class="home-hero__content">

@@ -1333,6 +1333,10 @@ input[type="range"],
     .user-chip__chevron {
         display: none;
     }
+
+    .user-menu--chip .user-menu__trigger {
+        padding-right: 0.25rem;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -1414,6 +1418,19 @@ input[type="range"],
         font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
     }
 
+    /* Strona publiczna dostaje tę samą powłokę co aplikacja: znak z nazwą u góry, linki w dolnej nawigacji. */
+    .site-nav {
+        display: none;
+    }
+
+    .site-header__tools {
+        margin-left: auto;
+    }
+
+    .site-footer {
+        padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
     .site-footer__main {
         grid-template-columns: 1fr 1fr;
     }
@@ -1428,33 +1445,6 @@ input[type="range"],
     :root {
         --gutter: 20px;
         --topbar-height: 72px;
-    }
-
-    .site-header__inner {
-        flex-wrap: wrap;
-        height: auto;
-        padding-block: 0.75rem;
-        row-gap: 0.5rem;
-    }
-
-    /* Wiersz linków przewija się w poziomie; zanikający prawy brzeg zdradza, że jest ich więcej. */
-    .site-nav {
-        order: 3;
-        width: 100%;
-        margin-left: 0;
-        padding-right: 1.5rem;
-        overflow-x: auto;
-        scrollbar-width: none;
-        mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
-    }
-
-    .site-nav__link {
-        padding-inline: 0.625rem;
-        font-size: 14px;
-    }
-
-    .site-header__tools {
-        margin-left: auto;
     }
 
     .site-footer__links a {
@@ -1534,77 +1524,49 @@ input[type="range"],
     }
 }
 
+/* Paski górne (publiczny i aplikacji): znak, nazwa i przyciski w jednym rzędzie, te same odstępy i rozmiary. */
 @media (max-width: 480px) {
-    .site-header__inner {
-        column-gap: 0.5rem;
-    }
-
-    .site-header .brand {
-        gap: 0.5rem;
-    }
-
-    .site-header .brand__tag {
-        display: none;
-    }
-
-    .site-header .brand__name {
-        font-size: 16px;
-    }
-
-    .site-header .brand__mark {
-        width: 44px;
-        height: 44px;
-    }
-
-    .site-header__auth,
-    .site-header__tools {
-        gap: 0.25rem;
-    }
-
-    .site-header__auth .btn {
-        min-height: 44px;
-        padding-inline: 0.75rem;
-        font-size: 13px;
-    }
-
-    .site-header__auth .btn--ghost {
-        padding-inline: 0.5rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .site-header .brand__text {
-        display: none;
-    }
-}
-
-/* Pasek górny aplikacji: znak, nazwa i trzy przyciski muszą zmieścić się w jednym rzędzie bez przycinania awatara. */
-@media (max-width: 480px) {
+    .site-header__inner,
     .app-topbar {
         gap: 0.5rem;
         padding-inline: 1rem;
     }
 
+    .site-header .brand,
     .app-topbar__brand {
         min-width: 0;
         gap: 0.5rem;
     }
 
+    .site-header .brand__tag,
     .app-topbar__brand .brand__tag {
         display: none;
     }
 
+    .site-header .brand__name,
     .app-topbar__brand .brand__name {
         font-size: 18px;
     }
 
+    .site-header__tools,
+    .site-header__auth,
     .app-topbar__actions {
         flex-shrink: 0;
         gap: 0.25rem;
     }
+
+    /* Gość: zostaje „Zaloguj się”; zakładanie konta prowadzi przycisk w treści strony i zakładka „Nowe konto” logowania. */
+    .site-header__auth .btn--primary {
+        display: none;
+    }
+
+    .site-header__auth .btn {
+        padding-inline: 0.875rem;
+    }
 }
 
 @media (max-width: 340px) {
+    .site-header .brand__text,
     .app-topbar__brand .brand__text {
         display: none;
     }

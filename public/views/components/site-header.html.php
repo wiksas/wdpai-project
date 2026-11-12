@@ -25,6 +25,7 @@
             <?php include __DIR__ . '/theme-toggle.html.php'; ?>
 
             <?php if (($currentUser ?? null) !== null): ?>
+                <?php include __DIR__ . '/notifications.html.php'; ?>
                 <?php $userMenuTrigger = 'chip'; ?>
                 <?php include __DIR__ . '/user-menu.html.php'; ?>
             <?php else: ?>

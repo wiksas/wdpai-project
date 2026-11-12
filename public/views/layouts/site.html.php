@@ -1,6 +1,6 @@
 <?php
 /**
- * Układ stron publicznych: nagłówek witryny, treść i stopka.
+ * Układ stron publicznych: nagłówek witryny, treść, stopka i (do 1024 px) ta sama dolna nawigacja co w aplikacji.
  *
  * Widok wybiera go przez `$layout = 'site'` i podaje: `$mainClass`, `$pageStyles`, `$pageScripts`
  * (jak w layouts/app.html.php). Treść widoku trafia do `$content`.
@@ -23,6 +23,7 @@ $layoutHtml = static fn (mixed $value): string => htmlspecialchars((string) $val
     </main>
 
     <?php include __DIR__ . '/../components/site-footer.html.php'; ?>
+    <?php include __DIR__ . '/../components/bottom-nav.html.php'; ?>
     <?php include __DIR__ . '/../components/foot.html.php'; ?>
     <?php foreach (($pageScripts ?? []) as $script): ?>
         <script src="<?= $asset('/js/' . $script . '.js') ?>" defer></script>
