@@ -147,6 +147,10 @@ $term = static function (string $value) use ($e, $termKanji): string {
                 <a href="/clinic" class="passport-consult__link">Zapytaj konsultanta</a>
             </p>
         </section>
+
+        <?php include __DIR__ . '/partials/passport-scan.html.php'; ?>
+
+        <?php include __DIR__ . '/partials/passport-sensor.html.php'; ?>
     </div>
 
     <div class="passport-side">
@@ -210,10 +214,6 @@ $term = static function (string $value) use ($e, $termKanji): string {
                 </ol>
             <?php endif; ?>
         </section>
-
-        <?php include __DIR__ . '/partials/passport-scan.html.php'; ?>
-
-        <?php include __DIR__ . '/partials/passport-sensor.html.php'; ?>
 
         <section class="passport-photos" aria-labelledby="passport-photos-title" data-photos>
             <header class="passport-section-header">

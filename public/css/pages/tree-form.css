@@ -62,8 +62,27 @@
 }
 
 .treeform-file {
-    padding-block: 0.625rem;
+    padding-block: 0.5rem;
     font-size: 14px;
+    color: var(--c-on-surface-variant);
+    cursor: pointer;
+}
+
+.treeform-file::file-selector-button {
+    margin-right: 0.875rem;
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--c-primary);
+    background-color: var(--c-surface-lowest);
+    border: 1px solid var(--c-outline);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: background-color var(--transition);
+}
+
+.treeform-file:hover::file-selector-button {
+    background-color: var(--c-surface-container);
 }
 
 /* Rodzaj: dwie duże opcje; wybrana dostaje ciemną ramkę i tło. */

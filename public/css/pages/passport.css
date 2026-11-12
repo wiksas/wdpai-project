@@ -74,6 +74,11 @@
     gap: 2.5rem;
 }
 
+.passport-main > .passport-scan,
+.passport-main > .passport-sensor {
+    margin-top: 1rem;
+}
+
 /* Zdjęcie okazu: jedyny punkt skupienia ekranu */
 .passport-hero {
     position: relative;
@@ -1197,7 +1202,7 @@
 
 .passport-scan__cols {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: 1rem 1.5rem;
 }
 
@@ -1340,9 +1345,33 @@ label.passport-upload__label:has(+ input:focus-visible) {
         --passport-bleed: 1.5rem;
     }
 
+    /* Jedna kolumna: kolejność sekcji z DOM (hero, parametry, stan w lewej kolumnie, reszta w prawej) zastępuje `order`. */
     .passport-layout {
-        grid-template-columns: minmax(0, 1fr);
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
     }
+
+    .passport-main,
+    .passport-side {
+        display: contents;
+    }
+
+    .passport-main > .passport-scan,
+    .passport-main > .passport-sensor {
+        margin-top: 0;
+    }
+
+    .passport-hero { order: 1; }
+    .passport-specs { order: 2; }
+    .passport-status { order: 3; }
+    .passport-advice { order: 4; }
+    .passport-schedule { order: 5; }
+    .passport-history { order: 6; }
+    .passport-scan { order: 7; }
+    .passport-sensor { order: 8; }
+    .passport-photos { order: 9; }
+    .passport-remove { order: 10; }
 }
 
 @media (max-width: 768px) {
@@ -1366,14 +1395,13 @@ label.passport-upload__label:has(+ input:focus-visible) {
         color: var(--c-on-surface);
     }
 
-    .passport-layout,
-    .passport-main {
-        gap: 1.5rem;
+    .passport-layout {
+        gap: 2.25rem;
     }
 
-    .passport-side {
-        gap: 2.25rem;
-        margin-top: 0.75rem;
+    .passport-specs,
+    .passport-status {
+        margin-top: -0.75rem;
     }
 
     .passport-hero {
@@ -1562,4 +1590,20 @@ label.passport-upload__label:has(+ input:focus-visible) {
 
 .passport-scan__note {
     flex: 1 1 100%;
+}
+
+/* Na telefonie linki i rozwijane wiersze mają obszar dotyku co najmniej 44 px (padding równoważony ujemnym marginesem). */
+@media (max-width: 768px) {
+    .passport-schedule__all,
+    .passport-schedule__date a {
+        display: inline-block;
+        padding-block: 0.75rem;
+        margin-block: -0.75rem;
+    }
+
+    .passport-sensor__buy summary {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+    }
 }

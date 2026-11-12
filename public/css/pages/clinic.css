@@ -69,6 +69,7 @@
     flex-direction: column;
     gap: 1.5rem;
     margin-top: 1.5rem;
+    container-type: inline-size;
 }
 
 .clinic-parts {
@@ -87,8 +88,14 @@
 
 .clinic-parts__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
+}
+
+@container (min-width: 520px) {
+    .clinic-parts__grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 .clinic-part {
@@ -352,8 +359,17 @@
 }
 
 @media (max-width: 640px) {
+    .clinic-result {
+        padding: 1rem 1rem 1.25rem;
+    }
+
     .clinic-result__cols {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .clinic-result__schedule {
+        align-self: stretch;
+        padding-inline: 1rem;
     }
 }
 
@@ -959,10 +975,6 @@
 
 /* Responsywność */
 @media (max-width: 1180px) {
-    .clinic-parts__grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .clinic-protocol {
         grid-template-columns: minmax(0, 1fr);
     }

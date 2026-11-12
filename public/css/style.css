@@ -1437,12 +1437,15 @@ input[type="range"],
         row-gap: 0.5rem;
     }
 
+    /* Wiersz linków przewija się w poziomie; zanikający prawy brzeg zdradza, że jest ich więcej. */
     .site-nav {
         order: 3;
         width: 100%;
         margin-left: 0;
+        padding-right: 1.5rem;
         overflow-x: auto;
         scrollbar-width: none;
+        mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
     }
 
     .site-nav__link {
@@ -1571,6 +1574,38 @@ input[type="range"],
 
 @media (max-width: 400px) {
     .site-header .brand__text {
+        display: none;
+    }
+}
+
+/* Pasek górny aplikacji: znak, nazwa i trzy przyciski muszą zmieścić się w jednym rzędzie bez przycinania awatara. */
+@media (max-width: 480px) {
+    .app-topbar {
+        gap: 0.5rem;
+        padding-inline: 1rem;
+    }
+
+    .app-topbar__brand {
+        min-width: 0;
+        gap: 0.5rem;
+    }
+
+    .app-topbar__brand .brand__tag {
+        display: none;
+    }
+
+    .app-topbar__brand .brand__name {
+        font-size: 18px;
+    }
+
+    .app-topbar__actions {
+        flex-shrink: 0;
+        gap: 0.25rem;
+    }
+}
+
+@media (max-width: 340px) {
+    .app-topbar__brand .brand__text {
         display: none;
     }
 }
